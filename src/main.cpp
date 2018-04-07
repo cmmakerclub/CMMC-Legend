@@ -3,8 +3,10 @@
 #include <FS.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFSEditor.h>
+#include <CMMC_Blink.hpp>
 
 
+CMMC_Blink *blinker;
 const char* http_username = "admin";
 const char* http_password = "admin";
 
@@ -17,6 +19,12 @@ AsyncEventSource events("/events");
 const char* hostName = "CMMC-Legend";
 
 void setup() {
+    blinker = new CMMC_Blink;
+    pinMode(2, OUTPUT);
+    digitalWrite(2, LOW);
+    delay(1000);
+    blinker->init();
+    blinker->blink(500, 2);
     Serial.begin(57600);
     Serial.setDebugOutput(true);
     WiFi.hostname(hostName);
