@@ -1,5 +1,5 @@
 #include <AsyncWebSocket.h>
-
+extern String output;
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len){
   if(type == WS_EVT_CONNECT){
     Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());
@@ -107,47 +107,13 @@ void setupWebServer() {
 	server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
 		blinker->blink(100);
 		Serial.print(".....scan wifi >> ");
-		
+		// WiFi.disconnect();
+		// delay(100);
 		int n = WiFi.scanNetworks();
 		Serial.println(n);
-        String currentSSID = WiFi.SSID();
-        String output = "[";
-        for( int i=0; i<n; i++ ) {
-          if (output != "[") output += ',';
-          output += "{\"name\": ";
-          output += "\"";
-          output += WiFi.SSID(i);
-          output += "\"";
-          output += "}";
-		  Serial.println(WiFi.SSID(i));
-          yield();
-        }
-		output += "]";
 		Serial.println(output);
 		request->send(200, "text/plain", output);
 	});
-
-// server->on("/api/wifi/scan", HTTP_GET, []() {
-//         blinker.blink(1000, LED_BUILTIN);
-//         char myIpString[24];
-//         IPAddress myIp = WiFi.localIP();
-//         sprintf(myIpString, "%d.%d.%d.%d", IP2STR(&myIp));
-
-//         // Serial.printf("client connect %d.%d.%d.%d", IP2STR(&myIp));
-//         
-//         output += "]";
-//         // output += ",\"current\":\""+currentSSID+"\"";
-//         // output += ", \"ip\":\""+String( myIpString )+"\"";
-//         // output += ", \"host\":\""+host_name+"\"";
-//         // output += ", \"name\":\""+system_name+"\"";
-//         // output += ", \"version\":\""+String(firmware_version)+"\"";
-//         // output += ", \"spiffs\":\""+String(spiffs_version)+"\"";
-
-    //     Serial.println( output );
-    //     that->server->send(200, "text/json", output);
-    //   });
-
-
 
     server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
