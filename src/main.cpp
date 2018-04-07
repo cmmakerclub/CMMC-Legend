@@ -79,7 +79,6 @@ void scanAndUpdateSSIDoutput() {
     output += "\"encryption\": ";
     output += WiFi.encryptionType(i);
     output += "}";
-    Serial.println(WiFi.SSID(i));
     yield();
   }
   output += "]";
