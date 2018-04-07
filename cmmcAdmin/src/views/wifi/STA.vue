@@ -14,7 +14,7 @@
                 <select v-model="ssid">
                     <!--<option value="" disabled ssid hidden>Please Choose</option>-->
                     <option v-for="(val, idx) in access_points">
-                      {{ val.name }}
+                      {{ val.name }} - {{ val.rssi }}
                     </option>
                 </select>
               </span>

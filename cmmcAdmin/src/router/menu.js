@@ -41,12 +41,12 @@ export default [
       {
         name: 'NTP',
         path: 'general',
-        component: require('../views/wifi/Form')
+        component: require('../views/wifi/NTP')
       },
       {
         name: 'MQTT',
         path: 'mqtt',
-        component: require('../views/wifi/Form')
+        component: require('../views/wifi/MQTT')
       }
     ]
   },
@@ -84,6 +84,6 @@ export default [
       expanded: false
     },
     component: require('../views/charts'),
-    children: [ ]
+    children: []
   }
 ]

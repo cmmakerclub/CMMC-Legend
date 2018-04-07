@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-const Hapi = require('hapi');
+const Hapi = require('hapi')
 
 // Create a server with a host and port
-const server = new Hapi.Server();
+const server = new Hapi.Server()
 server.connection({
   host: 'localhost',
   port: 8000
-});
+})
 
 // Add the route
 server.route(
@@ -17,20 +17,33 @@ server.route(
     handler: function (request, reply) {
       const method = request.method
       const payload = request.payload
-      if (method === "post") {
+      if (method === 'post') {
         console.log(payload)
         let json = {status: 'failed'}
-        return reply(JSON.stringify(json));
+        return reply(JSON.stringify(json))
       }
-      else if (method === "get") {
-        let json = {'ssid': "THIS IS SSID", 'password': 'THIS IS PASSWORD'}
-        return reply(JSON.stringify(json));
+      else if (method === 'get') {
+        let json = {'ssid': 'THIS IS SSID', 'password': 'THIS IS PASSWORD'}
+        return reply(JSON.stringify(json))
       }
       else {
-        return replay("not implemented.")
+        return replay('not implemented.')
       }
     },
-  });
+  })
+
+server.route(
+  {
+    method: ['GET', 'POST'],
+    path: '/api/mqtt',
+    handler: function (request, reply) {
+      console.log('/api/mqtt', request.payload)
+      let ret = [{result: 'failed'}, {result: 'success', current: 'ESPERT-3020', ip: '192.168.1.1'}]
+      let json = ret[Math.floor(Math.random(100) * 10) % 2]
+      return reply(JSON.stringify(json))
+    },
+  })
+
 server.route(
   {
     method: ['GET', 'POST'],
@@ -38,9 +51,10 @@ server.route(
     handler: function (request, reply) {
       let ret = [{result: 'failed'}, {result: 'success', current: 'ESPERT-3020', ip: '192.168.1.1'}]
       let json = ret[Math.floor(Math.random(100) * 10) % 2]
-      return reply(JSON.stringify(json));
+      return reply(JSON.stringify(json))
     },
-  });
+  })
+
 server.route(
   {
     method: ['GET'],
@@ -56,16 +70,15 @@ server.route(
         [{name: 'Bud Jemmy Paulie'}, {name: 'Julian Nigellus Devin'}]
       ]
       let idx = parseInt((Math.random() * 100)) % list.length
-      return reply(JSON.stringify(list[idx]));
+      return reply(JSON.stringify(list[idx]))
     },
-  });
-
+  })
 
 // Start the server
 server.start((err) => {
 
   if (err) {
-    throw err;
+    throw err
   }
-  console.log('Server running at:', server.info.uri);
-});
+  console.log('Server running at:', server.info.uri)
+})
