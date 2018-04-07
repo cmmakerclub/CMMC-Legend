@@ -105,6 +105,7 @@ void setupWebServer() {
     });
 
 	server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest *request) {
+		blinker->blink(100);
 		Serial.print(".....scan wifi >> ");
 		
 		int n = WiFi.scanNetworks();
