@@ -107,17 +107,24 @@ void setupWebServer() {
 
 server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
     int params = request->params();
+    String output = "{";
     for(int i=0;i<params;i++){
       AsyncWebParameter* p = request->getParam(i);
       if(p->isPost()){
+
+    
         const char* key = p->name().c_str();
         const char* value = p->value().c_str();
         Serial.printf("POST[%s]: %s\n", key, value);
-        configManager.add_field(key, value);        
+        output += "\"" + String(key) + "\"";
+        output += ":\"" + String(value) + "\",";
+        configManager.add_field(key, value);    
       }
     }
-    configManager.commit();
-    request->send(200, "application/json", "{\"status\": \"OK!\"}");
+    output += "}";
+    configManager.commit(); 
+    Serial.println(output);
+    request->send(200, "application/json", output);
 });
 
   server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest * request) {
