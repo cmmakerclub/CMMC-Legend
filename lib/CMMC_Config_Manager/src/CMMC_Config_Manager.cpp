@@ -29,6 +29,7 @@ void CMMC_Config_Manager::commit() {
       root->set(it->first, it->second);
     }
     root->printTo(_this->configFile);
+    root->printTo(Serial);
     size_t size = _this->configFile.size() + 1;
     Serial.printf("config file size =%d \r\n", _this->configFile.size());
     _this->configFile.close();

@@ -49,13 +49,13 @@ Serial.println("HELLO........");
   mqttConfigManager.init("/mymqtt.json");
   configManager.init("/myconfig.json"); 
 
-  configManager.add_debug_listener([](const char* m) {
-    Serial.println(m);
-  });
+  // configManager.add_debug_listener([](const char* m) {
+  //   Serial.println(m);
+  // });
 
-  mqttConfigManager.add_debug_listener([](const char* m) {
-    Serial.println(m);
-  });
+  // mqttConfigManager.add_debug_listener([](const char* m) {
+  //   Serial.println(m);
+  // });
 
   configManager.load_config([](JsonObject * root) {
     Serial.println("[user] json loaded..");
@@ -116,9 +116,8 @@ void loop() {
     flag_needs_commit = false;
     flag_busy = true;
     Serial.println("be commited.");
-    configManager.commit(); 
     mqttConfigManager.commit(); 
-    delay(10);
+    configManager.commit(); 
     flag_busy = false;
     Serial.println("fs commited.");
   }

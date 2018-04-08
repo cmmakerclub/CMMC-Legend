@@ -136,14 +136,17 @@ server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
         } 
         Serial.printf("POST[%s]: %s\n", key, value);
         output += "\"" + String(key) + "\"";
-        output += ":\"" + v + "\",";
+        if (i == params -1 ) {
+          output += ":\"" + v + "\""; 
+        }
+        else {
+          output += ":\"" + v + "\","; 
+        }
         mqttConfigManager.add_field(key, v.c_str());    
       }
     }
     output += "}";
     Serial.println(output);
-    configManager.add_field("test1", "OK");
-    configManager.add_field("test2", "OK");
     request->send(200, "application/json", output);
     flag_busy = false;
     flag_needs_commit = true;
