@@ -66,7 +66,6 @@
         let ctx = this
         getConfig(ctx).then((configs) => {
           Object.entries(configs).forEach(([key, value]) => {
-            console.log(key, value)
             ctx[key] = value
           })
         })
@@ -75,7 +74,7 @@
     data () {
       return {
         server_response: '',
-        mqtot_username: '',
+        mqtt_username: '',
         mqtt_password: '',
         mqtt_clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
         mqtt_host: '',
