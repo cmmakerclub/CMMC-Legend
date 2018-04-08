@@ -12,27 +12,27 @@
           </div>
           <label class="label">Host</label>
           <p class="control has-icon">
-            <input required class="input" type="text" placeholder="example mqtt.cmmc.io" v-model="host">
+            <input required class="input" type="text" placeholder="example mqtt.cmmc.io" v-model="mqtt_host">
             <i class="fa fa-connectdevelop"></i>
           </p>
           <label class="label">Port</label>
           <p class="control has-icon">
-            <input required class="input" type="number" v-model="port">
+            <input required class="input" type="number" v-model="mqtt_port">
             <i class="fa fa-exchange"></i>
           </p>
           <label class="label">ClientID</label>
           <p class="control has-icon">
-            <input required class="input" type="text" v-model="clientId">
+            <input required class="input" type="text" v-model="mqtt_clientId">
             <i class="fa fa-vcard-o"></i>
           </p>
           <label class="label">Username</label>
           <p class="control has-icon">
-            <input required class="input" type="text" placeholder="Username" v-model="username">
+            <input required class="input" type="text" placeholder="Username" v-model="mqtt_username">
             <i class="fa fa-user"></i>
           </p>
           <label class="label">Password</label>
           <p class="control has-icon">
-            <input required class="input" type="password" placeholder="Password" v-model="password">
+            <input required class="input" type="password" placeholder="Password" v-model="mqtt_password">
             <i class="fa fa-lock"></i>
           </p>
           <div class="control">
@@ -47,13 +47,14 @@
 </template>
 
 <script>
-  import {saveMqttConfig} from '../../api'
+  import { saveMqttConfig } from '../../api'
+
   export default {
     components: {},
     methods: {
       onSubmit () {
         let context = this
-        saveMqttConfig(context, context.username, context.password, context.clientId, context.host, context.port)
+        saveMqttConfig(context, context.mqtt_username, context.mqtt_password, context.mqtt_clientId, context.mqtt_host, context.mqtt_port)
           .then((resp) => {
             this.server_response = resp
           })
@@ -65,11 +66,11 @@
     data () {
       return {
         server_response: '',
-        username: '',
-        password: '',
-        clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
-        host: '',
-        port: ''
+        mqtt_username: '',
+        mqtt_password: '',
+        mqtt_clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
+        mqtt_host: '',
+        mqtt_port: ''
       }
     }
   }

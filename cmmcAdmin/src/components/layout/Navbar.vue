@@ -21,45 +21,45 @@
 </template>
 
 <script>
-export default {
+  export default {
 
-  props: {
-    show: Boolean
+    props: {
+      show: Boolean
+    }
+
   }
-
-}
 </script>
 
 <style lang="scss">
-@import '~bulma/sass/utilities/variables';
+  @import '~bulma/sass/utilities/variables';
 
-.app-navbar {
-  position: fixed;
-  min-width: 100%;
-  z-index: 1024;
-  box-shadow: 0 2px 3px rgba(17, 17, 17, 0.1), 0 0 0 1px rgba(17, 17, 17, 0.1);
+  .app-navbar {
+    position: fixed;
+    min-width: 100%;
+    z-index: 1024;
+    box-shadow: 0 2px 3px rgba(17, 17, 17, 0.1), 0 0 0 1px rgba(17, 17, 17, 0.1);
 
-  .container {
-    margin: auto 10px;
+    .container {
+      margin: auto 10px;
+    }
+
+    .nav-right {
+      align-items: stretch;
+      flex: 1;
+      justify-content: flex-end;
+      overflow: hidden;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
   }
 
-  .nav-right {
-    align-items: stretch;
-    flex: 1;
-    justify-content: flex-end;
-    overflow: hidden;
-    overflow-x: auto;
-    white-space: nowrap;
+  .hero-brand {
+    .vue {
+      margin-left: 10px;
+      color: #36AC70;
+    }
+    .admin {
+      color: #28374B;
+    }
   }
-}
-
-.hero-brand {
-  .vue {
-    margin-left: 10px;
-    color: #36AC70;
-  }
-  .admin {
-    color: #28374B;
-  }
-}
 </style>

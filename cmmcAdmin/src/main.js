@@ -10,8 +10,8 @@ Vue.use(Resource)
 
 sync(store, router)
 
-const { state } = store
-const { config } = state
+const {state} = store
+const {config} = state
 
 router.beforeEach((route, redirect, next) => {
   if (config.mobile && config.sidebar) {
