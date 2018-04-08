@@ -4,41 +4,45 @@
     <section class="section">
       <div class="columns">
         <div class="column">
-          <div class="heading">
-            <h1 class="title">MQTT CONFIGURATION</h1>
-          </div>
-          <div v-if="server_response" class="notification is-primary">
-            {{ server_response }}
-          </div>
-          <label class="label">Host</label>
-          <p class="control has-icon">
-            <input required class="input" type="text" v-model="mqtt_host">
-            <i class="fa fa-connectdevelop"></i>
-          </p>
-          <label class="label">Port</label>
-          <p class="control has-icon">
-            <input required class="input" type="number" v-model="mqtt_port">
-            <i class="fa fa-exchange"></i>
-          </p>
-          <label class="label">ClientID</label>
-          <p class="control has-icon">
-            <input required class="input" type="text" v-model="mqtt_clientId">
-            <i class="fa fa-vcard-o"></i>
-          </p>
-          <label class="label">Username</label>
-          <p class="control has-icon">
-            <input required class="input" type="text" v-model="mqtt_username">
-            <i class="fa fa-user"></i>
-          </p>
-          <label class="label">Password</label>
-          <p class="control has-icon">
-            <input required class="input" type="password" v-model="mqtt_password">
-            <i class="fa fa-lock"></i>
-          </p>
-          <div class="control">
-            <button class="button is-primary" v-on:click="onSubmit">Submit</button>
-            <button class="button is-link">Cancel</button>
-          </div>
+
+          <form action="#">
+            <div class="heading">
+              <h1 class="title">MQTT CONFIGURATION</h1>
+            </div>
+            <div v-if="server_response" class="notification is-primary">
+              {{ server_response }}
+            </div>
+            <label class="label">Host</label>
+            <p class="control has-icon">
+              <input required class="input" type="text" v-model="mqtt_host">
+              <i class="fa fa-connectdevelop"></i>
+            </p>
+            <label class="label">Port</label>
+            <p class="control has-icon">
+              <input required class="input" type="number" v-model="mqtt_port">
+              <i class="fa fa-exchange"></i>
+            </p>
+            <label class="label">ClientID</label>
+            <p class="control has-icon">
+              <input required class="input" type="text" v-model="mqtt_clientId">
+              <i class="fa fa-vcard-o"></i>
+            </p>
+            <label class="label">Username</label>
+            <p class="control has-icon">
+              <input required class="input" type="text" v-model="mqtt_username">
+              <i class="fa fa-user"></i>
+            </p>
+            <label class="label">Password</label>
+            <p class="control has-icon">
+              <input required class="input" type="password" v-model="mqtt_password">
+              <i class="fa fa-lock"></i>
+            </p>
+            <div class="control">
+              <button class="button is-primary" v-on:click="onSubmit">Submit</button>
+              <button class="button is-link">Cancel</button>
+            </div>
+          </form>
+
         </div>
       </div>
     </section>
