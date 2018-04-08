@@ -25,6 +25,8 @@ char mqtt_pass[30];
 char mqtt_clientId[30];
 char mqtt_port[10];
 
+char mqtt_config_json[120];
+
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
@@ -51,7 +53,6 @@ void setup() {
   WiFi.mode(WIFI_OFF);
   delay(20);
 
-Serial.println("HELLO........");
   mqttConfigManager.init("/mymqtt.json");
   configManager.init("/myconfig.json"); 
 
@@ -71,24 +72,23 @@ Serial.println("HELLO........");
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
-    // root->printTo(Serial);
     Serial.println(content); 
-    Serial.println(content); 
-    Serial.println(content); 
-    Serial.println(content); 
-    Serial.println(content); 
+    strcpy(mqtt_config_json, content); 
     const char* h = (*root)["h"];
     const char* u = (*root)["usr"];
     const char* pwd = (*root)["pwd"];
     const char* cid = (*root)["cid"];
     const char* port = (*root)["port"];
-    strcpy(mqtt_host, h);
-    strcpy(mqtt_user, u);
-    strcpy(mqtt_pass, pwd);
-    strcpy(mqtt_clientId, cid);
-    strcpy(mqtt_port, port); 
-    Serial.printf("host = %s port =%s, user = %s, pass = %s, clientId = %s", h, port, u, pwd, cid);
-    Serial.println();
+
+    if (h != NULL) {
+      strcpy(mqtt_host, h);
+      strcpy(mqtt_user, u);
+      strcpy(mqtt_pass, pwd);
+      strcpy(mqtt_clientId, cid);
+      strcpy(mqtt_port, port); 
+      Serial.printf("host = %s port =%s, user = %s, pass = %s, clientId = %s", h, port, u, pwd, cid);
+      Serial.println(); 
+    }
   });
 
 

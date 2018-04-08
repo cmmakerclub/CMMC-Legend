@@ -12,6 +12,7 @@ extern const char* http_password;
 extern CMMC_Blink *blinker;
 extern bool flag_busy;
 extern bool flag_needs_commit;
+extern char mqtt_config_json[120];
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -116,6 +117,10 @@ void setupWebServer() {
   server.on("/heap", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
   });
+
+server.on("/api/mqtt", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(200, "application/json", mqtt_config_json); 
+});
 
 server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
     flag_busy = true;
