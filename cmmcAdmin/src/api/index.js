@@ -14,9 +14,9 @@ export function getAPConfig (context) {
   return promise
 }
 
-export function getConfig (context) {
+export function getConfig (context, type = 'mqtt') {
   let promise = new Vue.Promise((resolve, reject) => {
-    context.$http.get('/api/config')
+    context.$http.get(`/api/${type}/config`)
       .then((response) => response.json())
       .then((json) => {
         resolve(json)
@@ -47,11 +47,11 @@ export function saveAPConfig (context, ssid, pass) {
 
 export function saveMqttConfig (context, username, password, clientId, host, port) {
   var formData = new window.FormData()
-  formData.append('mqtt_username', username)
-  formData.append('mqtt_password', password)
-  formData.append('mqtt_clientId', clientId)
-  formData.append('mqtt_port', port)
-  formData.append('mqtt_host', host)
+  formData.append('h', host)
+  formData.append('usr', username)
+  formData.append('pwd', password)
+  formData.append('cid', clientId)
+  formData.append('port', port)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/mqtt', formData)
       .then((response) => response.json())

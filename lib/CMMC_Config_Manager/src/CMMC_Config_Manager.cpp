@@ -1,10 +1,16 @@
 #include "CMMC_Config_Manager.h"
 #include "FS.h"
 
+CMMC_Config_Manager::CMMC_Config_Manager() {
+      this->_user_debug_cb = [](const char* s) { };
+}
+CMMC_Config_Manager::~CMMC_Config_Manager() {
+      configFile.close();
+}
+
 void CMMC_Config_Manager::init(const char* filename) {   
   strcpy(this->filename_c, filename);
   USER_DEBUG_PRINTF("initializing SPIFFS ...");
-  SPIFFS.begin();
   Dir dir = SPIFFS.openDir("/");
   while (dir.next()) {
     String fileName = dir.fileName();
@@ -16,11 +22,15 @@ void CMMC_Config_Manager::init(const char* filename) {
 void CMMC_Config_Manager::commit() {
   static CMMC_Config_Manager *_this = this;
   load_config([](JsonObject * root) {
+    Serial.println("loading config...");
     _this->configFile = SPIFFS.open(_this->filename_c, "w");
+    Serial.println(_this->configFile);
     for (Items::iterator it = _this->items.begin(); it != _this->items.end(); ++it) {
       root->set(it->first, it->second);
     }
     root->printTo(_this->configFile);
+    size_t size = _this->configFile.size() + 1;
+    Serial.printf("config file size =%d \r\n", _this->configFile.size());
     _this->configFile.close();
   });
 }
@@ -28,16 +38,17 @@ void CMMC_Config_Manager::commit() {
 void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   strcpy(this->_k, key);
   strcpy(this->_v, value);
-  USER_DEBUG_PRINTF(">>>[add_field] with %s:%s", key, value);
+  USER_DEBUG_PRINTF("___ START [add_field] with %s:%s", key, value);
   static CMMC_Config_Manager *_this = this;
   items[_k] = _v;
   // show content:
+  USER_DEBUG_PRINTF("Iterate through items...");
   for (Items::iterator it = items.begin(); it != items.end(); ++it) {
-    USER_DEBUG_PRINTF(":::: %s->%s", it->first.c_str(), it->second.c_str());
+    USER_DEBUG_PRINTF("> %s->%s", it->first.c_str(), it->second.c_str());
   }
 
   // USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
-  USER_DEBUG_PRINTF(">>>/[add_field]");
+  USER_DEBUG_PRINTF("___ END add field");
 }
 
 void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
@@ -48,6 +59,7 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   bzero(buf.get(), size + 1);
   configFile.readBytes(buf.get(), size);
   configFile.close();
+  USER_DEBUG_PRINTF("[load_config] size = %d\r\n", size); 
   USER_DEBUG_PRINTF("[load_config] config content ->%s<-", buf.get());
   JsonObject& json = this->jsonBuffer.parseObject(buf.get());
   if (json.success()) {

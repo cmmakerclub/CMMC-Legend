@@ -75,7 +75,7 @@
     data () {
       return {
         server_response: '',
-        mqtt_username: '',
+        mqtot_username: '',
         mqtt_password: '',
         mqtt_clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
         mqtt_host: '',

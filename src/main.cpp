@@ -9,8 +9,12 @@
 #include "ESP8266WiFi.h"
 #include "webserver.h"
 
+bool flag_busy = false;
+bool flag_needs_commit = false;
 CMMC_Blink *blinker;
-CMMC_Config_Manager configManager;
+
+CMMC_Config_Manager configManager; 
+CMMC_Config_Manager mqttConfigManager; 
 
 const char* http_username = "admin";
 const char* http_password = "admin";
@@ -33,6 +37,7 @@ void setup() {
   blinker->init();
   blinker->blink(500, 2);
   Serial.begin(57600);
+
   Serial.setDebugOutput(true);
   WiFi.softAPdisconnect();
   WiFi.disconnect();
@@ -40,17 +45,32 @@ void setup() {
   WiFi.mode(WIFI_OFF);
   delay(20);
 
-  configManager.init("/myconfig.json");
+Serial.println("HELLO........");
+  mqttConfigManager.init("/mymqtt.json");
+  configManager.init("/myconfig.json"); 
+
+  configManager.add_debug_listener([](const char* m) {
+    Serial.println(m);
+  });
+
+  mqttConfigManager.add_debug_listener([](const char* m) {
+    Serial.println(m);
+  });
+
   configManager.load_config([](JsonObject * root) {
     Serial.println("[user] json loaded..");
     root->printTo(Serial);
     Serial.println();
   });
 
+  mqttConfigManager.load_config([](JsonObject * root) {
+    Serial.println("[user] mqtt config json loaded..");
+    root->printTo(Serial);
+    Serial.println();
+  });
+
 
   WiFi.mode(WIFI_STA);
-
-
   scanAndUpdateSSIDoutput();
   WiFi.hostname(hostName);
   WiFi.mode(WIFI_AP_STA);
@@ -86,8 +106,22 @@ void scanAndUpdateSSIDoutput() {
 
 void loop() {
   interval.every_ms(20L * 1000, []() {
-    scanAndUpdateSSIDoutput();
+    while (flag_busy) {
+      delay(100); 
+    }
+    // scanAndUpdateSSIDoutput(); 
   });
+  
+  if (flag_needs_commit) {
+    flag_needs_commit = false;
+    flag_busy = true;
+    Serial.println("be commited.");
+    configManager.commit(); 
+    mqttConfigManager.commit(); 
+    delay(10);
+    flag_busy = false;
+    Serial.println("fs commited.");
+  }
   // put your main code here, to run repeatedly:
 }
 
