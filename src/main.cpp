@@ -65,6 +65,17 @@ Serial.println("HELLO........");
 
   mqttConfigManager.load_config([](JsonObject * root) {
     Serial.println("[user] mqtt config json loaded..");
+    // {"cid":"clientId-23ea30e1d7","h":"sdfsdf","port":"1111","pwd":"sdfsdfff","usr":"sdf"}config file size =85 
+    char mqtt_host[30];
+    char mqtt_user[30];
+    char mqtt_pass[30];
+    char mqtt_clientId[30];
+    char mqtt_port[10];
+     strcpy(mqtt_host, (*root)["h"]);
+     strcpy(mqtt_user, (*root)["usr"]);
+     strcpy(mqtt_pass, (*root)["pwd"]);
+     strcpy(mqtt_clientId, (*root)["cid"]);
+     strcpy(mqtt_port, (*root)["port"]);
     root->printTo(Serial);
     Serial.println();
   });

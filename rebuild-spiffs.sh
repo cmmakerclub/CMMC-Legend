@@ -13,4 +13,4 @@ rm -v dist/static/fonts/*.woff2
 
 popd 
 rsync --delete -av cmmcAdmin/dist/ data --progress
-pio run -t uploadfs 
+# pio run -t uploadfs 
