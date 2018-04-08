@@ -65,8 +65,8 @@
           })
       },
       fetchAPs () {
-        let context = this
-        getAccessPoints(context).then((aps) => {
+        let ctx = this
+        getAccessPoints(ctx).then((aps) => {
           aps.forEach((ap, k) => {
             this.map.set(ap.name, ap)
           })

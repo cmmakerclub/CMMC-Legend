@@ -12,7 +12,7 @@
           </div>
           <label class="label">Host</label>
           <p class="control has-icon">
-            <input required class="input" type="text" placeholder="example mqtt.cmmc.io" v-model="mqtt_host">
+            <input required class="input" type="text" v-model="mqtt_host">
             <i class="fa fa-connectdevelop"></i>
           </p>
           <label class="label">Port</label>
@@ -27,12 +27,12 @@
           </p>
           <label class="label">Username</label>
           <p class="control has-icon">
-            <input required class="input" type="text" placeholder="Username" v-model="mqtt_username">
+            <input required class="input" type="text" v-model="mqtt_username">
             <i class="fa fa-user"></i>
           </p>
           <label class="label">Password</label>
           <p class="control has-icon">
-            <input required class="input" type="password" placeholder="Password" v-model="mqtt_password">
+            <input required class="input" type="password" v-model="mqtt_password">
             <i class="fa fa-lock"></i>
           </p>
           <div class="control">
@@ -47,7 +47,7 @@
 </template>
 
 <script>
-  import { saveMqttConfig } from '../../api'
+  import { saveMqttConfig, getConfig } from '../../api'
 
   export default {
     components: {},
@@ -61,6 +61,15 @@
           .catch((err) => {
             console.log('error', err)
           })
+      },
+      fetchConfig () {
+        let ctx = this
+        getConfig(ctx).then((configs) => {
+          Object.entries(configs).forEach(([key, value]) => {
+            console.log(key, value)
+            ctx[key] = value
+          })
+        })
       }
     },
     data () {
@@ -72,6 +81,17 @@
         mqtt_host: '',
         mqtt_port: ''
       }
+    },
+    created () {
+      console.log('on created.')
+      let ctx = this
+      ctx.loadConfig = () => {
+        ctx.loading = true
+        ctx.fetchConfig()
+      }
+    },
+    mounted () {
+      this.loadConfig()
     }
   }
 </script>

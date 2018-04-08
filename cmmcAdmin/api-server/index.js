@@ -23,7 +23,7 @@ server.route(
         return reply(JSON.stringify(json))
       }
       else if (method === 'get') {
-        let json = {'ssid': 'THIS IS SSID', 'password': 'THIS IS PASSWORD'}
+        let json = {'ssid': 'SSID FROM API', 'password': 'PASSWORD FROM API'}
         return reply(JSON.stringify(json))
       }
       else {
@@ -52,6 +52,22 @@ server.route(
       let ret = [{result: 'failed'}, {result: 'success', current: 'ESPERT-3020', ip: '192.168.1.1'}]
       let json = ret[Math.floor(Math.random(100) * 10) % 2]
       return reply(JSON.stringify(json))
+    },
+  })
+
+server.route(
+  {
+    method: ['GET', 'POST'],
+    path: '/api/config',
+    handler: function (request, reply) {
+      let ret = {
+        mqtt_host: 'odin.cmmc.io',
+        mqtt_port: '1883',
+        mqtt_username: 'cmmc',
+        mqtt_password: 'cmmc',
+        mqtt_clientId: 'clientId-RANDOM'
+      }
+      return reply(JSON.stringify(ret))
     },
   })
 

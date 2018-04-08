@@ -11,13 +11,13 @@
             {{ server_response }}
           </div>
           <p class="control has-icon">
-            <input class="input" placeholder="AP Name" v-model="ssid">
+            <input class="input" v-model="ssid">
             <i class="fa fa-wifi"></i>
             {{ ssid }}
           </p>
           <label class="label">Password</label>
           <p class="control has-icon">
-            <input class="input" type="text" placeholder="Password" v-model="password">
+            <input class="input" type="text" v-model="password">
             <i class="fa fa-lock"></i>
             {{ password }}
           </p>
@@ -32,7 +32,8 @@
 </template>
 
 <script>
-  import {saveAPConfig, getAPConfig} from '../../api'
+  import { saveAPConfig, getAPConfig } from '../../api'
+
   export default {
     components: {},
 
@@ -42,12 +43,12 @@
       onSubmit () {
         let context = this
         saveAPConfig(context, context.ssid, context.password)
-        .then((resp) => {
-          this.server_response = resp
-        })
-        .catch((err) => {
-          console.log('error', err)
-        })
+          .then((resp) => {
+            this.server_response = resp
+          })
+          .catch((err) => {
+            console.log('error', err)
+          })
       }
     },
     data () {
@@ -60,16 +61,14 @@
         password: ''
       }
     },
-
     mounted () {
-      console.log('mounted')
       getAPConfig(this).then((json) => {
         this.ssid = json.ssid
         this.password = json.password
       })
-      .catch((err) => {
-        console.log('error:', err)
-      })
+        .catch((err) => {
+          console.log('error:', err)
+        })
     }
   }
 </script>
