@@ -21,7 +21,7 @@ void CMMC_Config_Manager::init(const char* filename) {
 
 void CMMC_Config_Manager::commit() {
   static CMMC_Config_Manager *_this = this;
-  load_config([](JsonObject * root) {
+  load_config([](JsonObject * root, const char* content) {
     Serial.println("loading config...");
     _this->configFile = SPIFFS.open(_this->filename_c, "w");
     Serial.println(_this->configFile);
@@ -60,14 +60,15 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   bzero(buf.get(), size + 1);
   configFile.readBytes(buf.get(), size);
   configFile.close();
+  const char* b = buf.get();
   USER_DEBUG_PRINTF("[load_config] size = %d\r\n", size); 
-  USER_DEBUG_PRINTF("[load_config] config content ->%s<-", buf.get());
-  JsonObject& json = this->jsonBuffer.parseObject(buf.get());
+  USER_DEBUG_PRINTF("[load_config] config content ->%s<-", b);
+  JsonObject& json = this->jsonBuffer.parseObject(b);
   if (json.success()) {
     USER_DEBUG_PRINTF("[load_config] Parsing config success.");
     if (cb != NULL) {
       USER_DEBUG_PRINTF("[load_config] calling callback fn");
-      cb(&json);
+      cb(&json, b);
     }
   }
   else {

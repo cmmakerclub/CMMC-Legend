@@ -23,7 +23,7 @@ typedef void (*cmmc_err_status_t)(u8 status, const char* cause);
 typedef void (*cmmc_succ_status_t)(u8 status);
 typedef void (*cmmc_debug_cb_t)(const char* cause);
 typedef void (*cmmc_dump_cb_t)(const char* msg, const char* k, const char* v);
-typedef void (*cmmc_json_loaded_cb_t)(JsonObject* root);
+typedef void (*cmmc_json_loaded_cb_t)(JsonObject* root, const char* content);
 typedef std::map<String, String> Items;
 
 #define USER_DEBUG_PRINTF(fmt, args...) { \
@@ -45,6 +45,7 @@ class CMMC_Config_Manager
     void add_debug_listener(cmmc_debug_cb_t cb);
     void add_field(const char* key, const char* value);
     void dump_json_object(cmmc_dump_cb_t printer);
+    const char* fileContent = 0;
 
   private:
     void _init_json_file(cmmc_json_loaded_cb_t cb = NULL);

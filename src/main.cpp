@@ -63,16 +63,20 @@ Serial.println("HELLO........");
   //   Serial.println(m);
   // });
 
-  configManager.load_config([](JsonObject * root) {
+  configManager.load_config([](JsonObject * root, const char* content) {
     Serial.println("[user] json loaded..");
     root->printTo(Serial);
     Serial.println();
   });
 
-  mqttConfigManager.load_config([](JsonObject * root) {
+  mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
-
-    root->printTo(Serial);
+    // root->printTo(Serial);
+    Serial.println(content); 
+    Serial.println(content); 
+    Serial.println(content); 
+    Serial.println(content); 
+    Serial.println(content); 
     const char* h = (*root)["h"];
     const char* u = (*root)["usr"];
     const char* pwd = (*root)["pwd"];
