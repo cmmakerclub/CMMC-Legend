@@ -19,6 +19,12 @@ CMMC_Config_Manager mqttConfigManager;
 const char* http_username = "admin";
 const char* http_password = "admin";
 
+char mqtt_host[30];
+char mqtt_user[30];
+char mqtt_pass[30];
+char mqtt_clientId[30];
+char mqtt_port[10];
+
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
@@ -65,18 +71,19 @@ Serial.println("HELLO........");
 
   mqttConfigManager.load_config([](JsonObject * root) {
     Serial.println("[user] mqtt config json loaded..");
-    // {"cid":"clientId-23ea30e1d7","h":"sdfsdf","port":"1111","pwd":"sdfsdfff","usr":"sdf"}config file size =85 
-    char mqtt_host[30];
-    char mqtt_user[30];
-    char mqtt_pass[30];
-    char mqtt_clientId[30];
-    char mqtt_port[10];
-     strcpy(mqtt_host, (*root)["h"]);
-     strcpy(mqtt_user, (*root)["usr"]);
-     strcpy(mqtt_pass, (*root)["pwd"]);
-     strcpy(mqtt_clientId, (*root)["cid"]);
-     strcpy(mqtt_port, (*root)["port"]);
+
     root->printTo(Serial);
+    const char* h = (*root)["h"];
+    const char* u = (*root)["usr"];
+    const char* pwd = (*root)["pwd"];
+    const char* cid = (*root)["cid"];
+    const char* port = (*root)["port"];
+    strcpy(mqtt_host, h);
+    strcpy(mqtt_user, u);
+    strcpy(mqtt_pass, pwd);
+    strcpy(mqtt_clientId, cid);
+    strcpy(mqtt_port, port); 
+    Serial.printf("host = %s port =%s, user = %s, pass = %s, clientId = %s", h, port, u, pwd, cid);
     Serial.println();
   });
 
