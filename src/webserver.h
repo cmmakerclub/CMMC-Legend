@@ -1,6 +1,15 @@
 #include <AsyncWebSocket.h>
 extern String output;
 extern CMMC_Config_Manager configManager;
+
+extern AsyncWebServer server;
+extern AsyncWebSocket ws;
+extern AsyncEventSource events;
+extern CMMC_Interval interval;
+extern const char* http_username;
+extern const char* http_password;
+extern CMMC_Blink *blinker;
+
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
     Serial.printf("ws[%s][%u] connect\n", server->url(), client->id());

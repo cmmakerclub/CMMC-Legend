@@ -7,6 +7,7 @@
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
 #include "ESP8266WiFi.h"
+#include "webserver.h"
 
 CMMC_Blink *blinker;
 CMMC_Config_Manager configManager;
@@ -18,8 +19,6 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 CMMC_Interval interval;
-
-#include "webserver.h"
 
 const char* hostName = "CMMC-Legend";
 String output;
