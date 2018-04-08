@@ -58,14 +58,14 @@ server.route(
 server.route(
   {
     method: ['GET', 'POST'],
-    path: '/api/config',
+    path: '/api/mqtt/config',
     handler: function (request, reply) {
       let ret = {
-        mqtt_host: 'odin.cmmc.io',
-        mqtt_port: '1883',
-        mqtt_username: 'cmmc',
-        mqtt_password: 'cmmc',
-        mqtt_clientId: 'clientId-RANDOM'
+        h: 'odin.cmmc.io',
+        port: '1883',
+        usr: 'cmmc',
+        pwd: 'cmmc',
+        cid: 'clientId-RANDOM'
       }
       return reply(JSON.stringify(ret))
     },

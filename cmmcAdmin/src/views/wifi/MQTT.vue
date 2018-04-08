@@ -14,27 +14,27 @@
             </div>
             <label class="label">Host</label>
             <p class="control has-icon">
-              <input required class="input" type="text" v-model="mqtt_host">
+              <input class="input" type="text" v-model="h" required>
               <i class="fa fa-connectdevelop"></i>
             </p>
             <label class="label">Port</label>
             <p class="control has-icon">
-              <input required class="input" type="number" v-model="mqtt_port">
+              <input class="input" type="number" v-model="port" required>
               <i class="fa fa-exchange"></i>
             </p>
             <label class="label">ClientID</label>
             <p class="control has-icon">
-              <input required class="input" type="text" v-model="mqtt_clientId">
+              <input class="input" type="text" v-model="cid" required>
               <i class="fa fa-vcard-o"></i>
             </p>
             <label class="label">Username</label>
             <p class="control has-icon">
-              <input required class="input" type="text" v-model="mqtt_username">
+              <input class="input" type="text" v-model="usr">
               <i class="fa fa-user"></i>
             </p>
             <label class="label">Password</label>
             <p class="control has-icon">
-              <input required class="input" type="password" v-model="mqtt_password">
+              <input class="input" type="password" v-model="pwd">
               <i class="fa fa-lock"></i>
             </p>
             <div class="control">
@@ -78,11 +78,11 @@
     data () {
       return {
         server_response: '',
-        mqtt_username: '',
-        mqtt_password: '',
-        mqtt_clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
-        mqtt_host: '',
-        mqtt_port: ''
+        usr: '',
+        pwd: '',
+        cid: `clientId-${Math.random().toString(15).substr(2, 10)}`,
+        h: '',
+        port: ''
       }
     },
     created () {
