@@ -1,6 +1,7 @@
 #include <AsyncWebSocket.h>
 extern String output;
 extern CMMC_Config_Manager configManager;
+extern CMMC_Config_Manager mqttConfigManager;
 
 extern AsyncWebServer server;
 extern AsyncWebSocket ws;
@@ -9,6 +10,8 @@ extern CMMC_Interval interval;
 extern const char* http_username;
 extern const char* http_password;
 extern CMMC_Blink *blinker;
+extern bool flag_busy;
+extern bool flag_needs_commit;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -115,25 +118,38 @@ void setupWebServer() {
   });
 
 server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
+    flag_busy = true;
     int params = request->params();
     String output = "{";
     for(int i=0;i<params;i++){
       AsyncWebParameter* p = request->getParam(i);
-      if(p->isPost()){
-
-    
+      if(p->isPost()){ 
         const char* key = p->name().c_str();
         const char* value = p->value().c_str();
+        String v;
+        if (value == 0) { 
+          Serial.println("value is null.."); 
+          v = String("");
+        }
+        else {
+          v = String(value); 
+        } 
         Serial.printf("POST[%s]: %s\n", key, value);
         output += "\"" + String(key) + "\"";
-        output += ":\"" + String(value) + "\",";
-        configManager.add_field(key, value);    
+        if (i == params -1 ) {
+          output += ":\"" + v + "\""; 
+        }
+        else {
+          output += ":\"" + v + "\","; 
+        }
+        mqttConfigManager.add_field(key, v.c_str());    
       }
     }
     output += "}";
-    configManager.commit(); 
     Serial.println(output);
     request->send(200, "application/json", output);
+    flag_busy = false;
+    flag_needs_commit = true;
 });
 
   server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest * request) {

@@ -35,13 +35,9 @@ class CMMC_Config_Manager
 {
   public:
     // constructor
-    CMMC_Config_Manager() {
-      this->_user_debug_cb = [](const char* s) { };
-    }
+    CMMC_Config_Manager();
 
-    ~CMMC_Config_Manager() {
-      configFile.close();
-    }
+    ~CMMC_Config_Manager();
 
     void init(const char* filename = "/config.json");
     void commit();
@@ -53,7 +49,7 @@ class CMMC_Config_Manager
   private:
     void _init_json_file(cmmc_json_loaded_cb_t cb = NULL);
     Items items;
-    StaticJsonBuffer<300> jsonBuffer;
+    StaticJsonBuffer<1024> jsonBuffer;
     cmmc_debug_cb_t _user_debug_cb;
     File configFile;
     char filename_c[60];
