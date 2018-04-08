@@ -34,15 +34,15 @@ export default [
     path: '/config',
     meta: {
       icon: 'fa-life-saver',
-      expanded: false
+      expanded: true
     },
     component: require('../views/charts'),
     children: [
-      {
-        name: 'NTP',
-        path: 'general',
-        component: require('../views/wifi/NTP')
-      },
+      // {
+      //   name: 'NTP',
+      //   path: 'general',
+      //   component: require('../views/wifi/NTP')
+      // },
       {
         name: 'MQTT',
         path: 'mqtt',

@@ -95,10 +95,10 @@ export function getAccessPoints (context) {
 }
 
 export function saveWiFiConfig (context, ssid, pass) {
-  var formData = new window.FormData()
+  const formData = new window.FormData()
   formData.append('sta_ssid', ssid)
   formData.append('sta_password', pass)
-  let promise = new Vue.Promise((resolve, reject) => {
+  return new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/wifi/sta', formData)
       .then((response) => response.json())
       .then((response) => {
@@ -108,5 +108,4 @@ export function saveWiFiConfig (context, ssid, pass) {
       reject(error)
     })
   })
-  return promise
 }

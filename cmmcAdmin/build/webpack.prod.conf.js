@@ -47,6 +47,7 @@ var webpackConfig = merge(baseWebpackConfig, {
         ? 'index.html'
         : config.build.index,
       template: 'index.html',
+      title: 'CMMCAdmin',
       inject: true,
       minify: {
         removeComments: true,
