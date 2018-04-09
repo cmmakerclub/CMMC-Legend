@@ -58,7 +58,7 @@
     methods: {
       onSubmit () {
         let context = this
-        saveMqttConfig(context, context.mqtt_username, context.mqtt_password, context.mqtt_clientId, context.mqtt_host, context.mqtt_port)
+        saveMqttConfig(context, context.usr, context.pwd, context.cid, context.h, context.port)
           .then((resp) => {
             this.server_response = resp
           })

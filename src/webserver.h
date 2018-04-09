@@ -118,36 +118,88 @@ void setupWebServer() {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
   });
 
-server.on("/api/mqtt", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(200, "application/json", mqtt_config_json); 
-});
+  server.on("/api/mqtt", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(200, "application/json", mqtt_config_json);
+  });
 
-server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
+  static const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
+  server.on("/web", HTTP_GET, [](AsyncWebServerRequest *request){
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", serverIndex);
+    response->addHeader("Connection", "close");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    request->send(response);
+  });
+
+  server.on("/update", HTTP_POST, [](AsyncWebServerRequest * request) {
+    // the request handler is triggered after the upload has finished...
+    // create the response, add header, and send response
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
+    response->addHeader("Connection", "close");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    // restartRequired = true;  // Tell the main loop to restart the ESP
+    request->send(response);
+  }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+    //Upload handler chunks in data 
+    if (!index) { // if index == 0 then this is the first frame of data
+      SPIFFS.end();
+      Serial.println("upload start...");
+      Serial.printf("UploadStart: %s\n", filename.c_str());
+      
+      Serial.setDebugOutput(true);
+
+      // calculate sketch space required for the update
+      uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+    bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
+    // StreamString result;
+    // Update.printError(result);
+      // uint32_t maxSketchSpace = ESP.getSketchSize();
+      if (!Update.begin(maxSketchSpace, U_SPIFFS)) { //start with max available size
+        Update.printError(Serial);
+      }
+      Update.runAsync(true); // tell the updaterClass to run in async mode
+    }
+
+    //Write chunked data to the free sketch space
+    if (Update.write(data, len) != len) {
+      Update.printError(Serial);
+    }
+
+    if (final) { // if the final flag is set then this is the last frame of data
+      if (Update.end(true)) { //true to set the size to the current progress
+        Serial.printf("Update Success: %u B\nRebooting...\n", index + len);
+      } else {
+        Update.printError(Serial);
+      }
+      Serial.setDebugOutput(false);
+    }
+  });
+
+  server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
     flag_busy = true;
     int params = request->params();
     String output = "{";
-    for(int i=0;i<params;i++){
+    for (int i = 0; i < params; i++) {
       AsyncWebParameter* p = request->getParam(i);
-      if(p->isPost()){ 
+      if (p->isPost()) {
         const char* key = p->name().c_str();
         const char* value = p->value().c_str();
         String v;
-        if (value == 0) { 
-          Serial.println("value is null.."); 
+        if (value == 0) {
+          Serial.println("value is null..");
           v = String("");
         }
         else {
-          v = String(value); 
-        } 
+          v = String(value);
+        }
         Serial.printf("POST[%s]: %s\n", key, value);
         output += "\"" + String(key) + "\"";
-        if (i == params -1 ) {
-          output += ":\"" + v + "\""; 
+        if (i == params - 1 ) {
+          output += ":\"" + v + "\"";
         }
         else {
-          output += ":\"" + v + "\","; 
+          output += ":\"" + v + "\",";
         }
-        mqttConfigManager.add_field(key, v.c_str());    
+        mqttConfigManager.add_field(key, v.c_str());
       }
     }
     output += "}";
@@ -155,7 +207,7 @@ server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
     request->send(200, "application/json", output);
     flag_busy = false;
     flag_needs_commit = true;
-});
+  }); 
 
   server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest * request) {
     blinker->blink(100);
@@ -217,20 +269,8 @@ server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
 
     request->send(404);
   });
-  server.onFileUpload([](AsyncWebServerRequest * request, const String & filename, size_t index, uint8_t *data, size_t len, bool final) {
-    if (!index)
-      Serial.printf("UploadStart: %s\n", filename.c_str());
-    Serial.printf("%s", (const char*)data);
-    if (final)
-      Serial.printf("UploadEnd: %s (%u)\n", filename.c_str(), index + len);
-  });
-  server.onRequestBody([](AsyncWebServerRequest * request, uint8_t *data, size_t len, size_t index, size_t total) {
-    if (!index)
-      Serial.printf("BodyStart: %u\n", total);
-    Serial.printf("%s", (const char*)data);
-    if (index + len == total)
-      Serial.printf("BodyEnd: %u\n", total);
-  });
+
+
   server.begin();
   Serial.println("Starting webserver...");
 }
