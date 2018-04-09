@@ -122,15 +122,23 @@ void setupWebServer() {
     request->send(200, "application/json", mqtt_config_json);
   });
 
-  static const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
-  server.on("/web", HTTP_GET, [](AsyncWebServerRequest *request){
+  static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
+  static const char* serverIndex = "<form method='POST' action='/do-fw' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
+  server.on("/firmware", HTTP_GET, [](AsyncWebServerRequest *request){
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", serverIndex);
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
     request->send(response);
   });
 
-  server.on("/update", HTTP_POST, [](AsyncWebServerRequest * request) {
+  server.on("/fs", HTTP_GET, [](AsyncWebServerRequest *request){
+    AsyncWebServerResponse *response = request->beginResponse(200, "text/html", fsServerIndex);
+    response->addHeader("Connection", "close");
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    request->send(response);
+  });
+
+  server.on("/do-fs", HTTP_POST, [](AsyncWebServerRequest * request) {
     // the request handler is triggered after the upload has finished...
     // create the response, add header, and send response
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
@@ -150,9 +158,6 @@ void setupWebServer() {
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
-    // StreamString result;
-    // Update.printError(result);
-      // uint32_t maxSketchSpace = ESP.getSketchSize();
       if (!Update.begin(maxSketchSpace, U_SPIFFS)) { //start with max available size
         Update.printError(Serial);
       }
@@ -183,6 +188,7 @@ void setupWebServer() {
       if (p->isPost()) {
         const char* key = p->name().c_str();
         const char* value = p->value().c_str();
+        Serial.printf("POST[%s]: %s\n", key, value);
         String v;
         if (value == 0) {
           Serial.println("value is null..");
@@ -191,7 +197,6 @@ void setupWebServer() {
         else {
           v = String(value);
         }
-        Serial.printf("POST[%s]: %s\n", key, value);
         output += "\"" + String(key) + "\"";
         if (i == params - 1 ) {
           output += ":\"" + v + "\"";
