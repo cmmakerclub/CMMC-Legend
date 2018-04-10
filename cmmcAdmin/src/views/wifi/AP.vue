@@ -11,15 +11,13 @@
             {{ server_response }}
           </div>
           <p class="control has-icon">
-            <input class="input" v-model="ssid">
+            <input class="input" type="text" v-model="ssid">
             <i class="fa fa-wifi"></i>
-            {{ ssid }}
           </p>
           <label class="label">Password</label>
           <p class="control has-icon">
-            <input class="input" type="text" v-model="password">
+            <input class="input" type="password" v-model="password">
             <i class="fa fa-lock"></i>
-            {{ password }}
           </p>
           <p class="control">
             <button class="button is-primary" v-on:click="onSubmit">Submit</button>

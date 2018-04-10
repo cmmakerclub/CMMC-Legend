@@ -62,7 +62,7 @@ void setup() {
   delay(20); 
 
   mqttConfigManager.init("/mymqtt.json");
-  wifiConfigManager.init("/wifi_config.json");
+  wifiConfigManager.init("/wifi.json");
 
   // wifiConfigManager.add_debug_listener([](const char* m) {
   //   Serial.println(m);
@@ -73,13 +73,14 @@ void setup() {
   // });
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
-    Serial.println("[user] json loaded..");
-    root->printTo(Serial);
-    Serial.println();
+    Serial.println("[user] wifi config json loaded..");
+    Serial.println(content);
+//    root->printTo(Serial);
+//    Serial.println();
     strcpy(wifi_config_json, content);
 
-    const char* m_ap_ssid = (*root)["wifi_ap_name"];
-    const char* m_ap_pwd = (*root)["wifi_ap_pwd"];
+    const char* m_ap_ssid = (*root)["ap_ssid"];
+    const char* m_ap_pwd = (*root)["ap_pwd"];
 
     if (m_ap_ssid != NULL) {
         strcpy(ap_ssid, m_ap_ssid);
@@ -111,7 +112,6 @@ void setup() {
       Serial.println(); 
     }
   });
-
 
   WiFi.mode(WIFI_STA);
   scanAndUpdateSSIDoutput();
@@ -154,17 +154,25 @@ void loop() {
      }
    });
 
-  if (flag_needs_scan_wifi) {
-    scanAndUpdateSSIDoutput(); 
-    flag_needs_scan_wifi = false;
-  }
+  // if (flag_needs_scan_wifi) {
+  //   scanAndUpdateSSIDoutput(); 
+  //   flag_needs_scan_wifi = false;
+  // }
   
   if (flag_needs_commit) {
     flag_needs_commit = false;
     flag_busy = true;
     Serial.println("be commited.");
-    mqttConfigManager.commit(); 
+    mqttConfigManager.commit();
+    delay(100);
     wifiConfigManager.commit(); 
+
+    mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
+      Serial.println("[user] mqtt config json loaded..");
+      Serial.println(content); 
+      strcpy(mqtt_config_json, content); 
+    });
+
     flag_busy = false;
     Serial.println("fs commited.");
   }
