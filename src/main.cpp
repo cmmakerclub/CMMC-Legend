@@ -16,11 +16,16 @@ bool flag_needs_commit = false;
 bool flag_needs_scan_wifi = true;
 CMMC_Blink *blinker;
 
-CMMC_Config_Manager configManager; 
+CMMC_Config_Manager wifiConfigManager;
 CMMC_Config_Manager mqttConfigManager; 
 
 const char* http_username = "admin";
 const char* http_password = "admin";
+
+char ap_ssid[30] = "CMMC-Legend";
+char ap_pwd[30] = "";
+
+char wifi_config_json[120];
 
 char mqtt_host[30];
 char mqtt_user[30];
@@ -35,7 +40,7 @@ AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 CMMC_Interval interval;
 
-const char* hostName = "CMMC-Legend";
+//const char* hostName = "CMMC-Legend";
 String wifi_list_json;
 
 void scanAndUpdateSSIDoutput();
@@ -57,9 +62,9 @@ void setup() {
   delay(20); 
 
   mqttConfigManager.init("/mymqtt.json");
-  configManager.init("/myconfig.json"); 
+  wifiConfigManager.init("/wifi_config.json");
 
-  // configManager.add_debug_listener([](const char* m) {
+  // wifiConfigManager.add_debug_listener([](const char* m) {
   //   Serial.println(m);
   // });
 
@@ -67,10 +72,23 @@ void setup() {
   //   Serial.println(m);
   // });
 
-  configManager.load_config([](JsonObject * root, const char* content) {
+  wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     Serial.println("[user] json loaded..");
     root->printTo(Serial);
     Serial.println();
+    strcpy(wifi_config_json, content);
+
+    const char* m_ap_ssid = (*root)["wifi_ap_name"];
+    const char* m_ap_pwd = (*root)["wifi_ap_pwd"];
+
+    if (m_ap_ssid != NULL) {
+        strcpy(ap_ssid, m_ap_ssid);
+    }
+
+    if (m_ap_pwd != NULL) {
+        strcpy(ap_pwd, m_ap_pwd);
+    }
+
   });
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
@@ -97,9 +115,9 @@ void setup() {
 
   WiFi.mode(WIFI_STA);
   scanAndUpdateSSIDoutput();
-  WiFi.hostname(hostName);
+  WiFi.hostname(ap_ssid);
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(hostName);
+  WiFi.softAP(ap_ssid, ap_pwd);
   WiFi.begin("CMMC-3rd", "espertap");
 
   setupWebServer();
@@ -130,11 +148,11 @@ void scanAndUpdateSSIDoutput() {
 }
 
 void loop() {
-  // interval.every_ms(30L * 1000, []() {
-  //   while (flag_busy) { 
-  //     delay(100); 
-  //   }
-  // }); 
+   interval.every_ms(30L * 1000, []() {
+     while (flag_busy) {
+       delay(100);
+     }
+   });
 
   if (flag_needs_scan_wifi) {
     scanAndUpdateSSIDoutput(); 
@@ -146,7 +164,7 @@ void loop() {
     flag_busy = true;
     Serial.println("be commited.");
     mqttConfigManager.commit(); 
-    configManager.commit(); 
+    wifiConfigManager.commit(); 
     flag_busy = false;
     Serial.println("fs commited.");
   }

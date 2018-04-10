@@ -1,6 +1,6 @@
 #include <AsyncWebSocket.h>
 extern String wifi_list_json;
-extern CMMC_Config_Manager configManager;
+extern CMMC_Config_Manager wifiConfigManager;
 extern CMMC_Config_Manager mqttConfigManager;
 
 extern AsyncWebServer server;
@@ -13,6 +13,7 @@ extern CMMC_Blink *blinker;
 extern bool flag_busy;
 extern bool flag_needs_scan_wifi;
 extern bool flag_needs_commit;
+extern char wifi_config_json[120];
 extern char mqtt_config_json[120];
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
@@ -184,6 +185,47 @@ void setupWebServer() {
       Serial.setDebugOutput(false);
     }
   });
+
+  // ===== CREATE /WIFI/AP =====
+  server.on("/api/wifi/ap", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(200, "application/json", wifi_config_json);
+  });
+
+  server.on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
+    flag_busy = true;
+    int params = request->params();
+        String output = "{";
+        for (int i = 0; i < params; i++) {
+          AsyncWebParameter* p = request->getParam(i);
+          if (p->isPost()) {
+            const char* key = p->name().c_str();
+            const char* value = p->value().c_str();
+            Serial.printf("POST[%s]: %s\n", key, value);
+            String v;
+            if (value == 0) {
+              Serial.println("value is null..");
+              v = String("");
+            }
+            else {
+              v = String(value);
+            }
+            output += "\"" + String(key) + "\"";
+            if (i == params - 1 ) {
+              output += ":\"" + v + "\"";
+            }
+            else {
+              output += ":\"" + v + "\",";
+            }
+            wifiConfigManager.add_field(key, v.c_str());
+          }
+        }
+    output += "}";
+    Serial.println(output);
+    request->send(200, "application/json", output);
+    flag_busy = false;
+    flag_needs_commit = true;
+  });
+  // ===== END /WIFI/AP =====
 
   server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
     flag_busy = true;
