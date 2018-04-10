@@ -29,6 +29,7 @@ char mqtt_clientId[30];
 char mqtt_port[10];
 
 char mqtt_config_json[120];
+String wifi_list_json;
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -36,7 +37,6 @@ AsyncEventSource events("/events");
 CMMC_Interval interval;
 
 const char* hostName = "CMMC-Legend";
-String wifi_list_json;
 
 void scanAndUpdateSSIDoutput();
 void setup() {
@@ -97,11 +97,11 @@ void setup() {
 
   WiFi.mode(WIFI_STA);
   scanAndUpdateSSIDoutput();
+
   WiFi.hostname(hostName);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(hostName);
-  WiFi.begin("CMMC-3rd", "espertap");
-
+  WiFi.begin("CMMC-3rd", "espertap"); 
   setupWebServer();
 
 }
@@ -136,10 +136,10 @@ void loop() {
   //   }
   // }); 
 
-  if (flag_needs_scan_wifi) {
-    scanAndUpdateSSIDoutput(); 
-    flag_needs_scan_wifi = false;
-  }
+  // if (flag_needs_scan_wifi) {
+  //   scanAndUpdateSSIDoutput(); 
+  //   flag_needs_scan_wifi = false;
+  // }
   
   if (flag_needs_commit) {
     flag_needs_commit = false;
@@ -147,6 +147,11 @@ void loop() {
     Serial.println("be commited.");
     mqttConfigManager.commit(); 
     configManager.commit(); 
+    mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
+      Serial.println("[user] mqtt config json loaded..");
+      Serial.println(content); 
+      strcpy(mqtt_config_json, content); 
+    });
     flag_busy = false;
     Serial.println("fs commited.");
   }

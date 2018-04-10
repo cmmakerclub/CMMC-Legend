@@ -157,8 +157,7 @@ void setupWebServer() {
     if (!index) { // if index == 0 then this is the first frame of data
       SPIFFS.end();
       Serial.println("upload start...");
-      Serial.printf("UploadStart: %s\n", filename.c_str());
-      
+      Serial.printf("UploadStart: %s\n", filename.c_str()); 
       Serial.setDebugOutput(true);
 
       // calculate sketch space required for the update
