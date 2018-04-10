@@ -13,6 +13,7 @@
 
 bool flag_busy = false;
 bool flag_needs_commit = false;
+bool flag_needs_scan_wifi = true;
 CMMC_Blink *blinker;
 
 CMMC_Config_Manager configManager; 
@@ -35,7 +36,7 @@ AsyncEventSource events("/events");
 CMMC_Interval interval;
 
 const char* hostName = "CMMC-Legend";
-String output;
+String wifi_list_json;
 
 void scanAndUpdateSSIDoutput();
 void setup() {
@@ -53,28 +54,7 @@ void setup() {
   WiFi.disconnect();
   WiFi.persistent(false);
   WiFi.mode(WIFI_OFF);
-  delay(20);
-
-
-  //Send OTA events to the browser
-  // ArduinoOTA.onStart([]() { events.send("Update Start", "ota"); });
-  // ArduinoOTA.onEnd([]() { events.send("Update End", "ota"); });
-  // ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-  //   char p[32];
-  //   sprintf(p, "Progress: %u%%\n", (progress/(total/100)));
-  //   events.send(p, "ota");
-  // });
-  // ArduinoOTA.onError([](ota_error_t error) {
-  //   if(error == OTA_AUTH_ERROR) events.send("Auth Failed", "ota");
-  //   else if(error == OTA_BEGIN_ERROR) events.send("Begin Failed", "ota");
-  //   else if(error == OTA_CONNECT_ERROR) events.send("Connect Failed", "ota");
-  //   else if(error == OTA_RECEIVE_ERROR) events.send("Recieve Failed", "ota");
-  //   else if(error == OTA_END_ERROR) events.send("End Failed", "ota");
-  // });
-
-  // MDNS.addService("http","tcp",80);
-  // ArduinoOTA.setHostname(hostName);
-  // ArduinoOTA.begin();
+  delay(20); 
 
   mqttConfigManager.init("/mymqtt.json");
   configManager.init("/myconfig.json"); 
@@ -130,32 +110,36 @@ void scanAndUpdateSSIDoutput() {
   int n = WiFi.scanNetworks();
   Serial.println(n);
   String currentSSID = WiFi.SSID();
-  output = "[";
+  wifi_list_json = "[";
   for ( int i = 0; i < n; i++ ) {
-    if (output != "[") output += ',';
-    output += "{\"name\": ";
-    output += "\"";
-    output += WiFi.SSID(i);
-    output += "\",";
-    output += "\"rssi\": ";
-    output += WiFi.RSSI(i);
-    output += ",";
-    output += "\"encryption\": ";
-    output += WiFi.encryptionType(i);
-    output += "}";
+    if (wifi_list_json != "[") wifi_list_json += ',';
+    wifi_list_json += "{\"name\": ";
+    wifi_list_json += "\"";
+    wifi_list_json += WiFi.SSID(i);
+    wifi_list_json += "\",";
+    wifi_list_json += "\"rssi\": ";
+    wifi_list_json += WiFi.RSSI(i);
+    wifi_list_json += ",";
+    wifi_list_json += "\"encryption\": ";
+    wifi_list_json += WiFi.encryptionType(i);
+    wifi_list_json += "}";
     yield();
   }
-  output += "]";
+  wifi_list_json += "]";
   Serial.println("ssid list has been updated.");
 }
 
 void loop() {
-  interval.every_ms(20L * 1000, []() {
-    while (flag_busy) {
-      delay(100); 
-    }
-    // scanAndUpdateSSIDoutput(); 
-  });
+  // interval.every_ms(30L * 1000, []() {
+  //   while (flag_busy) { 
+  //     delay(100); 
+  //   }
+  // }); 
+
+  if (flag_needs_scan_wifi) {
+    scanAndUpdateSSIDoutput(); 
+    flag_needs_scan_wifi = false;
+  }
   
   if (flag_needs_commit) {
     flag_needs_commit = false;
@@ -166,7 +150,5 @@ void loop() {
     flag_busy = false;
     Serial.println("fs commited.");
   }
-  // put your main code here, to run repeatedly:
-  //  ArduinoOTA.handle();
 }
 

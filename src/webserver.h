@@ -1,5 +1,5 @@
 #include <AsyncWebSocket.h>
-extern String output;
+extern String wifi_list_json;
 extern CMMC_Config_Manager configManager;
 extern CMMC_Config_Manager mqttConfigManager;
 
@@ -11,6 +11,7 @@ extern const char* http_username;
 extern const char* http_password;
 extern CMMC_Blink *blinker;
 extern bool flag_busy;
+extern bool flag_needs_scan_wifi;
 extern bool flag_needs_commit;
 extern char mqtt_config_json[120];
 
@@ -123,12 +124,17 @@ void setupWebServer() {
   });
 
   static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
-  static const char* serverIndex = "<form method='POST' action='/do-fw' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
+  static const char* serverIndex = "<form method='POST' action='/do-' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
   server.on("/firmware", HTTP_GET, [](AsyncWebServerRequest *request){
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", serverIndex);
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
     request->send(response);
+  });
+
+  server.on("/api/wifi/sta", HTTP_GET, [](AsyncWebServerRequest *request){
+    if(request->hasParam("ap_ssid", true))
+      AsyncWebParameter* p = request->getParam("ap_ssid", true);
   });
 
   server.on("/fs", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -215,15 +221,11 @@ void setupWebServer() {
   }); 
 
   server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest * request) {
+    flag_needs_scan_wifi = true;
     blinker->blink(100);
-
     Serial.print(".....scan wifi >> ");
-    // WiFi.disconnect();
-    // delay(100);
-    int n = WiFi.scanNetworks();
-    Serial.println(n);
-    Serial.println(output);
-    request->send(200, "application/json", output);
+    Serial.println(wifi_list_json);
+    request->send(200, "application/json", wifi_list_json);
   });
 
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
