@@ -37,6 +37,15 @@
 
     props: {},
 
+    mounted () {
+      getAPConfig(this).then((json) => {
+        this.ssid = json.ap_ssid
+        this.password = json.ap_pwd
+      })
+        .catch((err) => {
+          console.log('error:', err)
+        })
+    },
     methods: {
       onSubmit () {
         let context = this
@@ -58,15 +67,6 @@
         selected: '',
         password: ''
       }
-    },
-    mounted () {
-      getAPConfig(this).then((json) => {
-        this.ssid = json.ssid
-        this.password = json.password
-      })
-        .catch((err) => {
-          console.log('error:', err)
-        })
     }
   }
 </script>

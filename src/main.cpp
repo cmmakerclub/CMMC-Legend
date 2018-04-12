@@ -15,6 +15,7 @@ bool flag_busy = false;
 bool flag_needs_commit = false;
 bool flag_needs_scan_wifi = true;
 bool flag_load_mqtt_config = false;
+bool flag_load_wifi_config = false;
 CMMC_Blink *blinker;
 
 CMMC_Config_Manager wifiConfigManager;
@@ -154,6 +155,15 @@ void loop() {
        delay(100);
      }
    });
+
+  if (flag_load_wifi_config) {
+    wifiConfigManager.load_config([](JsonObject * root, const char* content) { 
+      Serial.println("[user] wifi config json loaded..");
+      Serial.println(content); 
+      strcpy(wifi_config_json, content); 
+    });
+    flag_load_wifi_config = false;
+  }
 
   if (flag_load_mqtt_config) {
     mqttConfigManager.load_config([](JsonObject * root, const char* content) { 

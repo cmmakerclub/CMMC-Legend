@@ -14,6 +14,7 @@ extern bool flag_busy;
 extern bool flag_needs_scan_wifi;
 extern bool flag_needs_commit;
 extern bool flag_load_mqtt_config;
+extern bool flag_load_wifi_config;
 extern char wifi_config_json[120];
 extern char mqtt_config_json[120];
 
@@ -224,6 +225,7 @@ void setupWebServer() {
     request->send(200, "application/json", output);
     flag_busy = false;
     wifiConfigManager.commit();
+    flag_load_wifi_config = true;
   });
   // ===== END /WIFI/AP =====
 
