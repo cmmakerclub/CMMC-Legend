@@ -68,6 +68,38 @@ export function saveMqttConfig (context, options) {
   return promise
 }
 
+export function getSTAConfig (context) {
+  let promise = new Vue.Promise((resolve, reject) => {
+    context.$http.get('/api/wifi/ap')
+      .then((response) => response.json())
+      .then((json) => {
+        resolve(json)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  })
+  return promise
+}
+
+export function saveSTAConfig (context, options) {
+  var formData = new window.FormData()
+  formData.append('sta_ssid', options.ssid)
+  formData.append('sta_password', options.password)
+  formData.append('sta_manual_ssid', options.manualSSID)
+  let promise = new Vue.Promise((resolve, reject) => {
+    context.$http.post('/api/wifi/sta', formData)
+      .then((response) => response.json())
+      .then((json) => {
+        resolve(json)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  })
+  return promise
+}
+
 export function getAccessPoints (context) {
   // to be tested
   let promise = new Vue.Promise((resolve, reject) => {

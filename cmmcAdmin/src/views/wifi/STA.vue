@@ -14,7 +14,7 @@
                 <select v-model="ssid">
                     <!--<option value="" disabled ssid hidden>Please Choose</option>-->
                     <option v-for="(val, idx) in access_points">
-                      {{ val.name }} - {{ val.rssi }}
+                      {{ val.name }}
                     </option>
                 </select>
               </span>
@@ -25,14 +25,20 @@
               <span>Refresh</span>
             </a>
           </p>
-          <!--<p class="control">APS: {{ access_points }}</p>-->
+          <label class="label">Manual SSID</label>
+          <p class="control has-icon">
+            <input v-model="manualSSID" class="input" type="text" placeholder="SSID">
+            <i class="fa fa-wifi"></i>
+          </p>
           <label class="label">Password</label>
           <p class="control has-icon">
-            <input v-model="password" class="input" type="text" placeholder="Password">
+            <input v-model="password" class="input" type="password" placeholder="Password">
             <i class="fa fa-lock"></i>
           </p>
           <p class="control">
-            <button v-bind:class="{'is-loading': saving, 'is-disabled': loading||saving}" class="button is-primary" v-on:click="onSubmit">Submit </button>
+            <button v-bind:class="{'is-loading': saving, 'is-disabled': loading||saving}" class="button is-primary"
+                    v-on:click="onSubmit">Submit
+            </button>
             <button class="button is-link">Cancel</button>
           </p>
         </div>
@@ -42,10 +48,21 @@
 </template>
 
 <script>
-  import {saveWiFiConfig, getAccessPoints} from '../../api'
+  import { saveSTAConfig, getSTAConfig } from '../../api'
+
   export default {
     components: {},
     props: {},
+    mounted () {
+      getSTAConfig(this).then((json) => {
+        this.ssid = json.sta_ssid
+        this.password = json.sta_password
+        this.manualSSID = json.sta_manual_ssid
+      })
+        .catch((err) => {
+          console.log('error:', err)
+        })
+    },
     methods: {
       onRefresh () {
         console.log('on refresh')
@@ -54,7 +71,7 @@
       onSubmit () {
         let context = this
         this.saving = true
-        saveWiFiConfig(context, context.ssid, context.password)
+        saveSTAConfig(context, context.ssid, context.password, context.manualSSID)
           .then((resp) => {
             this.server_response = JSON.stringify(resp)
             this.saving = false
@@ -82,12 +99,9 @@
     },
     data () {
       return {
-        server_response: null,
-        loading: true,
-        saving: false,
-        access_points: [],
         ssid: null,
-        password: null
+        password: null,
+        manualSSID: null
       }
     },
     computed: {
@@ -101,9 +115,6 @@
         this.loading = true
         this.fetchAPs()
       }
-    },
-    mounted () {
-      this.reload()
     }
   }
 </script>
