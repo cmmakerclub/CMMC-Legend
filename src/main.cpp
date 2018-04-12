@@ -19,6 +19,17 @@
 #include "_receive.h"
 #include "_config.h"
 
+// extern _config
+extern String DEVICE_NAME;
+extern String MQTT_HOST;
+extern String MQTT_USERNAME;
+extern String MQTT_PASSWORD;
+extern String MQTT_CLIENT_ID;
+extern String MQTT_PREFIX;
+extern int    MQTT_PORT;
+extern int PUBLISH_EVERY;
+extern int MQTT_CONNECT_TIMEOUT;
+
 // MQTT CONNECTOR
 MqttConnector *mqtt; 
 int relayPin = 15; 
@@ -76,7 +87,7 @@ void init_wifi() {
   scanAndUpdateSSIDoutput();
   WiFi.hostname(ap_ssid);
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(ap_ssid, ap_pwd);
+  WiFi.softAP(ap_ssid, ap_pwd); 
   WiFi.begin(sta_ssid, sta_pwd);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
@@ -119,7 +130,7 @@ void init_userconfig() {
     if (m_sta_password != NULL) {
         strcpy(sta_pwd, m_sta_password);
     }
-
+    
   });
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
@@ -132,6 +143,7 @@ void init_userconfig() {
     const char* client_id = (*root)["clientId"];
     const char* port = (*root)["port"];
     const char* device_name = (*root)["deviceName"];
+    
 
     if (host != NULL) {
       strcpy(mqtt_host, host);
@@ -140,6 +152,16 @@ void init_userconfig() {
       strcpy(mqtt_clientId, client_id);
       strcpy(mqtt_port, port);
       strcpy(mqtt_device_name, device_name);
+
+      MQTT_HOST = String(mqtt_host);
+      MQTT_USERNAME = String(mqtt_user);
+      MQTT_PASSWORD = String(mqtt_pass);
+      MQTT_CLIENT_ID = String(mqtt_clientId);
+      // MQTT_PREFIX = String(mqtt_host);
+      MQTT_PORT = String(mqtt_port).toInt();
+      DEVICE_NAME = String(mqtt_device_name);
+
+
       Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = $s", host, port, username, password, client_id, device_name);
       Serial.println(); 
     }
