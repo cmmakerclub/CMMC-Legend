@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <navbar :show="true"></navbar>
-    <sidebar :show="config.sidebar"></sidebar>
-    <app-main></app-main>
-    <footer-bar></footer-bar>
+    <navbar :show="true"/>
+    <sidebar :show="config.sidebar"/>
+    <app-main/>
+    <footer-bar/>
   </div>
 </template>
 

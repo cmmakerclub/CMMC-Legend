@@ -45,13 +45,15 @@ export function saveAPConfig (context, ssid, pass) {
   return promise
 }
 
-export function saveMqttConfig (context, username, password, clientId, host, port) {
+export function saveMqttConfig (context, options) {
   var formData = new window.FormData()
-  formData.append('h', host)
-  formData.append('usr', username)
-  formData.append('pwd', password)
-  formData.append('cid', clientId)
-  formData.append('port', port)
+  formData.append('h',    options.host)
+  formData.append('usr',  options.username)
+  formData.append('pwd',  options.password)
+  formData.append('cid',  options.clientId)
+  formData.append('port', options.port)
+  formData.append('lwt',  options.lwt)
+  formData.append('pub_rate_s', options.pubRateS)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/mqtt', formData)
       .then((response) => response.json())
@@ -75,7 +77,7 @@ export function getAccessPoints (context) {
     context.$http.get('/api/wifi/scan').then((response) => response.json())
       .then((aps) => {
 
-        console.log(aps);
+        console.log(aps)
 
         list.push(aps)
         for (let _aps of list) {
