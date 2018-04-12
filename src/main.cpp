@@ -142,13 +142,13 @@ void setup() {
   WiFi.hostname(ap_ssid);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(ap_ssid, ap_pwd);
-  //WiFi.begin("CMMC-3rd", "espertap");
+  WiFi.begin("CMMC-3rd", "espertap");
 
+  
   // initialize Mqtt Connector
   init_mqtt();
 
   setupWebServer();
-
 }
 
 void scanAndUpdateSSIDoutput() {
