@@ -113,7 +113,9 @@ void init_userconfig() {
     if (m_sta_manual_ssid != NULL) {
         strcpy(sta_ssid, m_sta_manual_ssid);
     } else {
-        strcpy(sta_ssid, m_sta_ssid);
+        if (m_sta_ssid != NULL) {
+            strcpy(sta_ssid, m_sta_ssid);
+        }
     }
 
     if (m_sta_password != NULL) {
