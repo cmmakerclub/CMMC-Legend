@@ -14,7 +14,7 @@
             </div>
             <label class="label">Host</label>
             <p class="control has-icon">
-              <input class="input" type="text" v-model="h" required>
+              <input class="input" type="text" v-model="host" required>
               <i class="fa fa-connectdevelop"></i>
             </p>
             <label class="label">Port</label>
@@ -24,22 +24,27 @@
             </p>
             <label class="label">ClientID</label>
             <p class="control has-icon">
-              <input class="input" type="text" v-model="cid" required>
+              <input class="input" type="text" v-model="clientId" required>
               <i class="fa fa-vcard-o"></i>
             </p>
             <label class="label">Username</label>
             <p class="control has-icon">
-              <input class="input" type="text" v-model="usr">
+              <input class="input" type="text" v-model="username">
               <i class="fa fa-user"></i>
             </p>
             <label class="label">Password</label>
             <p class="control has-icon">
-              <input class="input" type="password" v-model="pwd">
+              <input class="input" type="password" v-model="password">
               <i class="fa fa-lock"></i>
             </p>
-            <label class="label">PUBLISH_EVERY_S</label>
+            <label class="label">Device Name</label>
             <p class="control has-icon">
-              <input class="input" type="number" v-model="pubRateS" required>
+              <input class="input" type="number" v-model="deviceName" required>
+              <i class="fa fa-child"></i>
+            </p>
+            <label class="label">Publish Eevery Second</label>
+            <p class="control has-icon">
+              <input class="input" type="number" v-model="publishRateSecond" required>
               <i class="fa fa-exchange"></i>
             </p>
             <div class="control">
@@ -68,11 +73,12 @@
         let context = this
         console.log('context', context)
         saveMqttConfig(context, {
-          host: context.h,
-          username: context.usr,
-          password: context.pwd,
-          clientId: context.cid,
-          pubRateS: context.pubRateS,
+          host: context.host,
+          username: context.username,
+          password: context.password,
+          clientId: context.clientId,
+          publishRateSecond: context.publishRateSecond,
+          deviceName: context.deviceName,
           lwt: context.lwt,
           port: context.port,
         })
@@ -95,12 +101,13 @@
     data () {
       return {
         server_response: '',
-        usr: '',
-        pwd: '',
+        username: '',
+        password: '',
+        deviceName: '',
         lwt: 0,
-        cid: `clientId-${Math.random().toString(15).substr(2, 10)}`,
-        h: 'mqtt.cmmc.io',
-        pubRateS: 10000,
+        clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
+        host: 'mqtt.cmmc.io',
+        publishRateSecond: 10000,
         port: 1883,
       }
     },

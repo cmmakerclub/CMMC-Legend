@@ -47,13 +47,14 @@ export function saveAPConfig (context, ssid, pass) {
 
 export function saveMqttConfig (context, options) {
   var formData = new window.FormData()
-  formData.append('h',    options.host)
-  formData.append('usr',  options.username)
-  formData.append('pwd',  options.password)
-  formData.append('cid',  options.clientId)
+  formData.append('host',    options.host)
+  formData.append('username',  options.username)
+  formData.append('password',  options.password)
+  formData.append('deviceName',  options.deviceName)
+  formData.append('clientId',  options.clientId)
   formData.append('port', options.port)
   formData.append('lwt',  options.lwt)
-  formData.append('pub_rate_s', options.pubRateS)
+  formData.append('publishRateSecond', options.publishRateSecond)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/mqtt', formData)
       .then((response) => response.json())
