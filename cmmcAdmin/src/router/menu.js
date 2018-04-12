@@ -85,5 +85,15 @@ export default [
     },
     component: require('../views/charts'),
     children: []
+  },
+  {
+    name: 'ESP Now',
+    path: '/espnow',
+    meta: {
+      icon: 'fa-fire',
+      expanded: false
+    },
+    component: require('../views/wifi/ESPNOW'),
+    children: []
   }
 ]
