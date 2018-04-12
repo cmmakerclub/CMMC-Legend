@@ -40,6 +40,9 @@ CMMC_Config_Manager mqttConfigManager;
 const char* http_username = "admin";
 const char* http_password = "admin";
 
+const char sta_ssid[30] = "CMMC-3rd";
+const char sta_pwd[30] = "espertap";
+
 char ap_ssid[30] = "CMMC-Legend";
 char ap_pwd[30] = "";
 
@@ -74,31 +77,16 @@ void init_wifi() {
   WiFi.hostname(ap_ssid);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(ap_ssid, ap_pwd);
-  WiFi.begin("CMMC-3rd", "espertap");
+  WiFi.begin(sta_ssid, sta_pwd);
   while (WiFi.status() != WL_CONNECTED) {
-    Serial.printf ("Connecting to %s:%s\r\n", "ap", "ssid");
+    Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
     delay(300);
   } 
   Serial.println("WiFi Connected.");
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
-void setup() {
-  SPIFFS.begin();
-  blinker = new CMMC_Blink;
-  pinMode(2, OUTPUT);
-  digitalWrite(2, LOW);
-
-  blinker->init();
-  blinker->blink(500, 2);
-  Serial.begin(57600);
-  Serial.setDebugOutput(true);
-
-  // Relay OUTPUT
-  pinMode(relayPin, OUTPUT);
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(relayPin, relayPinState);;
-
+void init_userconfig() {
 
   mqttConfigManager.init("/mymqtt.json");
   wifiConfigManager.init("/wifi.json");
@@ -143,10 +131,26 @@ void setup() {
       Serial.println(); 
     }
   });
+}
+
+void setup() {
+  SPIFFS.begin();
+  blinker = new CMMC_Blink;
+  pinMode(2, OUTPUT);
+  digitalWrite(2, LOW);
+
+  blinker->init();
+  blinker->blink(500, 2);
+  Serial.begin(57600);
+  Serial.setDebugOutput(true);
+
+  // Relay OUTPUT
+  pinMode(relayPin, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(relayPin, relayPinState);;
 
 
-
-  // initialize Mqtt Connector
+  init_userconfig();
   init_wifi();
   init_mqtt(); 
   setupWebServer();
@@ -176,7 +180,6 @@ void scanAndUpdateSSIDoutput() {
 }
 
 void loop() {
-  // mqtt loop 
   mqtt->loop();
 
    interval.every_ms(30L * 1000, []() {
@@ -201,27 +204,6 @@ void loop() {
       strcpy(mqtt_config_json, content); 
     });
     flag_load_mqtt_config = false;
-  }
-
-  // if (flag_needs_scan_wifi) {
-  //   scanAndUpdateSSIDoutput(); 
-  //   flag_needs_scan_wifi = false;
-  // }
-  
-  // if (flag_needs_commit) {
-  //   flag_needs_commit = false;
-  //   flag_busy = true;
-  //   Serial.println("be commited.");
-  //   mqttConfigManager.commit();
-  //   delay(100);
-  //   wifiConfigManager.commit(); 
-  //   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
-  //     Serial.println("[user] mqtt config json loaded..");
-  //     Serial.println(content); 
-  //     strcpy(mqtt_config_json, content); 
-  //   });
-  //   flag_busy = false;
-  //   Serial.println("fs commited.");
-  // }
+  } 
 }
 
