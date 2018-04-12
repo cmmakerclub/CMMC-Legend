@@ -65,8 +65,9 @@ char mqtt_pass[30];
 char mqtt_clientId[30];
 char mqtt_port[10];
 char mqtt_device_name[15];
-
 char mqtt_config_json[120];
+bool mqtt_lwt = false;
+
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -145,7 +146,7 @@ void init_userconfig() {
     const char* client_id = (*root)["clientId"];
     const char* port = (*root)["port"];
     const char* device_name = (*root)["deviceName"];
-    
+    bool lwt = (*root)["lwt"];
 
     if (host != NULL) {
       strcpy(mqtt_host, host);

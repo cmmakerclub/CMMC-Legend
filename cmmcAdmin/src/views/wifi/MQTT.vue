@@ -64,14 +64,30 @@
 </template>
 
 <script>
-  import { saveMqttConfig, getConfig } from '../../api'
+  import { saveMqttConfig, getMqttConfig } from '../../api'
 
   export default {
     components: {},
+    mounted () {
+      getMqttConfig(this).then((json) => {
+        this.host = json.host
+        this.username = json.username
+        this.password = json.password
+        this.clientId = json.clientId
+        this.publishRateSecond = json.publishRateSecond
+        this.deviceName = json.deviceName
+        this.lwt = json.lwt
+        this.port = json.port
+      })
+        .catch((err) => {
+          console.log('error:', err)
+        })
+    },
     methods: {
       onSubmit () {
         let context = this
-        console.log('context', context)
+        // console.log('context', context)
+
         saveMqttConfig(context, {
           host: context.host,
           username: context.username,
@@ -79,8 +95,8 @@
           clientId: context.clientId,
           publishRateSecond: context.publishRateSecond,
           deviceName: context.deviceName,
-          lwt: context.lwt,
-          port: context.port,
+          lwt: (context.lwt === true) ? '0' : '1',
+          port: context.port
         })
           .then((resp) => {
             this.server_response = resp
@@ -91,7 +107,7 @@
       },
       fetchConfig () {
         let ctx = this
-        getConfig(ctx).then((configs) => {
+        getMqttConfig(ctx).then((configs) => {
           Object.entries(configs).forEach(([key, value]) => {
             ctx[key] = value
           })
@@ -108,7 +124,7 @@
         clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
         host: 'mqtt.cmmc.io',
         publishRateSecond: 10000,
-        port: 1883,
+        port: 1883
       }
     },
     created () {
@@ -118,9 +134,6 @@
         ctx.loading = true
         ctx.fetchConfig()
       }
-    },
-    mounted () {
-      this.loadConfig()
     }
   }
 </script>

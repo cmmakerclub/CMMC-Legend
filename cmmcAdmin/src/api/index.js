@@ -14,6 +14,8 @@ export function getAPConfig (context) {
   return promise
 }
 
+
+
 export function getConfig (context, type = 'mqtt') {
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.get(`/api/${type}/config`)
@@ -34,6 +36,20 @@ export function saveAPConfig (context, ssid, pass) {
   formData.append('ap_pwd', pass)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/wifi/ap', formData)
+      .then((response) => response.json())
+      .then((json) => {
+        resolve(json)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  })
+  return promise
+}
+
+export function getMqttConfig (context) {
+  let promise = new Vue.Promise((resolve, reject) => {
+    context.$http.get('/api/mqtt')
       .then((response) => response.json())
       .then((json) => {
         resolve(json)
