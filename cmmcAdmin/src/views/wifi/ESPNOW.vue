@@ -11,17 +11,17 @@
             {{ server_response }}
           </div>
           <p class="control has-icon">
-            <input class="input" type="text" v-model="ssid">
+            <input class="input" type="text" v-model="macAddress">
             <i class="fa fa-address-card-o"></i>
           </p>
           <label class="label">Mode</label>
           <div class="control">
             <label class="radio">
-              <input type="radio" name="answer">
+              <input type="radio" name="answer" v-model="mode" value="master">
               Master
             </label>
             <label class="radio">
-              <input type="radio" name="answer">
+              <input type="radio" name="answer" v-model="mode" value="slave">
               Slave
             </label>
           </div>
@@ -36,7 +36,7 @@
 </template>
 
 <script>
-  import { saveAPConfig, getAPConfig } from '../../api'
+  import { saveESPNowConfig, getESPNowConfig } from '../../api'
 
   export default {
     components: {},
@@ -44,9 +44,9 @@
     props: {},
 
     mounted () {
-      getAPConfig(this).then((json) => {
-        this.ssid = json.ap_ssid
-        this.password = json.ap_pwd
+      getESPNowConfig(this).then((json) => {
+        this.macAddress = json.esp_now_mac_address
+        this.mode = json.esp_now_mode
       })
         .catch((err) => {
           console.log('error:', err)
@@ -55,7 +55,8 @@
     methods: {
       onSubmit () {
         let context = this
-        saveAPConfig(context, context.ssid, context.password)
+
+        saveESPNowConfig(context, context.macAddress, context.mode)
           .then((resp) => {
             this.server_response = resp
           })
@@ -67,11 +68,8 @@
     data () {
       return {
         server_response: null,
-        loading: false,
-        post: {},
-        ssid: '',
-        selected: '',
-        password: ''
+        macAddress: '',
+        mode: ''
       }
     }
   }

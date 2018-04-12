@@ -116,6 +116,37 @@ export function saveSTAConfig (context, options) {
   return promise
 }
 
+export function getESPNowConfig (context) {
+  let promise = new Vue.Promise((resolve, reject) => {
+    context.$http.get('/api/espnow')
+      .then((response) => response.json())
+      .then((json) => {
+        resolve(json)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  })
+  return promise
+}
+
+export function saveESPNowConfig (context, options) {
+  var formData = new window.FormData()
+  formData.append('esp_now_mac_address', options.macAddress)
+  formData.append('esp_now_mode', options.mode)
+  let promise = new Vue.Promise((resolve, reject) => {
+    context.$http.post('/api/espnow', formData)
+      .then((response) => response.json())
+      .then((json) => {
+        resolve(json)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  })
+  return promise
+}
+
 export function getAccessPoints (context) {
   // to be tested
   let promise = new Vue.Promise((resolve, reject) => {
