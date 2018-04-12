@@ -50,6 +50,7 @@ char mqtt_user[30];
 char mqtt_pass[30];
 char mqtt_clientId[30];
 char mqtt_port[10];
+char mqtt_device_name[15];
 
 char mqtt_config_json[120];
 
@@ -120,19 +121,21 @@ void setup() {
     Serial.println("[user] mqtt config json loaded..");
     Serial.println(content); 
     strcpy(mqtt_config_json, content); 
-    const char* h = (*root)["h"];
-    const char* u = (*root)["usr"];
-    const char* pwd = (*root)["pwd"];
-    const char* cid = (*root)["cid"];
+    const char* host = (*root)["host"];
+    const char* username = (*root)["username"];
+    const char* password = (*root)["password"];
+    const char* client_id = (*root)["clientId"];
     const char* port = (*root)["port"];
+    const char* device_name = (*root)["deviceName"];
 
-    if (h != NULL) {
-      strcpy(mqtt_host, h);
-      strcpy(mqtt_user, u);
-      strcpy(mqtt_pass, pwd);
-      strcpy(mqtt_clientId, cid);
-      strcpy(mqtt_port, port); 
-      Serial.printf("host = %s port =%s, user = %s, pass = %s, clientId = %s", h, port, u, pwd, cid);
+    if (host != NULL) {
+      strcpy(mqtt_host, host);
+      strcpy(mqtt_user, username);
+      strcpy(mqtt_pass, password);
+      strcpy(mqtt_clientId, client_id);
+      strcpy(mqtt_port, port);
+      strcpy(mqtt_device_name, device_name);
+      Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = $s", host, port, username, password, client_id, device_name);
       Serial.println(); 
     }
   });
