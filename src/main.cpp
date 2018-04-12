@@ -43,7 +43,7 @@ bool flag_needs_commit = false;
 bool flag_needs_scan_wifi = true;
 bool flag_load_mqtt_config = false;
 bool flag_load_wifi_config = false;
-bool flag_init_mqtt = false;
+bool flag_mqtt_available = false;
 CMMC_Blink *blinker;
 
 CMMC_Config_Manager wifiConfigManager;
@@ -90,16 +90,14 @@ void init_wifi() {
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(ap_ssid, ap_pwd); 
   WiFi.begin(sta_ssid, sta_pwd);
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
-    delay(300);
-  } 
-  Serial.println("WiFi Connected.");
+
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
-void init_userconfig() {
-
+void init_userconfig() { 
+  mqttConfigManager.add_debug_listener([](const char* msg) {
+    Serial.printf(">> %s \r\n", msg);
+  });
   mqttConfigManager.init("/mymqtt.json");
   wifiConfigManager.init("/wifi.json");
 
@@ -163,9 +161,10 @@ void init_userconfig() {
       DEVICE_NAME = String(mqtt_device_name);
       MQTT_HOST = String(host);
 
-      Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = $s", host, port, username, password, client_id, device_name);
+      Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = %s", 
+        host, port, username, password, client_id, device_name);
       Serial.println();
-      flag_init_mqtt = true;
+      flag_mqtt_available = true;
     }
   });
 }
@@ -175,6 +174,8 @@ void setup() {
   blinker = new CMMC_Blink;
   pinMode(2, OUTPUT);
   digitalWrite(2, LOW);
+  delay(100);
+
 
   blinker->init();
   blinker->blink(500, 2);
@@ -188,10 +189,19 @@ void setup() {
 
   init_userconfig();
   init_wifi();
-  if (flag_init_mqtt) {
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
+    delay(300);
+  } 
+  Serial.println("WiFi Connected.");
+
+  if (flag_mqtt_available) {
+    Serial.println("init_mqtt..");
     init_mqtt();
-    flag_init_mqtt = false;
+    Serial.println("/init_mqtt..");
+    flag_mqtt_available = false;
   }
+
   setupWebServer();
 }
 
@@ -219,8 +229,9 @@ void scanAndUpdateSSIDoutput() {
 }
 
 void loop() {
-  mqtt->loop();
-
+  if (flag_mqtt_available) {
+    mqtt->loop(); 
+  }
    interval.every_ms(30L * 1000, []() {
      while (flag_busy) {
        delay(100);
