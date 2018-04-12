@@ -3,8 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="9825ece4-910d-4afc-b3fe-35c7c3c406be" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/src/api/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/src/api/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/_config.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/_config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
@@ -19,11 +18,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="false">
+      <file leaf-file-name="main.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="191">
-              <caret line="149" lean-forward="true" selection-start-line="149" selection-end-line="149" />
+            <state relative-caret-position="369">
+              <caret line="175" column="29" selection-start-line="175" selection-start-column="29" selection-end-line="175" selection-end-column="29" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="_config.h" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/_config.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="170">
+              <caret line="10" column="19" lean-forward="true" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
             </state>
           </provider>
         </entry>
@@ -32,16 +40,16 @@
         <entry file="file://$PROJECT_DIR$/src/webserver.h">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="188">
-              <caret line="124" column="20" lean-forward="true" selection-start-line="124" selection-start-column="20" selection-end-line="124" selection-end-column="20" />
+              <caret line="124" column="20" selection-start-line="124" selection-start-column="20" selection-end-line="124" selection-end-column="20" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MQTT.vue" pinned="false" current-in-tab="true">
+      <file leaf-file-name="MQTT.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="233">
-              <caret line="106" column="8" lean-forward="true" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
+              <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
               <folding>
                 <marker date="1523530634243" expanded="true" signature="4110:4118" ph="{&quot;server_response&quot;: ''...}" />
               </folding>
@@ -53,7 +61,7 @@
         <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/views/wifi/AP.vue">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="231">
-              <caret line="46" column="10" lean-forward="true" selection-start-line="46" selection-start-column="10" selection-end-line="46" selection-end-column="10" />
+              <caret line="46" column="10" selection-start-line="46" selection-start-column="10" selection-end-line="46" selection-end-column="10" />
             </state>
           </provider>
         </entry>
@@ -62,7 +70,7 @@
         <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/api/index.js">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="145">
-              <caret line="53" column="23" lean-forward="true" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
+              <caret line="53" column="23" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -96,7 +104,6 @@
       <find>mqttConfigManager</find>
       <find>flag_need</find>
       <find>flag_busy</find>
-      <find>mqtt_host</find>
       <find>hostname</find>
       <find>configManager</find>
       <find>wifiConfigManager</find>
@@ -107,6 +114,7 @@
       <find>mqtt_config_json</find>
       <find>/api/mqtt</find>
       <find>/api/mqtt&quot;, HTTP_GE</find>
+      <find>mqtt_host</find>
     </findStrings>
     <replaceStrings>
       <replace>wifiConfigManager</replace>
@@ -122,8 +130,9 @@
         <option value="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/STA.vue" />
         <option value="$PROJECT_DIR$/src/webserver.h" />
         <option value="$PROJECT_DIR$/cmmcAdmin/src/api/index.js" />
-        <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue" />
+        <option value="$PROJECT_DIR$/src/_config.h" />
+        <option value="$PROJECT_DIR$/src/main.cpp" />
       </list>
     </option>
   </component>
@@ -250,12 +259,12 @@
       <updated>1523362691510</updated>
       <workItem from="1523362694455" duration="6320000" />
       <workItem from="1523517546302" duration="26000" />
-      <workItem from="1523517616880" duration="6995000" />
+      <workItem from="1523517616880" duration="8596000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="13341000" />
+    <option name="totallyTimeSpent" value="14942000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="712" extended-state="6" />
@@ -388,14 +397,14 @@
     <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/api/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="145">
-          <caret line="53" column="23" lean-forward="true" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
+          <caret line="53" column="23" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/views/wifi/AP.vue">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="231">
-          <caret line="46" column="10" lean-forward="true" selection-start-line="46" selection-start-column="10" selection-end-line="46" selection-end-column="10" />
+          <caret line="46" column="10" selection-start-line="46" selection-start-column="10" selection-end-line="46" selection-end-column="10" />
         </state>
       </provider>
     </entry>
@@ -406,27 +415,34 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="233">
+          <caret line="106" column="8" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
+          <folding>
+            <marker date="1523530634243" expanded="true" signature="4110:4118" ph="{&quot;server_response&quot;: ''...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/webserver.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="188">
-          <caret line="124" column="20" lean-forward="true" selection-start-line="124" selection-start-column="20" selection-end-line="124" selection-end-column="20" />
+          <caret line="124" column="20" selection-start-line="124" selection-start-column="20" selection-end-line="124" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/_config.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="19" lean-forward="true" selection-start-line="10" selection-start-column="19" selection-end-line="10" selection-end-column="19" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="191">
-          <caret line="149" lean-forward="true" selection-start-line="149" selection-end-line="149" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="233">
-          <caret line="106" column="8" lean-forward="true" selection-start-line="106" selection-start-column="8" selection-end-line="106" selection-end-column="8" />
-          <folding>
-            <marker date="1523530634243" expanded="true" signature="4110:4118" ph="{&quot;server_response&quot;: ''...}" />
-          </folding>
+        <state relative-caret-position="369">
+          <caret line="175" column="29" selection-start-line="175" selection-start-column="29" selection-end-line="175" selection-end-column="29" />
         </state>
       </provider>
     </entry>

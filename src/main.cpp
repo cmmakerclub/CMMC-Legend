@@ -11,7 +11,6 @@
 #include <CMMC_Config_Manager.h>
 #include "webserver.h"
 
-
 #include <ArduinoJson.h>
 #include <MqttConnector.h>
 #include "init_mqtt.h"
@@ -29,6 +28,7 @@ extern String MQTT_PREFIX;
 extern int    MQTT_PORT;
 extern int PUBLISH_EVERY;
 extern int MQTT_CONNECT_TIMEOUT;
+extern bool MQTT_LWT;
 
 // MQTT CONNECTOR
 MqttConnector *mqtt; 
@@ -59,14 +59,13 @@ char ap_pwd[30] = "";
 
 char wifi_config_json[120];
 
-char mqtt_host[30];
-char mqtt_user[30];
-char mqtt_pass[30];
-char mqtt_clientId[30];
-char mqtt_port[10];
-char mqtt_device_name[15];
+//char mqtt_host[30];
+//char mqtt_user[30];
+//char mqtt_pass[30];
+//char mqtt_clientId[30];
+//char mqtt_port[10];
+//char mqtt_device_name[15];
 char mqtt_config_json[120];
-bool mqtt_lwt = false;
 
 
 AsyncWebServer server(80);
@@ -146,26 +145,37 @@ void init_userconfig() {
     const char* client_id = (*root)["clientId"];
     const char* port = (*root)["port"];
     const char* device_name = (*root)["deviceName"];
-    bool lwt = (*root)["lwt"];
+    const char* lwt = (*root)["lwt"];
 
     if (host != NULL) {
-      strcpy(mqtt_host, host);
-      strcpy(mqtt_user, username);
-      strcpy(mqtt_pass, password);
-      strcpy(mqtt_clientId, client_id);
-      strcpy(mqtt_port, port);
-      strcpy(mqtt_device_name, device_name);
+//      strcpy(mqtt_host, host);
+//      strcpy(mqtt_user, username);
+//      strcpy(mqtt_pass, password);
+//      strcpy(mqtt_clientId, client_id);
+//      strcpy(mqtt_port, port);
+//      strcpy(mqtt_device_name, device_name);
 
-      MQTT_HOST = String(mqtt_host);
-      MQTT_USERNAME = String(mqtt_user);
-      MQTT_PASSWORD = String(mqtt_pass);
-      MQTT_CLIENT_ID = String(mqtt_clientId);
-      // MQTT_PREFIX = String(mqtt_host);
-      MQTT_PORT = String(mqtt_port).toInt();
-      DEVICE_NAME = String(mqtt_device_name);
+      if (String(lwt).toInt() == 0) {
+        MQTT_LWT = true;
+      } else {
+        MQTT_LWT = false;
+      }
 
+//      MQTT_HOST = String(mqtt_host);
+//      MQTT_USERNAME = String(mqtt_user);
+//      MQTT_PASSWORD = String(mqtt_pass);
+//      MQTT_CLIENT_ID = String(mqtt_clientId);
+//      MQTT_PORT = String(mqtt_port).toInt();
+//      DEVICE_NAME = String(mqtt_device_name);
+      MQTT_HOST = String(host);
+      MQTT_USERNAME = String(username);
+      MQTT_PASSWORD = String(password);
+      MQTT_CLIENT_ID = String(client_id);
+      MQTT_PORT = String(port).toInt();
+      DEVICE_NAME = String(device_name);
+      MQTT_LWT = String(lwt);
 
-      Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = $s", host, port, username, password, client_id, device_name);
+      Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = $s, lwt = %s", host, port, username, password, client_id, device_name, lwt);
       Serial.println(); 
     }
   });

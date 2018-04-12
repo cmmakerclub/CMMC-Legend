@@ -1,10 +1,7 @@
 #include <Arduino.h>
 
-
-
 /* BOARD INFO */
 String DEVICE_NAME; 
-
 
 /* MQTT INFO */ 
 String MQTT_HOST;
@@ -14,5 +11,6 @@ String MQTT_CLIENT_ID;
 String MQTT_PREFIX;
 int    MQTT_PORT;
 int PUBLISH_EVERY       = 5000;
-int MQTT_CONNECT_TIMEOUT= 5000; 
+int MQTT_CONNECT_TIMEOUT= 5000;
+bool MQTT_LWT = false;
 
