@@ -63,6 +63,26 @@ CMMC_Interval interval;
 String wifi_list_json;
 
 void scanAndUpdateSSIDoutput();
+void init_wifi() { 
+  WiFi.softAPdisconnect();
+  WiFi.disconnect();
+  WiFi.persistent(false);
+  WiFi.mode(WIFI_OFF);
+  delay(20); 
+  WiFi.mode(WIFI_STA);
+  scanAndUpdateSSIDoutput();
+  WiFi.hostname(ap_ssid);
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(ap_ssid, ap_pwd);
+  WiFi.begin("CMMC-3rd", "espertap");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.printf ("Connecting to %s:%s\r\n", "ap", "ssid");
+    delay(300);
+  } 
+  Serial.println("WiFi Connected.");
+  digitalWrite(LED_BUILTIN, HIGH);
+}
+
 void setup() {
   SPIFFS.begin();
   blinker = new CMMC_Blink;
@@ -80,28 +100,12 @@ void setup() {
   digitalWrite(relayPin, relayPinState);;
 
 
-  WiFi.softAPdisconnect();
-  WiFi.disconnect();
-  WiFi.persistent(false);
-  WiFi.mode(WIFI_OFF);
-  delay(20); 
-
   mqttConfigManager.init("/mymqtt.json");
   wifiConfigManager.init("/wifi.json");
-
-  // wifiConfigManager.add_debug_listener([](const char* m) {
-  //   Serial.println(m);
-  // });
-
-  // mqttConfigManager.add_debug_listener([](const char* m) {
-  //   Serial.println(m);
-  // });
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     Serial.println("[user] wifi config json loaded..");
     Serial.println(content);
-//    root->printTo(Serial);
-//    Serial.println();
     strcpy(wifi_config_json, content);
 
     const char* m_ap_ssid = (*root)["ap_ssid"];
@@ -140,17 +144,11 @@ void setup() {
     }
   });
 
-  WiFi.mode(WIFI_STA);
-  scanAndUpdateSSIDoutput();
-  WiFi.hostname(ap_ssid);
-  WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(ap_ssid, ap_pwd);
-  WiFi.begin("CMMC-3rd", "espertap");
 
-  
+
   // initialize Mqtt Connector
-  init_mqtt();
-
+  init_wifi();
+  init_mqtt(); 
   setupWebServer();
 }
 
