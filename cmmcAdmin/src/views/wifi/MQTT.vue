@@ -39,7 +39,7 @@
             </p>
             <label class="label">Device Name</label>
             <p class="control has-icon">
-              <input class="input" type="number" v-model="deviceName" required>
+              <input class="input" type="text" v-model="deviceName" required>
               <i class="fa fa-child"></i>
             </p>
             <label class="label">Publish Eevery Second</label>
