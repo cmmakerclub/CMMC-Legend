@@ -11,6 +11,22 @@
 #include <CMMC_Config_Manager.h>
 #include "webserver.h"
 
+
+#include <ArduinoJson.h>
+#include <MqttConnector.h>
+#include "init_mqtt.h"
+#include "_publish.h"
+#include "_receive.h"
+#include "_config.h"
+
+// MQTT CONNECTOR
+MqttConnector *mqtt; 
+int relayPin = 15; 
+int relayPinState = HIGH;
+char myName[40];
+
+// END MQTT CONNECTOR 
+
 bool flag_busy = false;
 bool flag_needs_commit = false;
 bool flag_needs_scan_wifi = true;
@@ -56,6 +72,12 @@ void setup() {
   blinker->blink(500, 2);
   Serial.begin(57600);
   Serial.setDebugOutput(true);
+
+  // Relay OUTPUT
+  pinMode(relayPin, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(relayPin, relayPinState);;
+
 
   WiFi.softAPdisconnect();
   WiFi.disconnect();
@@ -120,7 +142,10 @@ void setup() {
   WiFi.hostname(ap_ssid);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(ap_ssid, ap_pwd);
-  WiFi.begin("CMMC-3rd", "espertap");
+  //WiFi.begin("CMMC-3rd", "espertap");
+
+  // initialize Mqtt Connector
+  init_mqtt();
 
   setupWebServer();
 
@@ -150,6 +175,9 @@ void scanAndUpdateSSIDoutput() {
 }
 
 void loop() {
+  // mqtt loop 
+  mqtt->loop();
+
    interval.every_ms(30L * 1000, []() {
      while (flag_busy) {
        delay(100);
