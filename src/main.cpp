@@ -44,6 +44,8 @@ bool flag_needs_scan_wifi = true;
 bool flag_load_mqtt_config = false;
 bool flag_load_wifi_config = false;
 bool flag_mqtt_available = false;
+bool flag_commit_wifi_config = false;
+bool flag_commit_mqtt_config = false;
 CMMC_Blink *blinker;
 
 CMMC_Config_Manager wifiConfigManager;
@@ -254,6 +256,16 @@ void loop() {
       strcpy(mqtt_config_json, content); 
     });
     flag_load_mqtt_config = false;
-  } 
+  }
+
+  if (flag_commit_wifi_config) {
+    wifiConfigManager.commit();
+    flag_commit_wifi_config = false;
+  }
+
+  if (flag_commit_mqtt_config) {
+    mqttConfigManager.commit();
+    flag_commit_mqtt_config = false;
+  }
 }
 

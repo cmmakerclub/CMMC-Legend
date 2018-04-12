@@ -17,6 +17,8 @@ extern bool flag_load_mqtt_config;
 extern bool flag_load_wifi_config;
 extern char wifi_config_json[120];
 extern char mqtt_config_json[120];
+extern bool flag_commit_wifi_config;
+extern bool flag_commit_mqtt_config;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -224,7 +226,7 @@ void setupWebServer() {
     Serial.println(output);
     request->send(200, "application/json", output);
     flag_busy = false;
-    wifiConfigManager.commit();
+    flag_commit_wifi_config = true;
     flag_load_wifi_config = true;
   });
   // ===== END /API/WIFI/AP =====
@@ -266,7 +268,7 @@ void setupWebServer() {
       Serial.println(output);
       request->send(200, "application/json", output);
       flag_busy = false;
-      wifiConfigManager.commit();
+      flag_commit_wifi_config = true;
       flag_load_wifi_config = true;
     });
     // ===== END /API/WIFI/STA =====
@@ -303,7 +305,7 @@ void setupWebServer() {
     Serial.println(output);
     request->send(200, "application/json", output);
     flag_busy = false;
-    mqttConfigManager.commit();
+    flag_commit_mqtt_config = true;
     flag_load_mqtt_config = true;
   }); 
 
