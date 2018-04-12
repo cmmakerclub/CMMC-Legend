@@ -1,18 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="9825ece4-910d-4afc-b3fe-35c7c3c406be" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/dist/index.htm" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/dist/index.htm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/dist/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/dist/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/dist/static/js/app.6b6.js.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/dist/static/js/manifest.711.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/MQTT.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/index.htm" beforeDir="false" afterPath="$PROJECT_DIR$/data/index.htm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/data/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/js/app.6b6.js.gz" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/static/js/manifest.711.js" beforeDir="false" />
-    </list>
+    <list default="true" id="9825ece4-910d-4afc-b3fe-35c7c3c406be" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
     <ignored path="$PROJECT_DIR$/tmp/" />
@@ -258,12 +247,12 @@
       <updated>1523362691510</updated>
       <workItem from="1523362694455" duration="6320000" />
       <workItem from="1523517546302" duration="26000" />
-      <workItem from="1523517616880" duration="1511000" />
+      <workItem from="1523517616880" duration="1612000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="7857000" />
+    <option name="totallyTimeSpent" value="7958000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="712" extended-state="6" />
