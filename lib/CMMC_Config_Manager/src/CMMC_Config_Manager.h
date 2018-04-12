@@ -35,8 +35,7 @@ class CMMC_Config_Manager
 {
   public:
     // constructor
-    CMMC_Config_Manager();
-
+    CMMC_Config_Manager(); 
     ~CMMC_Config_Manager();
 
     void init(const char* filename = "/config.json");
@@ -48,6 +47,7 @@ class CMMC_Config_Manager
     const char* fileContent = 0;
 
   private:
+    bool _busy = false;
     void _init_json_file(cmmc_json_loaded_cb_t cb = NULL);
     Items items;
     StaticJsonBuffer<1024> jsonBuffer;
