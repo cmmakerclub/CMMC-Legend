@@ -123,7 +123,7 @@
     <handled-path value="$PROJECT_DIR$/cmmcAdmin/node_modules" />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="23" />
+    <option name="y" value="303" />
     <option name="width" value="1280" />
     <option name="height" value="712" />
   </component>
@@ -229,12 +229,12 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1523362691510</updated>
-      <workItem from="1523362694455" duration="6084000" />
+      <workItem from="1523362694455" duration="6320000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="6084000" />
+    <option name="totallyTimeSpent" value="6320000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="712" extended-state="6" />

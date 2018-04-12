@@ -14,6 +14,7 @@
 bool flag_busy = false;
 bool flag_needs_commit = false;
 bool flag_needs_scan_wifi = true;
+bool flag_load_mqtt_config = false;
 CMMC_Blink *blinker;
 
 CMMC_Config_Manager wifiConfigManager;
@@ -154,27 +155,34 @@ void loop() {
      }
    });
 
-  // if (flag_needs_scan_wifi) {
-  //   scanAndUpdateSSIDoutput(); 
-  //   flag_needs_scan_wifi = false;
-  // }
-  
-  if (flag_needs_commit) {
-    flag_needs_commit = false;
-    flag_busy = true;
-    Serial.println("be commited.");
-    mqttConfigManager.commit();
-    delay(100);
-    wifiConfigManager.commit(); 
-
+  if (flag_load_mqtt_config) {
     mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
       Serial.println("[user] mqtt config json loaded..");
       Serial.println(content); 
       strcpy(mqtt_config_json, content); 
     });
-
-    flag_busy = false;
-    Serial.println("fs commited.");
+    flag_load_mqtt_config = false;
   }
+
+  // if (flag_needs_scan_wifi) {
+  //   scanAndUpdateSSIDoutput(); 
+  //   flag_needs_scan_wifi = false;
+  // }
+  
+  // if (flag_needs_commit) {
+  //   flag_needs_commit = false;
+  //   flag_busy = true;
+  //   Serial.println("be commited.");
+  //   mqttConfigManager.commit();
+  //   delay(100);
+  //   wifiConfigManager.commit(); 
+  //   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
+  //     Serial.println("[user] mqtt config json loaded..");
+  //     Serial.println(content); 
+  //     strcpy(mqtt_config_json, content); 
+  //   });
+  //   flag_busy = false;
+  //   Serial.println("fs commited.");
+  // }
 }
 

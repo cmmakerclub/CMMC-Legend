@@ -13,6 +13,7 @@ extern CMMC_Blink *blinker;
 extern bool flag_busy;
 extern bool flag_needs_scan_wifi;
 extern bool flag_needs_commit;
+extern bool flag_load_mqtt_config;
 extern char wifi_config_json[120];
 extern char mqtt_config_json[120];
 
@@ -222,7 +223,7 @@ void setupWebServer() {
     Serial.println(output);
     request->send(200, "application/json", output);
     flag_busy = false;
-    flag_needs_commit = true;
+    wifiConfigManager.commit();
   });
   // ===== END /WIFI/AP =====
 
@@ -258,7 +259,8 @@ void setupWebServer() {
     Serial.println(output);
     request->send(200, "application/json", output);
     flag_busy = false;
-    flag_needs_commit = true;
+    mqttConfigManager.commit();
+    flag_load_mqtt_config = true;
   }); 
 
   server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest * request) {
