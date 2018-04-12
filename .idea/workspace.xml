@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9825ece4-910d-4afc-b3fe-35c7c3c406be" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/src/api/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/src/api/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/ESPNOW.vue" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/ESPNOW.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmmcAdmin/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/cmmcAdmin/package.json" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -21,7 +21,7 @@
         <entry file="file://$PROJECT_DIR$/src/main.cpp">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="369">
-              <caret line="264" lean-forward="true" selection-start-line="264" selection-end-line="264" />
+              <caret line="279" lean-forward="true" selection-start-line="279" selection-end-line="279" />
             </state>
           </provider>
         </entry>
@@ -29,8 +29,8 @@
       <file leaf-file-name="webserver.h" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/webserver.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="167">
-              <caret line="233" column="37" lean-forward="true" selection-start-line="233" selection-start-column="37" selection-end-line="233" selection-end-column="37" />
+            <state relative-caret-position="184">
+              <caret line="234" column="37" lean-forward="true" selection-start-line="234" selection-start-column="37" selection-end-line="234" selection-end-column="37" />
             </state>
           </provider>
         </entry>
@@ -44,11 +44,20 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ESPNOW.vue" pinned="false" current-in-tab="true">
+      <file leaf-file-name="ESPNOW.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/views/wifi/ESPNOW.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="103">
-              <caret line="53" column="6" lean-forward="true" selection-start-line="53" selection-start-column="6" selection-end-line="53" selection-end-column="6" />
+            <state relative-caret-position="245">
+              <caret line="73" column="5" lean-forward="true" selection-start-line="73" selection-start-column="5" selection-end-line="73" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="package.json" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/cmmcAdmin/package.json">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="7" column="38" selection-start-line="7" selection-start-column="38" selection-end-line="7" selection-end-column="38" />
             </state>
           </provider>
         </entry>
@@ -94,6 +103,7 @@
         <option value="$PROJECT_DIR$/src/main.cpp" />
         <option value="$PROJECT_DIR$/cmmcAdmin/src/api/index.js" />
         <option value="$PROJECT_DIR$/cmmcAdmin/src/views/wifi/ESPNOW.vue" />
+        <option value="$PROJECT_DIR$/cmmcAdmin/package.json" />
       </list>
     </option>
   </component>
@@ -220,12 +230,12 @@
       <updated>1523362691510</updated>
       <workItem from="1523362694455" duration="6320000" />
       <workItem from="1523517546302" duration="26000" />
-      <workItem from="1523517616880" duration="14029000" />
+      <workItem from="1523517616880" duration="14353000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="20375000" />
+    <option name="totallyTimeSpent" value="20699000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1280" height="712" extended-state="6" />
@@ -341,11 +351,6 @@
     <entry file="file://$PROJECT_DIR$/cmmcAdmin/.gitignore">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/cmmcAdmin/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1064" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cmmcAdmin/.babelrc">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -412,15 +417,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/webserver.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="167">
-          <caret line="233" column="37" lean-forward="true" selection-start-line="233" selection-start-column="37" selection-end-line="233" selection-end-column="37" />
+        <state relative-caret-position="184">
+          <caret line="234" column="37" lean-forward="true" selection-start-line="234" selection-start-column="37" selection-end-line="234" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main.cpp">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="369">
-          <caret line="264" lean-forward="true" selection-start-line="264" selection-end-line="264" />
+          <caret line="279" lean-forward="true" selection-start-line="279" selection-end-line="279" />
         </state>
       </provider>
     </entry>
@@ -433,8 +438,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cmmcAdmin/src/views/wifi/ESPNOW.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="103">
-          <caret line="53" column="6" lean-forward="true" selection-start-line="53" selection-start-column="6" selection-end-line="53" selection-end-column="6" />
+        <state relative-caret-position="245">
+          <caret line="73" column="5" lean-forward="true" selection-start-line="73" selection-start-column="5" selection-end-line="73" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cmmcAdmin/package.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="38" selection-start-line="7" selection-start-column="38" selection-end-line="7" selection-end-column="38" />
         </state>
       </provider>
     </entry>
