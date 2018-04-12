@@ -3,7 +3,7 @@
 
 
 /* BOARD INFO */
-String DEVICE_NAME      = "CMMC-LEGEND001"; 
+String DEVICE_NAME; 
 
 
 /* MQTT INFO */ 
