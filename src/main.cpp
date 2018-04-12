@@ -68,7 +68,7 @@ char mqtt_pass[30];
 char mqtt_clientId[30];
 char mqtt_port[10];
 char mqtt_device_name[15];
-char mqtt_config_json[120];
+char mqtt_config_json[500];
 
 
 AsyncWebServer server(80);

@@ -16,7 +16,7 @@ extern bool flag_needs_commit;
 extern bool flag_load_mqtt_config;
 extern bool flag_load_wifi_config;
 extern char wifi_config_json[120];
-extern char mqtt_config_json[120];
+extern char mqtt_config_json[500];
 extern bool flag_commit_wifi_config;
 extern bool flag_commit_mqtt_config;
 

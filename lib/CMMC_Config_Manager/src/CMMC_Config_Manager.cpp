@@ -58,11 +58,10 @@ void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   _this = this;
   items[_k] = _v;
   // show content:
-  USER_DEBUG_PRINTF("Iterate through items...");
-  for (Items::iterator it = items.begin(); it != items.end(); ++it) {
-    USER_DEBUG_PRINTF("> %s->%s", it->first.c_str(), it->second.c_str());
-  }
-
+  // USER_DEBUG_PRINTF("Iterate through items...");
+  // for (Items::iterator it = items.begin(); it != items.end(); ++it) {
+  //   USER_DEBUG_PRINTF("> %s->%s", it->first.c_str(), it->second.c_str());
+  // } 
   // USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
   USER_DEBUG_PRINTF("___ END add field");
 }
@@ -78,7 +77,9 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   const char* b = buf.get();
   USER_DEBUG_PRINTF("[load_config] size = %d\r\n", size); 
   USER_DEBUG_PRINTF("[load_config] config content ->%s<-", b);
-  JsonObject& json = this->jsonBuffer.parseObject(b);
+  Serial.printf("[0] heap: %lu", ESP.getFreeHeap());
+  JsonObject& json = this->jsonBuffer.parseObject(b); 
+  Serial.printf("[1] heap: %lu", ESP.getFreeHeap());
   if (json.success()) {
     USER_DEBUG_PRINTF("[load_config] Parsing config success.");
     if (cb != NULL) {
@@ -88,7 +89,7 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   }
   else {
     USER_DEBUG_PRINTF("[load_config] Failed to parse config file.");
-    _init_json_file(cb);
+    // _init_json_file(cb);
   }
 }
 
