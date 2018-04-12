@@ -115,6 +115,7 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
 void setupWebServer() {
   ws.onEvent(onWsEvent);
   server.addHandler(&ws);
+  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
   events.onConnect([](AsyncEventSourceClient * client) {
     client->send("hello!", NULL, millis(), 1000);
   });
@@ -315,9 +316,7 @@ void setupWebServer() {
     Serial.print(".....scan wifi >> ");
     Serial.println(wifi_list_json);
     request->send(200, "application/json", wifi_list_json);
-  });
-
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  }); 
 
   server.onNotFound([](AsyncWebServerRequest * request) {
     Serial.printf("NOT_FOUND: ");

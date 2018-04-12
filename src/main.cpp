@@ -178,6 +178,21 @@ void setup() {
   digitalWrite(2, LOW);
   delay(100);
 
+  Serial.printf("initializing SPIFFS ...");
+  Dir dir = SPIFFS.openDir("/");
+  Serial.print("dir = ");
+  while (dir.next()) {
+    String fileName = dir.fileName();
+    size_t fileSize = dir.fileSize();
+    Serial.printf("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
+  }
+
+  dir = SPIFFS.openDir("/data");
+  while (dir.next()) {
+      Serial.print(dir.fileName());
+      File f = dir.openFile("r");
+      Serial.println(f.size());
+  }
 
   blinker->init();
   blinker->blink(500, 2);
@@ -241,20 +256,20 @@ void loop() {
    });
 
   if (flag_load_wifi_config) {
-    wifiConfigManager.load_config([](JsonObject * root, const char* content) { 
-      Serial.println("[user] wifi config json loaded..");
-      Serial.println(content); 
-      strcpy(wifi_config_json, content); 
-    });
+    // wifiConfigManager.load_config([](JsonObject * root, const char* content) { 
+    //   Serial.println("[user] wifi config json loaded..");
+    //   Serial.println(content); 
+    //   strcpy(wifi_config_json, content); 
+    // });
     flag_load_wifi_config = false;
   }
 
   if (flag_load_mqtt_config) {
-    mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
-      Serial.println("[user] mqtt config json loaded..");
-      Serial.println(content); 
-      strcpy(mqtt_config_json, content); 
-    });
+    // mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
+    //   Serial.println("[user] mqtt config json loaded..");
+    //   Serial.println(content); 
+    //   strcpy(mqtt_config_json, content); 
+    // });
     flag_load_mqtt_config = false;
   }
 
