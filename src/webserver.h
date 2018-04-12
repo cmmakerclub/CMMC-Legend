@@ -187,7 +187,7 @@ void setupWebServer() {
     }
   });
 
-  // ===== CREATE /WIFI/AP =====
+  // ===== CREATE /API/WIFI/AP =====
   server.on("/api/wifi/ap", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "application/json", wifi_config_json);
   });
@@ -227,7 +227,49 @@ void setupWebServer() {
     wifiConfigManager.commit();
     flag_load_wifi_config = true;
   });
-  // ===== END /WIFI/AP =====
+  // ===== END /API/WIFI/AP =====
+
+  // ===== CREATE /API/WIFI/STA =====
+    server.on("/api/wifi/sta", HTTP_GET, [](AsyncWebServerRequest * request) {
+      request->send(200, "application/json", wifi_config_json);
+    });
+
+    server.on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
+      flag_busy = true;
+      int params = request->params();
+          String output = "{";
+          for (int i = 0; i < params; i++) {
+            AsyncWebParameter* p = request->getParam(i);
+            if (p->isPost()) {
+              const char* key = p->name().c_str();
+              const char* value = p->value().c_str();
+              Serial.printf("POST[%s]: %s\n", key, value);
+              String v;
+              if (value == 0) {
+                Serial.println("value is null..");
+                v = String("");
+              }
+              else {
+                v = String(value);
+              }
+              output += "\"" + String(key) + "\"";
+              if (i == params - 1 ) {
+                output += ":\"" + v + "\"";
+              }
+              else {
+                output += ":\"" + v + "\",";
+              }
+              wifiConfigManager.add_field(key, v.c_str());
+            }
+          }
+      output += "}";
+      Serial.println(output);
+      request->send(200, "application/json", output);
+      flag_busy = false;
+      wifiConfigManager.commit();
+      flag_load_wifi_config = true;
+    });
+    // ===== END /API/WIFI/STA =====
 
   server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
     flag_busy = true;

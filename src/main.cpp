@@ -40,8 +40,8 @@ CMMC_Config_Manager mqttConfigManager;
 const char* http_username = "admin";
 const char* http_password = "admin";
 
-const char sta_ssid[30] = "CMMC-3rd";
-const char sta_pwd[30] = "espertap";
+char sta_ssid[30] = "CMMC-3rd";
+char sta_pwd[30] = "espertap";
 
 char ap_ssid[30] = "CMMC-Legend";
 char ap_pwd[30] = "";
@@ -98,6 +98,9 @@ void init_userconfig() {
 
     const char* m_ap_ssid = (*root)["ap_ssid"];
     const char* m_ap_pwd = (*root)["ap_pwd"];
+    const char* m_sta_ssid = (*root)["sta_ssid"];
+    const char* m_sta_password = (*root)["sta_password"];
+    const char* m_sta_manual_ssid = (*root)["sta_manual_ssid"];
 
     if (m_ap_ssid != NULL) {
         strcpy(ap_ssid, m_ap_ssid);
@@ -105,6 +108,16 @@ void init_userconfig() {
 
     if (m_ap_pwd != NULL) {
         strcpy(ap_pwd, m_ap_pwd);
+    }
+
+    if (m_sta_manual_ssid != NULL) {
+        strcpy(sta_ssid, m_sta_manual_ssid);
+    } else {
+        strcpy(sta_ssid, m_sta_ssid);
+    }
+
+    if (m_sta_password != NULL) {
+        strcpy(sta_pwd, m_sta_password);
     }
 
   });
