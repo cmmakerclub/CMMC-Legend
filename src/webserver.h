@@ -11,12 +11,9 @@ extern const char* http_username;
 extern const char* http_password;
 extern CMMC_Blink *blinker;
 extern bool flag_busy;
-extern bool flag_needs_scan_wifi;
-extern bool flag_needs_commit;
+
 extern char wifi_config_json[120];
 extern char mqtt_config_json[300];
-extern bool flag_commit_wifi_config;
-extern bool flag_commit_mqtt_config;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -217,8 +214,6 @@ void setupWebServer() {
     Serial.println(output);
     request->send(200, "application/json", output);
     flag_busy = false;
-    flag_commit_wifi_config = true;
-    wifiConfigManager.commit();
   });
   // ===== END /API/WIFI/AP =====
 
@@ -255,7 +250,6 @@ void setupWebServer() {
       Serial.println(output);
       request->send(200, "application/json", output);
       flag_busy = false;
-      flag_commit_wifi_config = true;
       wifiConfigManager.commit();
     });
     // ===== END /API/WIFI/STA =====
@@ -292,15 +286,7 @@ void setupWebServer() {
     Serial.println(output);
     request->send(200, "application/json", output);
     flag_busy = false;
-    flag_commit_mqtt_config = true;
-  }); 
-
-  server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest * request) {
-    flag_needs_scan_wifi = true;
-    blinker->blink(100);
-    Serial.print(".....scan wifi >> ");
-    Serial.println(wifi_list_json);
-    request->send(200, "application/json", wifi_list_json);
+    mqttConfigManager.commit();
   }); 
 
   server.onNotFound([](AsyncWebServerRequest * request) {

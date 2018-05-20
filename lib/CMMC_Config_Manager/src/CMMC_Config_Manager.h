@@ -54,7 +54,7 @@ class CMMC_Config_Manager
     cmmc_debug_cb_t _user_debug_cb;
     File configFile;
     char filename_c[60];
-    char debug_buffer[60];
+    char debug_buffer[120];
     u8 _status = 0;
     char _k[30];
     char _v[50];

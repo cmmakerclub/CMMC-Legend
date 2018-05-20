@@ -61,14 +61,14 @@ export function getMqttConfig (context) {
 
 export function saveMqttConfig (context, options) {
   const formData = new window.FormData()
-  formData.append('h', options.host)
-  formData.append('u', options.username)
-  formData.append('pwd', options.password)
-  formData.append('dN', options.deviceName)
-  formData.append('cid', options.clientId)
+  formData.append('host', options.host)
+  formData.append('username', options.username)
+  formData.append('password', options.password)
+  formData.append('deviceName', options.deviceName)
+  formData.append('clientId', options.clientId)
   formData.append('port', options.port)
   formData.append('lwt', options.lwt)
-  formData.append('r', options.publishRateSecond)
+  formData.append('publishRateSecond', options.publishRateSecond)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/mqtt', formData)
       .then((response) => response.json())

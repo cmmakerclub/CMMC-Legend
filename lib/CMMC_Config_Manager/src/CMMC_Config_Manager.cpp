@@ -9,15 +9,13 @@ CMMC_Config_Manager::~CMMC_Config_Manager() {
 }
 
 void CMMC_Config_Manager::init(const char* filename) {   
-  strcpy(this->filename_c, filename);
-  USER_DEBUG_PRINTF("initializing SPIFFS ...");
-  Dir dir = SPIFFS.openDir("/");
-  while (dir.next()) {
-    String fileName = dir.fileName();
-    size_t fileSize = dir.fileSize();
-    USER_DEBUG_PRINTF("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
+  strcpy(this->filename_c, filename); 
+  if (SPIFFS.exists(this->filename_c)) {
+    USER_DEBUG_PRINTF("file exists donot create......"); 
   }
-  _init_json_file();
+  else {
+    _init_json_file(); 
+  }
 }
 
 void CMMC_Config_Manager::commit() {

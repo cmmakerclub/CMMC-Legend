@@ -39,11 +39,7 @@ char myName[40];
 // END MQTT CONNECTOR 
 
 bool flag_busy = false;
-bool flag_needs_commit = false;
-bool flag_needs_scan_wifi = true;
 bool flag_mqtt_available = false;
-bool flag_commit_wifi_config = false;
-bool flag_commit_mqtt_config = false;
 CMMC_Blink *blinker;
 
 CMMC_Config_Manager mqttConfigManager; 
@@ -72,12 +68,9 @@ char mqtt_config_json[300];
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
-CMMC_Interval interval;
-
+CMMC_Interval interval; 
 //const char* hostName = "CMMC-Legend";
-String wifi_list_json;
 
-void scanAndUpdateSSIDoutput();
 void init_wifi() { 
   WiFi.softAPdisconnect();
   WiFi.disconnect();
@@ -85,12 +78,9 @@ void init_wifi() {
   WiFi.mode(WIFI_OFF);
   delay(20); 
   WiFi.mode(WIFI_STA);
-  scanAndUpdateSSIDoutput();
   WiFi.hostname(ap_ssid);
   WiFi.mode(WIFI_AP_STA);
-  // WiFi.softAP(ap_ssid, ap_pwd); 
-  WiFi.begin(sta_ssid, sta_pwd);
-
+  WiFi.begin(sta_ssid, sta_pwd); 
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
@@ -104,47 +94,31 @@ void init_userconfig() {
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     Serial.println("[user] wifi config json loaded..");
-    Serial.println(content);
-    strcpy(wifi_config_json, content);
-
-    const char* m_ap_ssid = (*root)["ap_ssid"];
-    const char* m_ap_pwd = (*root)["ap_pwd"];
-    const char* m_sta_ssid = (*root)["sta_ssid"];
-    const char* m_sta_password = (*root)["sta_password"];
-    const char* m_sta_manual_ssid = (*root)["sta_manual_ssid"];
-
-    if (m_ap_ssid != NULL) {
-        strcpy(ap_ssid, m_ap_ssid);
-    }
-
-    if (m_ap_pwd != NULL) {
-        strcpy(ap_pwd, m_ap_pwd);
-    }
-
-    if (m_sta_manual_ssid != NULL) {
-        strcpy(sta_ssid, m_sta_manual_ssid);
-    } else {
-        if (m_sta_ssid != NULL) {
-            strcpy(sta_ssid, m_sta_ssid);
-        }
-    }
-
-    if (m_sta_password != NULL) {
-        strcpy(sta_pwd, m_sta_password);
-    }
-    
+    Serial.println(content); 
+    if ((*root)["ap_ssid"] == NULL) return;
+    strcpy(ap_ssid, (*root)["ap_ssid"]);
+    strcpy(ap_pwd, (*root)["ap_password"]); 
+    strcpy(sta_ssid, (*root)["sta_ssid"]); 
+    strcpy(sta_pwd, (*root)["sta_password"]); 
   });
+
+  Serial.printf("initializing SPIFFS ...");
+  Dir dir = SPIFFS.openDir("/");
+  while (dir.next()) {
+    String fileName = dir.fileName();
+    size_t fileSize = dir.fileSize();
+    Serial.printf("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
+  }
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
     Serial.println(content); 
-    strcpy(mqtt_config_json, content); 
-    const char* host = (*root)["h"];
-    const char* username = (*root)["u"];
-    const char* password = (*root)["p"];
-    const char* client_id = (*root)["cid"];
+    const char* host = (*root)["host"];
+    const char* username = (*root)["username"];
+    const char* password = (*root)["password"];
+    const char* client_id = (*root)["clientId"];
     const char* port = (*root)["port"];
-    const char* device_name = (*root)["dN"];
+    const char* device_name = (*root)["deviceName"];
 
     if (host != NULL) {
       strcpy(mqtt_host, host);
@@ -165,7 +139,7 @@ void init_userconfig() {
       Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = %s", 
         host, port, username, password, client_id, device_name);
       Serial.println();
-      flag_mqtt_available = true;
+      flag_mqtt_available = false;
     }
   });
 }
@@ -177,92 +151,50 @@ void setup() {
   digitalWrite(2, LOW);
   delay(100);
 
-  Serial.printf("initializing SPIFFS ...");
-  Dir dir = SPIFFS.openDir("/");
-  Serial.print("dir = ");
-  while (dir.next()) {
-    String fileName = dir.fileName();
-    size_t fileSize = dir.fileSize();
-    Serial.printf("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
-  }
-
-  dir = SPIFFS.openDir("/data");
-  while (dir.next()) {
-      Serial.print(dir.fileName());
-      File f = dir.openFile("r");
-      Serial.println(f.size());
-  }
+  
 
   blinker->init();
   blinker->blink(500, 2);
   Serial.begin(57600);
   Serial.setDebugOutput(true);
 
-  // Relay OUTPUT
-  pinMode(relayPin, OUTPUT);
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(relayPin, relayPinState);;
-
+  Serial.printf("initializing SPIFFS ...");
+  Dir dir = SPIFFS.openDir("/");
+  Serial.print("dir = ");
+  while (dir.next()) {
+    String fileName = dir.fileName();
+    size_t fileSize = dir.fileSize();
+    Serial.printf("FS File: %s, size: %s\r\n", fileName.c_str(), String(fileSize).c_str());
+  }
+  
   init_userconfig();
   init_wifi();
+
   while (WiFi.status() != WL_CONNECTED) {
     Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
     delay(300);
   } 
-  Serial.println("WiFi Connected.");
 
-  if (flag_mqtt_available) {
-    Serial.println("init_mqtt..");
-    init_mqtt();
-    Serial.println("/init_mqtt..");
-    flag_mqtt_available = false;
-  }
-
+  Serial.println("WiFi Connected."); 
   setupWebServer();
-}
 
-void scanAndUpdateSSIDoutput() {
-  int n = WiFi.scanNetworks();
-  Serial.println(n);
-  String currentSSID = WiFi.SSID();
-  wifi_list_json = "[";
-  for ( int i = 0; i < n; i++ ) {
-    if (wifi_list_json != "[") wifi_list_json += ',';
-    wifi_list_json += "{\"name\": ";
-    wifi_list_json += "\"";
-    wifi_list_json += WiFi.SSID(i);
-    wifi_list_json += "\",";
-    wifi_list_json += "\"rssi\": ";
-    wifi_list_json += WiFi.RSSI(i);
-    wifi_list_json += ",";
-    wifi_list_json += "\"encryption\": ";
-    wifi_list_json += WiFi.encryptionType(i);
-    wifi_list_json += "}";
-    yield();
-  }
-  wifi_list_json += "]";
-  Serial.println("ssid list has been updated.");
+  // if (flag_mqtt_available) {
+  //   Serial.println("init_mqtt..");
+  //   init_mqtt();
+  //   Serial.println("/init_mqtt..");
+  //   flag_mqtt_available = false;
+  // } 
 }
 
 void loop() {
-  if (flag_mqtt_available) {
-    mqtt->loop(); 
-  }
+  // if (flag_mqtt_available) {
+  //   mqtt->loop(); 
+  // }
 
-   interval.every_ms(30L * 1000, []() {
-     while (flag_busy) {
-       delay(100);
-     }
-   });
-
-
-  if (flag_commit_wifi_config == true) {
-    flag_commit_wifi_config = false;
-  }
-
-  if (flag_commit_mqtt_config) {
-    flag_commit_mqtt_config = false;
-    mqttConfigManager.commit();
-  }
+  //  interval.every_ms(30L * 1000, []() {
+  //    while (flag_busy) {
+  //      delay(100);
+  //    }
+  //  }); 
 }
 

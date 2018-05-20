@@ -70,12 +70,12 @@
     components: {},
     mounted () {
       getMqttConfig(this).then((json) => {
-        this.host = json.h
-        this.username = json.u
-        this.password = json.p
-        this.clientId = json.cid
-        this.publishRateSecond = json.r
-        this.deviceName = json.dN
+        this.host = json.host
+        this.username = json.username
+        this.password = json.password
+        this.clientId = json.clientId
+        this.publishRateSecond = json.publishRateSecond
+        this.deviceName = json.deviceName
         this.lwt = json.lwt
         this.port = json.port
       })
@@ -89,12 +89,12 @@
         // console.log('context', context)
 
         saveMqttConfig(context, {
-          h: context.host,
-          u: context.username,
-          pwd: context.password,
-          cid: context.clientId,
-          r: context.publishRateSecond,
-          dN: context.deviceName,
+          host: context.host,
+          username: context.username,
+          password: context.password,
+          clientId: context.clientId,
+          publishRateSecond: context.publishRateSecond,
+          deviceName: context.deviceName,
           lwt: (context.lwt === true) ? '0' : '1',
           port: context.port
         })
