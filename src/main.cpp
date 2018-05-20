@@ -41,15 +41,13 @@ char myName[40];
 bool flag_busy = false;
 bool flag_needs_commit = false;
 bool flag_needs_scan_wifi = true;
-bool flag_load_mqtt_config = false;
-bool flag_load_wifi_config = false;
 bool flag_mqtt_available = false;
 bool flag_commit_wifi_config = false;
 bool flag_commit_mqtt_config = false;
 CMMC_Blink *blinker;
 
-CMMC_Config_Manager wifiConfigManager;
 CMMC_Config_Manager mqttConfigManager; 
+CMMC_Config_Manager wifiConfigManager;
 
 const char* http_username = "admin";
 const char* http_password = "admin";
@@ -68,7 +66,7 @@ char mqtt_pass[30];
 char mqtt_clientId[30];
 char mqtt_port[10];
 char mqtt_device_name[15];
-char mqtt_config_json[500];
+char mqtt_config_json[300];
 
 
 AsyncWebServer server(80);
@@ -100,8 +98,9 @@ void init_userconfig() {
   mqttConfigManager.add_debug_listener([](const char* msg) {
     Serial.printf(">> %s \r\n", msg);
   });
-  mqttConfigManager.init("/mymqtt.json");
+
   wifiConfigManager.init("/wifi.json");
+  mqttConfigManager.init("/mymqtt.json");
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     Serial.println("[user] wifi config json loaded..");
@@ -249,38 +248,32 @@ void loop() {
   if (flag_mqtt_available) {
     mqtt->loop(); 
   }
+
    interval.every_ms(30L * 1000, []() {
      while (flag_busy) {
        delay(100);
      }
    });
 
-  if (flag_load_wifi_config) {
-    // wifiConfigManager.load_config([](JsonObject * root, const char* content) { 
-    //   Serial.println("[user] wifi config json loaded..");
-    //   Serial.println(content); 
-    //   strcpy(wifi_config_json, content); 
-    // });
-    flag_load_wifi_config = false;
-  }
 
-  if (flag_load_mqtt_config) {
-    // mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
-    //   Serial.println("[user] mqtt config json loaded..");
-    //   Serial.println(content); 
-    //   strcpy(mqtt_config_json, content); 
-    // });
-    flag_load_mqtt_config = false;
-  }
-
-  if (flag_commit_wifi_config) {
-    wifiConfigManager.commit();
+  if (flag_commit_wifi_config == true) {
     flag_commit_wifi_config = false;
+    wifiConfigManager.commit();
+    wifiConfigManager.load_config([](JsonObject * root, const char* content) { 
+      Serial.println("[user] wifi config json loaded..");
+      Serial.println(content); 
+      strcpy(wifi_config_json, content); 
+    });
   }
 
   if (flag_commit_mqtt_config) {
-    mqttConfigManager.commit();
     flag_commit_mqtt_config = false;
+    mqttConfigManager.commit();
+    mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
+      Serial.println("[user] mqtt config json loaded..");
+      Serial.println(content); 
+      strcpy(mqtt_config_json, content); 
+    });
   }
 }
 

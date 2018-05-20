@@ -13,6 +13,8 @@ rm -v dist/static/fonts/*.woff2
 
 popd 
 rsync --delete -av cmmcAdmin/dist/ data --progress
+rsync -av wifi.json data/
+rsync -av mymqtt.json data/
 
 read -p "Upload SPIFFS Image (y/n)? " choice
 case "$choice" in 

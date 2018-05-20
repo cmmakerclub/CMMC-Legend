@@ -13,10 +13,8 @@ extern CMMC_Blink *blinker;
 extern bool flag_busy;
 extern bool flag_needs_scan_wifi;
 extern bool flag_needs_commit;
-extern bool flag_load_mqtt_config;
-extern bool flag_load_wifi_config;
 extern char wifi_config_json[120];
-extern char mqtt_config_json[500];
+extern char mqtt_config_json[300];
 extern bool flag_commit_wifi_config;
 extern bool flag_commit_mqtt_config;
 
@@ -204,7 +202,7 @@ void setupWebServer() {
           if (p->isPost()) {
             const char* key = p->name().c_str();
             const char* value = p->value().c_str();
-            Serial.printf("POST[%s]: %s\n", key, value);
+            Serial.printf("POST[%s]->%s\n", key, value);
             String v;
             if (value == 0) {
               Serial.println("value is null..");
@@ -220,7 +218,9 @@ void setupWebServer() {
             else {
               output += ":\"" + v + "\",";
             }
+            Serial.println("add field.");
             wifiConfigManager.add_field(key, v.c_str());
+            Serial.println("/add field.");
           }
         }
     output += "}";
@@ -228,7 +228,6 @@ void setupWebServer() {
     request->send(200, "application/json", output);
     flag_busy = false;
     flag_commit_wifi_config = true;
-    flag_load_wifi_config = true;
   });
   // ===== END /API/WIFI/AP =====
 
@@ -270,7 +269,6 @@ void setupWebServer() {
       request->send(200, "application/json", output);
       flag_busy = false;
       flag_commit_wifi_config = true;
-      flag_load_wifi_config = true;
     });
     // ===== END /API/WIFI/STA =====
 
@@ -307,7 +305,6 @@ void setupWebServer() {
     request->send(200, "application/json", output);
     flag_busy = false;
     flag_commit_mqtt_config = true;
-    flag_load_mqtt_config = true;
   }); 
 
   server.on("/api/wifi/scan", HTTP_GET, [](AsyncWebServerRequest * request) {

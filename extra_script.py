@@ -34,7 +34,7 @@ def upload_fs(source, target, env):
     print "upload_fs"
     print source 
     print target
-    print env.Dump()
+    # print env.Dump()
 
 # if not os.path.exists("lib-dev/CMMC_Utils"):
 #     os.makedirs("lib-dev/CMMC_Utils")

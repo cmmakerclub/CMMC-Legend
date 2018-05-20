@@ -17,35 +17,36 @@ void CMMC_Config_Manager::init(const char* filename) {
     size_t fileSize = dir.fileSize();
     USER_DEBUG_PRINTF("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
   }
+  _init_json_file();
 }
 
 void CMMC_Config_Manager::commit() {
   USER_DEBUG_PRINTF("Commit FS.....");
-  static CMMC_Config_Manager *_this;
-  _this = this;
+  static CMMC_Config_Manager *_this = this;
+
   load_config([](JsonObject * root, const char* content) {
     Serial.println("loading config...");
     _this->configFile = SPIFFS.open(_this->filename_c, "w");
     if (_this->configFile) {
       Serial.println("loading config OK"); 
+      Serial.print("FS PTR: ");
+      Serial.println(_this->configFile);
+      for (Items::iterator it = _this->items.begin(); it != _this->items.end(); ++it) {
+        root->set(it->first, it->second);
+      }
+      size_t configSize = root->printTo(_this->configFile);
+      Serial.print("wrote ");
+      Serial.print(configSize);
+      Serial.print(" bytes to file.");
+      root->printTo(Serial);
+      Serial.println();
+      size_t size = _this->configFile.size() + 1;
+      Serial.printf("config file size =%d \r\n", _this->configFile.size());
+      _this->configFile.close();
     }
     else {
       Serial.println("loading config FAILED!!"); 
     }
-    Serial.print("FS PTR: ");
-    Serial.println(_this->configFile);
-    for (Items::iterator it = _this->items.begin(); it != _this->items.end(); ++it) {
-      root->set(it->first, it->second);
-    }
-    size_t configSize = root->printTo(_this->configFile);
-    Serial.print("wrote ");
-    Serial.print(configSize);
-    Serial.print(" bytes to file.");
-    root->printTo(Serial);
-    Serial.println();
-    size_t size = _this->configFile.size() + 1;
-    Serial.printf("config file size =%d \r\n", _this->configFile.size());
-    _this->configFile.close();
   });
   
 }
@@ -54,15 +55,14 @@ void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   strcpy(this->_k, key);
   strcpy(this->_v, value);
   USER_DEBUG_PRINTF("___ START [add_field] with %s:%s", key, value);
-  static CMMC_Config_Manager *_this;
-  _this = this;
+  static CMMC_Config_Manager *_this = this;
   items[_k] = _v;
   // show content:
-  // USER_DEBUG_PRINTF("Iterate through items...");
-  // for (Items::iterator it = items.begin(); it != items.end(); ++it) {
-  //   USER_DEBUG_PRINTF("> %s->%s", it->first.c_str(), it->second.c_str());
-  // } 
-  // USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
+  USER_DEBUG_PRINTF("Iterate through items...");
+  for (Items::iterator it = items.begin(); it != items.end(); ++it) {
+    USER_DEBUG_PRINTF("> %s->%s", it->first.c_str(), it->second.c_str());
+  } 
+  USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
   USER_DEBUG_PRINTF("___ END add field");
 }
 
@@ -129,13 +129,13 @@ void CMMC_Config_Manager::add_debug_listener(cmmc_debug_cb_t cb) {
 
 void CMMC_Config_Manager::_open_file()  {
   USER_DEBUG_PRINTF("[open_file] open filename: %s", this->filename_c);
-  USER_DEBUG_PRINTF("DEBUGGIN SPIFFS ...");
-  Dir dir = SPIFFS.openDir("/");
-  while (dir.next()) {
-    String fileName = dir.fileName();
-    size_t fileSize = dir.fileSize();
-    USER_DEBUG_PRINTF("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
-  }
+  // USER_DEBUG_PRINTF("DEBUGGIN SPIFFS ...");
+  // Dir dir = SPIFFS.openDir("/");
+  // while (dir.next()) {
+  //   String fileName = dir.fileName();
+  //   size_t fileSize = dir.fileSize();
+  //   USER_DEBUG_PRINTF("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
+  // }
   if (SPIFFS.exists(this->filename_c)) {
     configFile = SPIFFS.open(this->filename_c, "r");
     USER_DEBUG_PRINTF("[open_file] config size = %lu bytes", configFile.size());
