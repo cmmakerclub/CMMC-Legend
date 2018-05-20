@@ -136,11 +136,6 @@ void setupWebServer() {
     request->send(response);
   });
 
-  server.on("/api/wifi/sta", HTTP_GET, [](AsyncWebServerRequest *request){
-    if(request->hasParam("ap_ssid", true))
-      AsyncWebParameter* p = request->getParam("ap_ssid", true);
-  });
-
   server.on("/fs", HTTP_GET, [](AsyncWebServerRequest *request){
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", fsServerIndex);
     response->addHeader("Connection", "close");
@@ -188,11 +183,6 @@ void setupWebServer() {
     }
   });
 
-  // ===== CREATE /API/WIFI/AP =====
-  server.on("/api/wifi/ap", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(200, "application/json", wifi_config_json);
-  });
-
   server.on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
     flag_busy = true;
     int params = request->params();
@@ -228,14 +218,11 @@ void setupWebServer() {
     request->send(200, "application/json", output);
     flag_busy = false;
     flag_commit_wifi_config = true;
+    wifiConfigManager.commit();
   });
   // ===== END /API/WIFI/AP =====
 
-  // ===== CREATE /API/WIFI/STA =====
-    server.on("/api/wifi/sta", HTTP_GET, [](AsyncWebServerRequest * request) {
-      request->send(200, "application/json", wifi_config_json);
-    });
-
+  // ===== CREATE /API/WIFI/STA ===== 
     server.on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
       flag_busy = true;
       int params = request->params();
@@ -269,6 +256,7 @@ void setupWebServer() {
       request->send(200, "application/json", output);
       flag_busy = false;
       flag_commit_wifi_config = true;
+      wifiConfigManager.commit();
     });
     // ===== END /API/WIFI/STA =====
 

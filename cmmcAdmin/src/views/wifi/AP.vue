@@ -6,17 +6,17 @@
           <div class="heading">
             <h1 class="title">AP Configuration</h1>
           </div>
-          <label class="label">AP</label>
           <div v-if="server_response" class="notification is-primary">
             {{ server_response }}
           </div>
+          <label class="label">AP</label>
           <p class="control has-icon">
-            <input class="input" type="text" v-model="ssid">
+            <input v-model="ap_ssid" class="input" type="text">
             <i class="fa fa-wifi"></i>
           </p>
           <label class="label">Password</label>
           <p class="control has-icon">
-            <input class="input" type="password" v-model="password">
+            <input v-model="ap_password" class="input" type="password">
             <i class="fa fa-lock"></i>
           </p>
           <p class="control">
@@ -39,8 +39,8 @@
 
     mounted () {
       getAPConfig(this).then((json) => {
-        this.ssid = json.ap_ssid
-        this.password = json.ap_pwd
+        this.ap_ssid = json.ap_ssid
+        this.ap_password = json.ap_password
       })
         .catch((err) => {
           console.log('error:', err)
@@ -49,7 +49,7 @@
     methods: {
       onSubmit () {
         let context = this
-        saveAPConfig(context, context.ssid, context.password)
+        saveAPConfig(context, context.ap_ssid, context.ap_password)
           .then((resp) => {
             this.server_response = resp
           })
@@ -61,11 +61,9 @@
     data () {
       return {
         server_response: null,
-        loading: false,
         post: {},
-        ssid: '',
-        selected: '',
-        password: ''
+        ap_ssid: '',
+        ap_password: ''
       }
     }
   }

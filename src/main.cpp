@@ -88,7 +88,7 @@ void init_wifi() {
   scanAndUpdateSSIDoutput();
   WiFi.hostname(ap_ssid);
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP(ap_ssid, ap_pwd); 
+  // WiFi.softAP(ap_ssid, ap_pwd); 
   WiFi.begin(sta_ssid, sta_pwd);
 
   digitalWrite(LED_BUILTIN, HIGH);
@@ -139,12 +139,12 @@ void init_userconfig() {
     Serial.println("[user] mqtt config json loaded..");
     Serial.println(content); 
     strcpy(mqtt_config_json, content); 
-    const char* host = (*root)["host"];
-    const char* username = (*root)["username"];
-    const char* password = (*root)["password"];
-    const char* client_id = (*root)["clientId"];
+    const char* host = (*root)["h"];
+    const char* username = (*root)["u"];
+    const char* password = (*root)["p"];
+    const char* client_id = (*root)["cid"];
     const char* port = (*root)["port"];
-    const char* device_name = (*root)["deviceName"];
+    const char* device_name = (*root)["dN"];
 
     if (host != NULL) {
       strcpy(mqtt_host, host);
@@ -258,22 +258,11 @@ void loop() {
 
   if (flag_commit_wifi_config == true) {
     flag_commit_wifi_config = false;
-    wifiConfigManager.commit();
-    wifiConfigManager.load_config([](JsonObject * root, const char* content) { 
-      Serial.println("[user] wifi config json loaded..");
-      Serial.println(content); 
-      strcpy(wifi_config_json, content); 
-    });
   }
 
   if (flag_commit_mqtt_config) {
     flag_commit_mqtt_config = false;
     mqttConfigManager.commit();
-    mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
-      Serial.println("[user] mqtt config json loaded..");
-      Serial.println(content); 
-      strcpy(mqtt_config_json, content); 
-    });
   }
 }
 

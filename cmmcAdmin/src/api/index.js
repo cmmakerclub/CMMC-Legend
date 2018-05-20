@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 export function getAPConfig (context) {
   let promise = new Vue.Promise((resolve, reject) => {
-    context.$http.get('/api/wifi/ap')
+    context.$http.get('/wifi.json')
       .then((response) => response.json())
       .then((json) => {
         resolve(json)
@@ -13,8 +13,6 @@ export function getAPConfig (context) {
   })
   return promise
 }
-
-
 
 export function getConfig (context, type = 'mqtt') {
   let promise = new Vue.Promise((resolve, reject) => {
@@ -33,7 +31,7 @@ export function getConfig (context, type = 'mqtt') {
 export function saveAPConfig (context, ssid, pass) {
   var formData = new window.FormData()
   formData.append('ap_ssid', ssid)
-  formData.append('ap_pwd', pass)
+  formData.append('ap_password', pass)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/wifi/ap', formData)
       .then((response) => response.json())
@@ -49,7 +47,7 @@ export function saveAPConfig (context, ssid, pass) {
 
 export function getMqttConfig (context) {
   let promise = new Vue.Promise((resolve, reject) => {
-    context.$http.get('/api/mqtt')
+    context.$http.get('/mymqtt.json')
       .then((response) => response.json())
       .then((json) => {
         resolve(json)
@@ -62,15 +60,15 @@ export function getMqttConfig (context) {
 }
 
 export function saveMqttConfig (context, options) {
-  var formData = new window.FormData()
-  formData.append('host', options.host)
-  formData.append('username', options.username)
-  formData.append('password', options.password)
-  formData.append('deviceName', options.deviceName)
-  formData.append('clientId', options.clientId)
+  const formData = new window.FormData()
+  formData.append('h', options.host)
+  formData.append('u', options.username)
+  formData.append('pwd', options.password)
+  formData.append('dN', options.deviceName)
+  formData.append('cid', options.clientId)
   formData.append('port', options.port)
   formData.append('lwt', options.lwt)
-  formData.append('publishRateSecond', options.publishRateSecond)
+  formData.append('r', options.publishRateSecond)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/mqtt', formData)
       .then((response) => response.json())
@@ -86,7 +84,7 @@ export function saveMqttConfig (context, options) {
 
 export function getSTAConfig (context) {
   let promise = new Vue.Promise((resolve, reject) => {
-    context.$http.get('/api/wifi/ap')
+    context.$http.get('/wifi.json')
       .then((response) => response.json())
       .then((json) => {
         resolve(json)
@@ -98,11 +96,10 @@ export function getSTAConfig (context) {
   return promise
 }
 
-export function saveSTAConfig (context, options) {
-  var formData = new window.FormData()
-  formData.append('sta_ssid', options.ssid)
-  formData.append('sta_password', options.password)
-  formData.append('sta_manual_ssid', options.manualSSID)
+export function saveSTAConfig (context, ssid, password) {
+  const formData = new window.FormData()
+  formData.append('sta_ssid', ssid)
+  formData.append('sta_password', password)
   let promise = new Vue.Promise((resolve, reject) => {
     context.$http.post('/api/wifi/sta', formData)
       .then((response) => response.json())
@@ -131,7 +128,7 @@ export function getESPNowConfig (context) {
 }
 
 export function saveESPNowConfig (context, options) {
-  var formData = new window.FormData()
+  const formData = new window.FormData()
   formData.append('esp_now_mac_address', options.macAddress)
   formData.append('esp_now_mode', options.mode)
   let promise = new Vue.Promise((resolve, reject) => {
