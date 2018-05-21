@@ -24,7 +24,8 @@ void CMMC_Config_Manager::commit() {
 
   load_config([](JsonObject * root, const char* content) {
     Serial.println("loading config...");
-    _this->configFile = SPIFFS.open(_this->filename_c, "w");
+    _this->configFile.close();
+    _this->configFile = SPIFFS.open(_this->filename_c, "w+");
     if (_this->configFile) {
       Serial.println("loading config OK"); 
       Serial.print("FS PTR: ");
@@ -75,9 +76,9 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   const char* b = buf.get();
   USER_DEBUG_PRINTF("[load_config] size = %d\r\n", size); 
   USER_DEBUG_PRINTF("[load_config] config content ->%s<-", b);
-  Serial.printf("[0] heap: %lu", ESP.getFreeHeap());
+  Serial.printf("[0] heap: %lu\r\n", ESP.getFreeHeap());
   JsonObject& json = this->jsonBuffer.parseObject(b); 
-  Serial.printf("[1] heap: %lu", ESP.getFreeHeap());
+  Serial.printf("[1] heap: %lu\r\n", ESP.getFreeHeap());
   if (json.success()) {
     USER_DEBUG_PRINTF("[load_config] Parsing config success.");
     if (cb != NULL) {
@@ -87,7 +88,7 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   }
   else {
     USER_DEBUG_PRINTF("[load_config] Failed to parse config file.");
-    // _init_json_file(cb);
+    _init_json_file(cb);
   }
 }
 
