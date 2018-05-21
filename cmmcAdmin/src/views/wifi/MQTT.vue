@@ -86,8 +86,6 @@
     methods: {
       onSubmit () {
         let context = this
-        // console.log('context', context)
-
         saveMqttConfig(context, {
           host: context.host,
           username: context.username,
@@ -109,6 +107,7 @@
         let ctx = this
         getMqttConfig(ctx).then((configs) => {
           Object.entries(configs).forEach(([key, value]) => {
+            console.log(`config ${key}=>${value}`)
             ctx[key] = value
           })
         })

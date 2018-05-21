@@ -11,17 +11,17 @@
           </div>
           <label class="label">AP</label>
           <p class="control has-icon">
-            <input v-model="ap_ssid" class="input" type="text">
+            <input disabled v-model="ap_ssid" class="input" type="text">
             <i class="fa fa-wifi"></i>
           </p>
           <label class="label">Password</label>
           <p class="control has-icon">
-            <input v-model="ap_password" class="input" type="password">
+            <input disabled v-model="ap_password" class="input" type="password">
             <i class="fa fa-lock"></i>
           </p>
           <p class="control">
-            <button class="button is-primary" v-on:click="onSubmit">Submit</button>
-            <button class="button is-link">Cancel</button>
+            <button disabled class="button is-primary" v-on:click="onSubmit">Submit</button>
+            <button disabled class="button is-link">Cancel</button>
           </p>
         </div>
       </div>
