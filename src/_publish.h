@@ -36,5 +36,5 @@ void register_publish_hooks() {
 
 static void readSensor() {
   // perform reading sensor 
-  Serial.println("Perform reading sensor...");
+  Serial.println("Perform reading and publishing senso data.");
 }

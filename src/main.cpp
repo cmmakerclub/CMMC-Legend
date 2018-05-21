@@ -31,6 +31,7 @@ extern bool MQTT_LWT;
 
 // MQTT CONNECTOR
 MqttConnector *mqtt; 
+uint32_t lastRecv; 
 char myName[40];
 
 // END MQTT CONNECTOR 
@@ -67,6 +68,8 @@ AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 CMMC_Interval interval; 
 //const char* hostName = "CMMC-Legend";
+void checkConfigMode();
+
 
 void init_sta() {
   WiFi.softAPdisconnect();
@@ -78,6 +81,7 @@ void init_sta() {
   digitalWrite(LED_BUILTIN, HIGH); 
   while (WiFi.status() != WL_CONNECTED) {
     Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
+    checkConfigMode();
     delay(300);
   } 
 }
@@ -184,6 +188,7 @@ void setup() {
     mode = RUN;
     init_sta(); 
     Serial.println("WiFi Connected."); 
+    lastRecv = millis();
     blinker->blink(5000, 2);
     init_mqtt(); 
   } 
@@ -193,8 +198,14 @@ void loop() {
   if (mode == RUN) {
     mqtt->loop(); 
   } 
+  checkConfigMode(); 
+  interval.every_ms(10L*1000, []() {
+    Serial.printf("Last Recv %lu ms ago.\r\n", (millis() - lastRecv)); 
+  });
+} 
 
-  uint32_t prev = millis();
+void checkConfigMode() {
+  uint32_t prev = millis(); 
   while(digitalRead(0) == LOW) {
     delay(50); 
     if (millis() - prev > 2000L) {
@@ -208,4 +219,3 @@ void loop() {
     }
   }
 }
-
