@@ -155,8 +155,7 @@ void setupWebServer() {
       SPIFFS.end();
       Serial.println("upload start...");
       Serial.printf("UploadStart: %s\n", filename.c_str()); 
-      // Serial.setDebugOutput(true);
-
+      Serial.setDebugOutput(true); 
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
     bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
@@ -177,7 +176,7 @@ void setupWebServer() {
       } else {
         Update.printError(Serial);
       }
-      // Serial.setDebugOutput(false);
+      Serial.setDebugOutput(false);
     }
   });
 

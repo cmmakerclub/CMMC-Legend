@@ -161,7 +161,7 @@ void setup() {
 
   pinMode(0, INPUT_PULLUP); 
   Serial.begin(57600);
-  // Serial.setDebugOutput(true); 
+  Serial.setDebugOutput(true); 
   blinker->blink(500); 
   delay(10);
   init_userconfig(); 
