@@ -59,9 +59,11 @@ char mqtt_host[40] = "";
 char mqtt_user[40] = "";
 char mqtt_pass[40] = "";
 char mqtt_clientId[40] = "";
+char mqtt_prefix[40] = "";
 char mqtt_port[10] = "";
 char mqtt_device_name[15] = "";
 
+bool flag_restart = false;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
@@ -93,9 +95,9 @@ void init_ap() {
 }
 
 void init_userconfig() { 
-  // mqttConfigManager.add_debug_listener([](const char* msg) {
-  //   Serial.printf(">> %s \r\n", msg);
-  // }); 
+  mqttConfigManager.add_debug_listener([](const char* msg) {
+    Serial.printf(">> %s \r\n", msg);
+  }); 
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
 
@@ -125,8 +127,8 @@ void init_userconfig() {
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
     // Serial.println(content); 
-     const char* mqtt_configs[6] = {(*root)["host"], (*root)["username"], 
-     (*root)["password"], (*root)["clientId"], (*root)["port"], (*root)["deviceName"]};
+     const char* mqtt_configs[7] = {(*root)["host"], (*root)["username"], 
+     (*root)["password"], (*root)["clientId"], (*root)["port"], (*root)["deviceName"], (*root)["prefix"]};
 
     if (mqtt_configs[0] != NULL) {
       strcpy(mqtt_host, mqtt_configs[0]);
@@ -135,12 +137,14 @@ void init_userconfig() {
       strcpy(mqtt_clientId, mqtt_configs[3]);
       strcpy(mqtt_port, mqtt_configs[4]);
       strcpy(mqtt_device_name, mqtt_configs[5]);
+      strcpy(mqtt_prefix, mqtt_configs[6]);
 
       MQTT_HOST = String(mqtt_host);
       MQTT_USERNAME = String(mqtt_user);
       MQTT_PASSWORD = String(mqtt_pass);
       MQTT_CLIENT_ID = String(mqtt_clientId);
       MQTT_PORT = String(mqtt_port).toInt();
+      MQTT_PREFIX = String(mqtt_prefix);
       DEVICE_NAME = String(mqtt_device_name); 
     }
   });
@@ -196,6 +200,11 @@ void loop() {
     });
     mqtt->loop(); 
   } 
+
+  if (flag_restart) {
+    delay(2000);
+    ESP.restart();
+  }
   checkConfigMode(); 
 } 
 

@@ -50,14 +50,14 @@ class CMMC_Config_Manager
     bool _busy = false;
     void _init_json_file(cmmc_json_loaded_cb_t cb = NULL);
     Items items;
-    StaticJsonBuffer<1024> jsonBuffer;
+    DynamicJsonBuffer jsonBuffer;
     cmmc_debug_cb_t _user_debug_cb;
     File configFile;
     char filename_c[60];
-    char debug_buffer[120];
+    char debug_buffer[600];
     u8 _status = 0;
-    char _k[30];
-    char _v[50];
+    char _k[40];
+    char _v[60];
     void _open_file();
 };
 

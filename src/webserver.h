@@ -8,6 +8,7 @@ extern AsyncEventSource events;
 extern CMMC_Interval interval;
 extern const char* http_username;
 extern const char* http_password;
+extern bool flag_restart;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -154,7 +155,7 @@ void setupWebServer() {
       SPIFFS.end();
       Serial.println("upload start...");
       Serial.printf("UploadStart: %s\n", filename.c_str()); 
-      Serial.setDebugOutput(true);
+      // Serial.setDebugOutput(true);
 
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
@@ -176,7 +177,7 @@ void setupWebServer() {
       } else {
         Update.printError(Serial);
       }
-      Serial.setDebugOutput(false);
+      // Serial.setDebugOutput(false);
     }
   });
 
@@ -247,6 +248,7 @@ void setupWebServer() {
       Serial.println(output);
       request->send(200, "application/json", output);
       wifiConfigManager.commit();
+      flag_restart = 1;
     });
     // ===== END /API/WIFI/STA =====
 
@@ -279,8 +281,9 @@ void setupWebServer() {
     }
     output += "}";
     Serial.println(output);
-    mqttConfigManager.commit();
     request->send(200, "application/json", output);
+    mqttConfigManager.commit();
+    flag_restart = 1;
   }); 
 
   server.onNotFound([](AsyncWebServerRequest * request) {
@@ -312,7 +315,7 @@ void setupWebServer() {
     int i;
     for (i = 0; i < headers; i++) {
       AsyncWebHeader* h = request->getHeader(i);
-      Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+      // Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
     }
 
     int params = request->params();

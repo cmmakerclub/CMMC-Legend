@@ -96,9 +96,9 @@
           username: context.username,
           password: context.password,
           prefix: context.prefix || '',
-          clientId: context.clientId || `clientId-${Math.random().toString(15).substr(2, 10)}`,
+          clientId: context.clientId || `clientId-${context.hash}`,
           publishRateSecond: context.publishRateSecond,
-          deviceName: context.deviceName,
+          deviceName: context.deviceName || context.hash,
           lwt: (context.lwt === true) ? '0' : '1',
           port: context.port
         }).then((resp) => {
@@ -119,15 +119,17 @@
       }
     },
     data () {
+      const hash = `${Math.random().toString(15).substr(2, 10)}`
       return {
+        hash,
         server_response: '',
         username: '',
         password: '',
         deviceName: '',
         lwt: 0,
-        clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
+        clientId: `clientId-${hash}`,
         host: 'mqtt.cmmc.io',
-        publishRateSecond: 10000,
+        publishRateSecond: 60,
         port: 1883,
         prefix: ''
       }

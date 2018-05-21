@@ -19,25 +19,28 @@ void CMMC_Config_Manager::init(const char* filename) {
 }
 
 void CMMC_Config_Manager::commit() {
-  USER_DEBUG_PRINTF("Commit FS.....");
   static CMMC_Config_Manager *_this = this;
+  USER_DEBUG_PRINTF("Commit FS..... from [%x]", _this);
 
   load_config([](JsonObject * root, const char* content) {
-    Serial.println("loading config...");
-    _this->configFile.close();
-    _this->configFile = SPIFFS.open(_this->filename_c, "w+");
-    if (_this->configFile) {
+    Serial.printf("loading config... from [%x]", root);
+    if (root != NULL) {
+      _this->configFile.close();
+      _this->configFile = SPIFFS.open(_this->filename_c, "w");
       Serial.println("loading config OK"); 
       Serial.print("FS PTR: ");
       Serial.println(_this->configFile);
       for (Items::iterator it = _this->items.begin(); it != _this->items.end(); ++it) {
-        root->set(it->first, it->second);
+        String first  = it->first;
+        String second = it->second;
+        root->set(first, second);
+        Serial.printf("W: %s->%s\r\n", first.c_str(), second.c_str());
       }
       size_t configSize = root->printTo(_this->configFile);
+      root->printTo(Serial);
       Serial.print("wrote ");
       Serial.print(configSize);
       Serial.print(" bytes to file.");
-      root->printTo(Serial);
       Serial.println();
       size_t size = _this->configFile.size() + 1;
       Serial.printf("config file size =%d \r\n", _this->configFile.size());
@@ -53,8 +56,8 @@ void CMMC_Config_Manager::commit() {
 void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   strcpy(this->_k, key);
   strcpy(this->_v, value);
-  USER_DEBUG_PRINTF("___ START [add_field] with %s:%s", key, value);
   static CMMC_Config_Manager *_this = this;
+  USER_DEBUG_PRINTF("___ START [add_field] with %s:%s (%x)", key, value, this);
   items[_k] = _v;
   // show content:
   USER_DEBUG_PRINTF("Iterate through items...");
@@ -77,6 +80,7 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   USER_DEBUG_PRINTF("[load_config] size = %d\r\n", size); 
   USER_DEBUG_PRINTF("[load_config] config content ->%s<-", b);
   Serial.printf("[0] heap: %lu\r\n", ESP.getFreeHeap());
+  this->jsonBuffer.clear();
   JsonObject& json = this->jsonBuffer.parseObject(b); 
   Serial.printf("[1] heap: %lu\r\n", ESP.getFreeHeap());
   if (json.success()) {
@@ -88,7 +92,8 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   }
   else {
     USER_DEBUG_PRINTF("[load_config] Failed to parse config file.");
-    _init_json_file(cb);
+    _init_json_file(cb); 
+    cb(NULL, NULL);
   }
 }
 
@@ -103,7 +108,7 @@ void CMMC_Config_Manager::_init_json_file(cmmc_json_loaded_cb_t cb) {
 }
 
 void CMMC_Config_Manager::dump_json_object(cmmc_dump_cb_t printer) {
-  this->load_config();
+  // this->load_config();
   // if (this->currentJsonObject == NULL) {
   //   return;
   // }
