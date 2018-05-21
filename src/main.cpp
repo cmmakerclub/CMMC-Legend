@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-#include <ArduinoOTA.h>
 #include <ESPAsyncTCP.h>
 #include <FS.h>
 #include <ESPAsyncWebServer.h>
@@ -32,11 +31,13 @@ extern bool MQTT_LWT;
 
 // MQTT CONNECTOR
 MqttConnector *mqtt; 
-int relayPin = 15; 
-int relayPinState = HIGH;
 char myName[40];
 
 // END MQTT CONNECTOR 
+
+enum MODE{SETUP, RUN};
+
+MODE mode;
 
 bool flag_busy = false;
 bool flag_mqtt_available = false;
@@ -48,22 +49,18 @@ CMMC_Config_Manager wifiConfigManager;
 const char* http_username = "admin";
 const char* http_password = "admin";
 
-char sta_ssid[30] = "CMMC-3rd";
+char sta_ssid[30] = "Nat";
 char sta_pwd[30] = "espertap";
 
 char ap_ssid[30] = "CMMC-Legend";
-char ap_pwd[30] = "";
+char ap_pwd[30] = ""; 
 
-char wifi_config_json[120];
-
-char mqtt_host[30];
-char mqtt_user[30];
-char mqtt_pass[30];
-char mqtt_clientId[30];
-char mqtt_port[10];
-char mqtt_device_name[15];
-char mqtt_config_json[300];
-
+char mqtt_host[40] = "";
+char mqtt_user[40] = "";
+char mqtt_pass[40] = "";
+char mqtt_clientId[40] = "";
+char mqtt_port[10] = "";
+char mqtt_device_name[15] = "";
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -71,24 +68,31 @@ AsyncEventSource events("/events");
 CMMC_Interval interval; 
 //const char* hostName = "CMMC-Legend";
 
-void init_wifi() { 
+void init_sta() {
   WiFi.softAPdisconnect();
   WiFi.disconnect();
-  WiFi.persistent(false);
-  WiFi.mode(WIFI_OFF);
   delay(20); 
   WiFi.mode(WIFI_STA);
   WiFi.hostname(ap_ssid);
-  WiFi.mode(WIFI_AP_STA);
   WiFi.begin(sta_ssid, sta_pwd); 
-  digitalWrite(LED_BUILTIN, HIGH);
+  digitalWrite(LED_BUILTIN, HIGH); 
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
+    delay(300);
+  } 
+}
+
+void init_ap() { 
+  WiFi.softAPdisconnect();
+  WiFi.disconnect();
+  WiFi.mode(WIFI_AP);
+  delay(20); 
 }
 
 void init_userconfig() { 
-  mqttConfigManager.add_debug_listener([](const char* msg) {
-    Serial.printf(">> %s \r\n", msg);
-  });
-
+  // mqttConfigManager.add_debug_listener([](const char* msg) {
+  //   Serial.printf(">> %s \r\n", msg);
+  // }); 
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
 
@@ -112,7 +116,7 @@ void init_userconfig() {
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
-    Serial.println(content); 
+    // Serial.println(content); 
     const char* host = (*root)["host"];
     const char* username = (*root)["username"];
     const char* password = (*root)["password"];
@@ -146,55 +150,62 @@ void init_userconfig() {
 
 void setup() {
   SPIFFS.begin();
-  blinker = new CMMC_Blink;
-  pinMode(2, OUTPUT);
-  digitalWrite(2, LOW);
-  delay(100);
+  delay(10);
 
-  
+  init_userconfig(); 
 
+  pinMode(0, OUTPUT);
+  blinker = new CMMC_Blink; 
   blinker->init();
-  blinker->blink(500, 2);
+  digitalWrite(0, HIGH); 
+  pinMode(0, INPUT_PULLUP);
   Serial.begin(57600);
-  Serial.setDebugOutput(true);
-
-  Serial.printf("initializing SPIFFS ...");
-  Dir dir = SPIFFS.openDir("/");
-  Serial.print("dir = ");
-  while (dir.next()) {
-    String fileName = dir.fileName();
-    size_t fileSize = dir.fileSize();
-    Serial.printf("FS File: %s, size: %s\r\n", fileName.c_str(), String(fileSize).c_str());
-  }
-  
-  init_userconfig();
-  init_wifi();
-
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
-    delay(300);
-  } 
-
-  Serial.println("WiFi Connected."); 
-  setupWebServer();
-
-  // if (flag_mqtt_available) {
-  //   Serial.println("init_mqtt..");
-  //   init_mqtt();
-  //   Serial.println("/init_mqtt..");
-  //   flag_mqtt_available = false;
+  Serial.setDebugOutput(true); 
+  blinker->blink(500, 2);
+  // Serial.printf("initializing SPIFFS ...");
+  // Dir dir = SPIFFS.openDir("/");
+  // Serial.print("dir = ");
+  // while (dir.next()) {
+  //   String fileName = dir.fileName();
+  //   size_t fileSize = dir.fileSize();
+  //   Serial.printf("FS File: %s, size: %s\r\n", fileName.c_str(), String(fileSize).c_str());
   // } 
+  if (!SPIFFS.exists("/enabled")) {
+    blinker->blink(50, 2);
+    Serial.println("AP Only Mode.");  
+    mode = SETUP;
+    Serial.printf("ESP8266 Chip id = %08X\n", ESP.getChipId());
+    sprintf(&ap_ssid[5], "%08x", ESP.getChipId());
+    init_ap();
+    WiFi.softAP(ap_ssid, &ap_ssid[5]);
+    setupWebServer(); 
+  }
+  else {
+    mode = RUN;
+    init_sta(); 
+    Serial.println("WiFi Connected."); 
+    blinker->blink(5000, 2);
+    init_mqtt(); 
+  } 
 }
 
 void loop() {
-  // if (flag_mqtt_available) {
-  //   mqtt->loop(); 
-  // }
+  if (mode == RUN) {
+    mqtt->loop(); 
+  } 
 
-  //  interval.every_ms(30L * 1000, []() {
-  //    while (flag_busy) {
-  //      delay(100);
-  //    }
-  //  }); 
+  uint32_t prev = millis();
+  while(digitalRead(0) == LOW) {
+    delay(50); 
+    if (millis() - prev > 2000L) {
+      Serial.println("LONG PRESSED.");
+      blinker->blink(50); 
+      while(digitalRead(0) == LOW) {
+        delay(10); 
+      }
+      SPIFFS.remove("/enabled");
+      ESP.restart();
+    }
+  }
 }
 

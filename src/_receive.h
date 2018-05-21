@@ -6,8 +6,6 @@ extern MqttConnector* mqtt;
 extern String MQTT_CLIENT_ID;
 extern String MQTT_PREFIX;
 
-extern int relayPin;
-extern int relayPinState;
 extern char myName[];
 
 
@@ -28,14 +26,10 @@ void register_receive_hooks() {
     Serial.printf("payload: %s\r\n", payload.c_str());
     if (cmd == "$/command") {
       if (payload == "ON") {
-        digitalWrite(relayPin, HIGH);
         digitalWrite(LED_BUILTIN, LOW);
-        relayPinState = HIGH;
       }
       else if (payload == "OFF") {
-        digitalWrite(relayPin, LOW);
         digitalWrite(LED_BUILTIN, HIGH);
-        relayPinState = LOW;
       }
     }
     else if (cmd == "$/reboot") {

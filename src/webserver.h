@@ -1,5 +1,4 @@
 #include <AsyncWebSocket.h>
-extern String wifi_list_json;
 extern CMMC_Config_Manager wifiConfigManager;
 extern CMMC_Config_Manager mqttConfigManager;
 
@@ -11,9 +10,6 @@ extern const char* http_username;
 extern const char* http_password;
 extern CMMC_Blink *blinker;
 extern bool flag_busy;
-
-extern char wifi_config_json[120];
-extern char mqtt_config_json[300];
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -116,13 +112,19 @@ void setupWebServer() {
   });
   server.addHandler(&events);
   server.addHandler(new SPIFFSEditor(http_username, http_password));
+
   server.on("/heap", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
   });
 
-  server.on("/api/mqtt", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(200, "application/json", mqtt_config_json);
+  server.on("/enable", HTTP_GET, [](AsyncWebServerRequest * request) {
+    File f = SPIFFS.open("/enabled", "a+");
+    if (!f) {
+        Serial.println("file open failed");
+    }
+    request->send(200, "text/plain", String("ENABLING.. ") + String(ESP.getFreeHeap()));
   });
+
 
   static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
   static const char* serverIndex = "<form method='POST' action='/do-' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
@@ -215,8 +217,8 @@ void setupWebServer() {
     request->send(200, "application/json", output);
     flag_busy = false;
   });
-  // ===== END /API/WIFI/AP =====
 
+  // ===== END /API/WIFI/AP ===== 
   // ===== CREATE /API/WIFI/STA ===== 
     server.on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
       flag_busy = true;

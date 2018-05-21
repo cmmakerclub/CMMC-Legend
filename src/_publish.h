@@ -1,8 +1,6 @@
 #include <MqttConnector.h>
 
-extern int relayPinState;
 extern MqttConnector* mqtt;
-extern int relayPin;
 extern char myName[];
 
 static void readSensor(); 
@@ -25,7 +23,6 @@ void register_publish_hooks() {
     JsonObject& info = (*root)["info"];
     data["myName"] = myName;
     data["millis"] = millis();
-    data["relayState"] = relayPinState;
     data["updateInterval"] = PUBLISH_EVERY;
   }, PUBLISH_EVERY);
   mqtt->on_after_prepare_data([&](JsonObject * root) {
