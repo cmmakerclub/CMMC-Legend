@@ -8,8 +8,6 @@ extern AsyncEventSource events;
 extern CMMC_Interval interval;
 extern const char* http_username;
 extern const char* http_password;
-extern CMMC_Blink *blinker;
-extern bool flag_busy;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -183,7 +181,6 @@ void setupWebServer() {
   });
 
   server.on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
-    flag_busy = true;
     int params = request->params();
         String output = "{";
         for (int i = 0; i < params; i++) {
@@ -215,13 +212,11 @@ void setupWebServer() {
     output += "}";
     Serial.println(output);
     request->send(200, "application/json", output);
-    flag_busy = false;
   });
 
   // ===== END /API/WIFI/AP ===== 
   // ===== CREATE /API/WIFI/STA ===== 
     server.on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
-      flag_busy = true;
       int params = request->params();
           String output = "{";
           for (int i = 0; i < params; i++) {
@@ -251,13 +246,11 @@ void setupWebServer() {
       output += "}";
       Serial.println(output);
       request->send(200, "application/json", output);
-      flag_busy = false;
       wifiConfigManager.commit();
     });
     // ===== END /API/WIFI/STA =====
 
   server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
-    flag_busy = true;
     int params = request->params();
     String output = "{";
     for (int i = 0; i < params; i++) {
@@ -267,7 +260,7 @@ void setupWebServer() {
         const char* value = p->value().c_str();
         Serial.printf("POST[%s]: %s\n", key, value);
         String v;
-        if (value == 0) {
+        if (value == NULL) {
           Serial.println("value is null..");
           v = String("");
         }
@@ -286,9 +279,8 @@ void setupWebServer() {
     }
     output += "}";
     Serial.println(output);
-    request->send(200, "application/json", output);
-    flag_busy = false;
     mqttConfigManager.commit();
+    request->send(200, "application/json", output);
   }); 
 
   server.onNotFound([](AsyncWebServerRequest * request) {

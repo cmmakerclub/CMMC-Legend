@@ -40,9 +40,8 @@ enum MODE{SETUP, RUN};
 
 MODE mode;
 
-bool flag_busy = false;
 bool flag_mqtt_available = false;
-CMMC_Blink *blinker;
+static CMMC_Blink *blinker;
 
 CMMC_Config_Manager mqttConfigManager; 
 CMMC_Config_Manager wifiConfigManager;
@@ -50,8 +49,8 @@ CMMC_Config_Manager wifiConfigManager;
 const char* http_username = "admin";
 const char* http_password = "admin";
 
-char sta_ssid[30] = "Nat";
-char sta_pwd[30] = "espertap";
+char sta_ssid[30] = "";
+char sta_pwd[30] = "";
 
 char ap_ssid[30] = "CMMC-Legend";
 char ap_pwd[30] = ""; 
@@ -103,11 +102,16 @@ void init_userconfig() {
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     Serial.println("[user] wifi config json loaded..");
     Serial.println(content); 
-    if ((*root)["ap_ssid"] == NULL) return;
-    strcpy(ap_ssid, (*root)["ap_ssid"]);
-    strcpy(ap_pwd, (*root)["ap_password"]); 
-    strcpy(sta_ssid, (*root)["sta_ssid"]); 
-    strcpy(sta_pwd, (*root)["sta_password"]); 
+    const char* sta_config[2];
+    sta_config[0] = (*root)["sta_ssid"];
+    sta_config[1] = (*root)["sta_password"];
+    if ((sta_config[0] == NULL) || (sta_config[1]==NULL)) {
+      Serial.println("NULL..");
+      SPIFFS.remove("/enabled"); 
+      return;
+    };
+    strcpy(sta_ssid, sta_config[0]); 
+    strcpy(sta_pwd, sta_config[1]); 
   });
 
   Serial.printf("initializing SPIFFS ...");
@@ -121,51 +125,42 @@ void init_userconfig() {
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
     // Serial.println(content); 
-    const char* host = (*root)["host"];
-    const char* username = (*root)["username"];
-    const char* password = (*root)["password"];
-    const char* client_id = (*root)["clientId"];
-    const char* port = (*root)["port"];
-    const char* device_name = (*root)["deviceName"];
+     const char* mqtt_configs[6] = {(*root)["host"], (*root)["username"], 
+     (*root)["password"], (*root)["clientId"], (*root)["port"], (*root)["deviceName"]};
 
-    if (host != NULL) {
-      strcpy(mqtt_host, host);
-      strcpy(mqtt_user, username);
-      strcpy(mqtt_pass, password);
-      strcpy(mqtt_clientId, client_id);
-      strcpy(mqtt_port, port);
-      strcpy(mqtt_device_name, device_name);
+    if (mqtt_configs[0] != NULL) {
+      strcpy(mqtt_host, mqtt_configs[0]);
+      strcpy(mqtt_user, mqtt_configs[1]);
+      strcpy(mqtt_pass, mqtt_configs[2]);
+      strcpy(mqtt_clientId, mqtt_configs[3]);
+      strcpy(mqtt_port, mqtt_configs[4]);
+      strcpy(mqtt_device_name, mqtt_configs[5]);
 
       MQTT_HOST = String(mqtt_host);
       MQTT_USERNAME = String(mqtt_user);
       MQTT_PASSWORD = String(mqtt_pass);
       MQTT_CLIENT_ID = String(mqtt_clientId);
       MQTT_PORT = String(mqtt_port).toInt();
-      DEVICE_NAME = String(mqtt_device_name);
-      MQTT_HOST = String(host);
-
-      Serial.printf("host = %s port =%s, username = %s, password = %s, clientId = %s, deviceName = %s", 
-        host, port, username, password, client_id, device_name);
-      Serial.println();
-      flag_mqtt_available = false;
+      DEVICE_NAME = String(mqtt_device_name); 
     }
   });
 }
 
 void setup() {
   SPIFFS.begin();
-  delay(10);
-
-  init_userconfig(); 
-
-  pinMode(0, OUTPUT);
+  delay(10); 
+  pinMode(2, OUTPUT);
+  digitalWrite(2, HIGH); 
   blinker = new CMMC_Blink; 
   blinker->init();
-  digitalWrite(0, HIGH); 
-  pinMode(0, INPUT_PULLUP);
+  blinker->setPin(2); 
+
+  pinMode(0, INPUT_PULLUP); 
   Serial.begin(57600);
-  Serial.setDebugOutput(true); 
-  blinker->blink(500, 2);
+  // Serial.setDebugOutput(true); 
+  blinker->blink(500); 
+  delay(10);
+  init_userconfig(); 
   // Serial.printf("initializing SPIFFS ...");
   // Dir dir = SPIFFS.openDir("/");
   // Serial.print("dir = ");
@@ -175,7 +170,7 @@ void setup() {
   //   Serial.printf("FS File: %s, size: %s\r\n", fileName.c_str(), String(fileSize).c_str());
   // } 
   if (!SPIFFS.exists("/enabled")) {
-    blinker->blink(50, 2);
+    blinker->blink(50);
     Serial.println("AP Only Mode.");  
     mode = SETUP;
     Serial.printf("ESP8266 Chip id = %08X\n", ESP.getChipId());
@@ -188,20 +183,20 @@ void setup() {
     mode = RUN;
     init_sta(); 
     Serial.println("WiFi Connected."); 
+    blinker->blink(4000);
     lastRecv = millis();
-    blinker->blink(5000, 2);
     init_mqtt(); 
   } 
 }
 
 void loop() {
   if (mode == RUN) {
+    interval.every_ms(10L*1000, []() {
+      Serial.printf("Last Recv %lu ms ago.\r\n", (millis() - lastRecv)); 
+    });
     mqtt->loop(); 
   } 
   checkConfigMode(); 
-  interval.every_ms(10L*1000, []() {
-    Serial.printf("Last Recv %lu ms ago.\r\n", (millis() - lastRecv)); 
-  });
 } 
 
 void checkConfigMode() {

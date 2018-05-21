@@ -24,7 +24,7 @@
             </p>
             <label class="label">ClientID</label>
             <p class="control has-icon">
-              <input class="input" type="text" v-model="clientId" required>
+              <input class="input" type="text" v-model="clientId">
               <i class="fa fa-vcard-o"></i>
             </p>
             <label class="label">Username</label>
@@ -36,6 +36,11 @@
             <p class="control has-icon">
               <input class="input" type="password" v-model="password">
               <i class="fa fa-lock"></i>
+            </p>
+            <label class="label">Prefix</label>
+            <p class="control has-icon">
+              <input class="input" type="text" v-model="prefix">
+              <i class="fa fa-child"></i>
             </p>
             <label class="label">Device Name</label>
             <p class="control has-icon">
@@ -76,12 +81,12 @@
         this.clientId = json.clientId
         this.publishRateSecond = json.publishRateSecond
         this.deviceName = json.deviceName
+        this.prefix = json.prefix
         this.lwt = json.lwt
         this.port = json.port
+      }).catch((err) => {
+        console.log('error:', err)
       })
-        .catch((err) => {
-          console.log('error:', err)
-        })
     },
     methods: {
       onSubmit () {
@@ -90,18 +95,18 @@
           host: context.host,
           username: context.username,
           password: context.password,
-          clientId: context.clientId,
+          prefix: context.prefix || '',
+          clientId: context.clientId || `clientId-${Math.random().toString(15).substr(2, 10)}`,
           publishRateSecond: context.publishRateSecond,
           deviceName: context.deviceName,
           lwt: (context.lwt === true) ? '0' : '1',
           port: context.port
+        }).then((resp) => {
+          this.server_response = resp
+          this.fetchConfig()
+        }).catch((err) => {
+          console.log('error', err)
         })
-          .then((resp) => {
-            this.server_response = resp
-          })
-          .catch((err) => {
-            console.log('error', err)
-          })
       },
       fetchConfig () {
         let ctx = this
@@ -123,7 +128,8 @@
         clientId: `clientId-${Math.random().toString(15).substr(2, 10)}`,
         host: 'mqtt.cmmc.io',
         publishRateSecond: 10000,
-        port: 1883
+        port: 1883,
+        prefix: ''
       }
     },
     created () {

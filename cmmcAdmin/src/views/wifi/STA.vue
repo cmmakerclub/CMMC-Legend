@@ -47,22 +47,22 @@
     methods: {
       onSubmit () {
         let context = this
-        this.saving = true
         saveSTAConfig(context, context.sta_ssid, context.sta_password)
           .then((resp) => {
-            this.server_response = JSON.stringify(resp)
-            this.saving = false
+            context.server_response = JSON.stringify(resp)
+            context.saving = false
           })
           .catch((err) => {
-            this.saving = false
+            context.saving = false
             console.log(err)
           })
       },
     },
     data () {
       return {
+        server_response: '',
         sta_ssid: null,
-        sta_password: null,
+        sta_password: null
       }
     },
     computed: {

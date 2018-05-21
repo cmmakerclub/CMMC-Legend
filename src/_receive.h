@@ -27,10 +27,8 @@ void register_receive_hooks() {
     // Serial.printf("payload: %s\r\n", payload.c_str());
     if (cmd == "$/command") {
       if (payload == "ON") {
-        digitalWrite(LED_BUILTIN, LOW);
       }
       else if (payload == "OFF") {
-        digitalWrite(LED_BUILTIN, HIGH);
       }
     }
     else if (cmd == "$/reboot") {

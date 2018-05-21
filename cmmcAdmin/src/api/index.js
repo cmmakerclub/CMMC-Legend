@@ -66,6 +66,7 @@ export function saveMqttConfig (context, options) {
   formData.append('password', options.password)
   formData.append('deviceName', options.deviceName)
   formData.append('clientId', options.clientId)
+  formData.append('prefix', options.prefix)
   formData.append('port', options.port)
   formData.append('lwt', options.lwt)
   formData.append('publishRateSecond', options.publishRateSecond)

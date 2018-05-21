@@ -40,34 +40,42 @@ class CMMC_Blink
       this->_ticker = ticker;
     };
 
-    void blink(int ms, uint8_t pin) {
+    void blink(uint32_t ms, uint8_t pin) {
       this->setPin(pin);
       this->blink(ms);
     }
 
-    void blink(int ms) {
+    void blink(uint32_t ms) {
       if (_initialized == false) return;
         if (_ledPin == 254) return;
         static int _pin = this->_ledPin;
         this->_ticker->detach();
         this->_ticker2->detach();
+        delete this->_ticker;
+        delete this->_ticker2;
+
+        this->_ticker = new Ticker;
+        this->_ticker2 = new Ticker;
+
         static CMMC_Blink *_that = this;
-        auto lambda = []() {
+        static auto lambda = []() {
             _that->state = !_that->state;
             if (_that->state == LOW) {
               _that->prev_active = millis();
             }
             digitalWrite(_pin, _that->state);
         };
-        // auto function  = static_cast<void (*)(int)>(lambda);
-        this->_ticker->attach_ms(ms, lambda);
-        this->_ticker2->attach_ms(30, []() {
-          if ( (millis() - _that->prev_active) > 60) {
+        static auto wtf = []() {
+          uint32_t diff = (millis() - _that->prev_active);
+          if ( diff > 60L) {
+            _that->prev_active = millis();
             _that->state = HIGH;
             digitalWrite(_pin, _that->state);
           } 
-        });
-        // this->_ticker->attach_ms()
+        };
+        // auto function  = static_cast<void (*)(int)>(lambda);
+        this->_ticker->attach_ms(ms, lambda);
+        this->_ticker2->attach_ms(30, wtf);
       }
 
     private:
