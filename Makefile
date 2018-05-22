@@ -18,7 +18,7 @@ define release
 	echo "#define APP_VERSION \"$1\"" >> src/version.h
 	echo "#define APP_VERSION_DATE \"`git log -n 1 --format=%ai`\"" >> src/version.h
 	@git commit -am "Update library version for V$1"
-	git tag -a "v$(1)" -m "release $(1)"
+	@git tag -a "v$(1)" -m "release $(1)"
 	git push --tags origin HEAD:master
 	@echo "releasing V=$1"
 endef

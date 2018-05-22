@@ -8,6 +8,9 @@
 #include <CMMC_Blink.hpp>
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
+
+
+#include "version.h"
 #include "webserver.h"
 
 #include <ArduinoJson.h>
