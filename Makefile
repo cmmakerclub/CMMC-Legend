@@ -26,7 +26,7 @@ endef
 define commit
 	test -n "$(1)" 
 	SEMVER="`git-semver.sh`"
-	echo $SEMVER
+	echo "${SEMVER}"
 	@sed -i 's/version=.*/version=$1/' library.properties
 	echo "CURRENT_VERSION=${VERSION}" 
 	node -e "\
