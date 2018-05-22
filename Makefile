@@ -29,9 +29,9 @@ define commit
 	echo "semver=${SEMVER}"
 	@git commit -am "$1"
 	echo "/* Generated file, do not edit. */" > src/version.h
-	echo "#define APP_VERSION \"$SEMVER\"" >> src/version.h
+	echo "#define APP_VERSION \"${SEMVER}\"" >> src/version.h
 	echo "#define APP_VERSION_DATE \"`git log -n 1 --format=%ai`\"" >> src/version.h
-	@git commit -am "update version v=${SEMVER}"
+	@git commit -am "update ${SEMVER}"
 endef
 
 release:
