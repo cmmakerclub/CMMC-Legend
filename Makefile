@@ -25,9 +25,7 @@ define release
 endef
 
 define commit
-	test -n "$(1)" 
 	echo "semver=${SEMVER}"
-	@git commit -am "$1"
 	echo "/* Generated file, do not edit. */" > src/version.h
 	echo "#define APP_VERSION \"${SEMVER}\"" >> src/version.h
 	echo "#define APP_VERSION_DATE \"`git log -n 1 --format=%ai`\"" >> src/version.h
@@ -36,7 +34,7 @@ endef
 
 release:
 	@$(call release,$V) 
-commit:
+update-version:
 	@$(call commit,$m) 
 version:
 	echo "CURRENT_VERSION=${VERSION}"
