@@ -56,7 +56,7 @@
               <input type="checkbox" v-model="lwt"> enable LWT
             </div>
             <div class="control">
-              <button class="button is-primary" v-on:click="onSubmit">Submit</button>
+              <button class="button is-primary" v-on:click.stop="onSubmit">Submit</button>
               <button class="button is-link">Cancel</button>
             </div>
           </form>
@@ -91,6 +91,8 @@
     methods: {
       onSubmit () {
         let context = this
+        console.log(context)
+        console.log(context.lwt)
         saveMqttConfig(context, {
           host: context.host,
           username: context.username,
@@ -99,7 +101,7 @@
           clientId: context.clientId || `clientId-${context.hash}`,
           publishRateSecond: context.publishRateSecond,
           deviceName: context.deviceName || context.hash,
-          lwt: (context.lwt === true) ? '0' : '1',
+          lwt: (context.lwt === false) ? '0' : '1',
           port: context.port
         }).then((resp) => {
           this.server_response = resp

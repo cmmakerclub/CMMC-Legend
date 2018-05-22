@@ -20,7 +20,7 @@
             <i class="fa fa-lock"></i>
           </p>
           <p class="control">
-            <button class="button is-primary" v-on:click="onSubmit">Submit</button>
+            <button class="button is-primary" v-on:click.stop="onSubmit">Submit</button>
             <button class="button is-link">Cancel</button>
           </p>
         </div>

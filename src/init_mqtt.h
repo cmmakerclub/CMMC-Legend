@@ -32,7 +32,6 @@ void init_mqtt()
 
   mqtt->on_prepare_configuration([&](MqttConnector::Config *config) -> void {
     Serial.printf("lwt = %lu\r\n", MQTT_LWT);
-    MQTT_CLIENT_ID = ESP.getChipId();
     config->clientId  = MQTT_CLIENT_ID;
     config->channelPrefix = MQTT_PREFIX;
     config->enableLastWill = MQTT_LWT;

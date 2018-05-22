@@ -122,7 +122,7 @@ void setupWebServer() {
         Serial.println("file open failed");
     }
     request->send(200, "text/plain", String("ENABLING.. ") + String(ESP.getFreeHeap()));
-    ESP.restart();
+    // ESP.restart();
   });
 
 
@@ -287,7 +287,6 @@ void setupWebServer() {
       Serial.println(output);
       request->send(200, "application/json", output);
       wifiConfigManager.commit();
-      flag_restart = 1;
     });
     // ===== END /API/WIFI/STA =====
 
@@ -322,7 +321,6 @@ void setupWebServer() {
     Serial.println(output);
     request->send(200, "application/json", output);
     mqttConfigManager.commit();
-    flag_restart = 1;
   }); 
 
   server.onNotFound([](AsyncWebServerRequest * request) {

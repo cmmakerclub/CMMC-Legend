@@ -11,7 +11,7 @@ extern uint32_t lastRecv;
 
 void register_receive_hooks() {
   mqtt->on_subscribe([&](MQTT::Subscribe *sub) -> void {
-    Serial.printf("myName = %s \r\n", myName);
+    Serial.printf("onSubScribe myName = %s \r\n", myName);
     sub->add_topic(MQTT_PREFIX + myName + String("/$/+"));
     sub->add_topic(MQTT_PREFIX + MQTT_CLIENT_ID + String("/$/+"));
     sub->add_topic(MQTT_PREFIX + myName + String("/status"));

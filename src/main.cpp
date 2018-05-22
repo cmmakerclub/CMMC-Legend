@@ -151,6 +151,10 @@ void init_userconfig() {
         sprintf(mqtt_device_name, "%08x", ESP.getChipId());
       }
 
+      if (strcmp(mqtt_clientId, "") == 0) {
+        sprintf(mqtt_clientId, "%08x", ESP.getChipId());
+      } 
+
       MQTT_HOST = String(mqtt_host);
       MQTT_USERNAME = String(mqtt_user);
       MQTT_PASSWORD = String(mqtt_pass);
@@ -219,10 +223,10 @@ void loop() {
     mqtt->loop(); 
   } 
 
-  if (flag_restart) {
-    delay(2000);
-    ESP.restart();
-  }
+  // if (flag_restart) {
+  //   delay(2000);
+  //   ESP.restart();
+  // }
   checkConfigMode(); 
 } 
 
