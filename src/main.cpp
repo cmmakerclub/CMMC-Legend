@@ -79,16 +79,7 @@ void checkConfigMode();
 
 
 void setup() {
-  SPIFFS.begin();
-  blinker = new CMMC_Blink; 
-  blinker->init();
-  blinker->setPin(2); 
-  pinMode(0, INPUT_PULLUP); 
-  Serial.begin(57600);
-  blinker->blink(500); 
-  delay(10);
-  // Serial.setDebugOutput(true); 
-
+  init_gpio(); 
   init_userconfig(); 
   select_bootmode();
   Serial.printf("app version=%s\r\n", LEGEND_APP_VERSION); 

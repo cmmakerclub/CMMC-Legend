@@ -1,5 +1,15 @@
 #include <Arduino.h>
 
+void init_gpio() {
+  SPIFFS.begin();
+  blinker = new CMMC_Blink; 
+  blinker->init();
+  blinker->setPin(2); 
+  pinMode(0, INPUT_PULLUP); 
+  Serial.begin(57600);
+  blinker->blink(500); 
+  delay(10);
+}
 void init_sta() {
   WiFi.softAPdisconnect();
   WiFi.disconnect();
