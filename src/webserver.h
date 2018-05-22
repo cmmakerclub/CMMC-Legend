@@ -1,13 +1,18 @@
 #include <AsyncWebSocket.h>
-extern CMMC_Config_Manager wifiConfigManager;
-extern CMMC_Config_Manager mqttConfigManager;
+#include <ESPAsyncWebServer.h>
+#include <CMMC_Config_Manager.h>
+#include <SPIFFSEditor.h>
 
-extern AsyncWebServer server;
-extern AsyncWebSocket ws;
-extern AsyncEventSource events;
-extern CMMC_Interval interval;
-extern const char* http_username;
-extern const char* http_password;
+AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+AsyncEventSource events("/events");
+
+const char* http_username = "admin";
+const char* http_password = "admin";
+
+extern CMMC_Config_Manager wifiConfigManager;
+extern CMMC_Config_Manager mqttConfigManager; 
+
 extern bool flag_restart;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {

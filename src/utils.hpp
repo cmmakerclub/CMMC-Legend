@@ -1,4 +1,37 @@
 #include <Arduino.h>
+#include <ESP8266mDNS.h>
+#include <ESPAsyncTCP.h>
+#include <FS.h>
+#include <SPIFFSEditor.h> 
+
+#include <CMMC_Blink.hpp>
+#include <CMMC_Interval.hpp>
+#include <CMMC_Config_Manager.h>
+
+CMMC_Interval interval; 
+static CMMC_Blink *blinker;
+
+enum MODE{SETUP, RUN}; 
+MODE mode;
+
+CMMC_Config_Manager mqttConfigManager; 
+CMMC_Config_Manager wifiConfigManager;
+
+char sta_ssid[30] = "";
+char sta_pwd[30] = "";
+
+char ap_ssid[30] = "CMMC-Legend";
+char ap_pwd[30] = ""; 
+
+char mqtt_host[40] = "";
+char mqtt_user[40] = "";
+char mqtt_pass[40] = "";
+char mqtt_clientId[40] = "";
+char mqtt_prefix[40] = "";
+char mqtt_port[10] = "";
+char mqtt_device_name[15] = "";
+
+void checkConfigMode();
 
 void init_gpio() {
   SPIFFS.begin();
