@@ -212,6 +212,9 @@ void loop() {
   if (mode == RUN) {
     interval.every_ms(10L*1000, []() {
       Serial.printf("Last Recv %lu ms ago.\r\n", (millis() - lastRecv)); 
+      if ( (millis() - lastRecv) > (PUBLISH_EVERY*3) ) {
+        ESP.restart();
+      }
     });
     mqtt->loop(); 
   } 
