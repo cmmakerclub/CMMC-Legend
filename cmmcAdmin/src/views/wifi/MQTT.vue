@@ -74,13 +74,14 @@
   export default {
     components: {},
     mounted () {
+      const hash = `${Math.random().toString(15).substr(2, 10)}`
       getMqttConfig(this).then((json) => {
         this.host = json.host
         this.username = json.username
         this.password = json.password
-        this.clientId = json.clientId
+        this.clientId = json.clientId || `clientId-${hash}`
         this.publishRateSecond = json.publishRateSecond
-        this.deviceName = json.deviceName
+        this.deviceName = json.deviceName || hash
         this.prefix = json.prefix
         this.lwt = json.lwt
         this.port = json.port
@@ -112,7 +113,10 @@
       },
       fetchConfig () {
         let ctx = this
+        const hash = `${Math.random().toString(15).substr(2, 10)}`
         getMqttConfig(ctx).then((configs) => {
+          configs.deviceName = configs.deviceName || hash
+          configs.clientId = configs.clientId || hash
           Object.entries(configs).forEach(([key, value]) => {
             console.log(`config ${key}=>${value}`)
             ctx[key] = value
@@ -127,7 +131,7 @@
         server_response: '',
         username: '',
         password: '',
-        deviceName: '',
+        deviceName: hash,
         lwt: 0,
         clientId: `clientId-${hash}`,
         host: 'mqtt.cmmc.io',

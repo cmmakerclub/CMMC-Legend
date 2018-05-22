@@ -8,6 +8,11 @@ static void readSensor();
 extern String DEVICE_NAME;
 extern int PUBLISH_EVERY;
 
+extern uint32_t temperature;
+extern uint32_t humidity;
+extern uint32_t gas_resistance;
+extern uint32_t pressure;
+
 void register_publish_hooks() {
   strcpy(myName, DEVICE_NAME.c_str());
   mqtt->on_prepare_data_once([&](void) {
@@ -24,6 +29,12 @@ void register_publish_hooks() {
     data["appVersion"] = LEGEND_APP_VERSION;
     data["myName"] = myName;
     data["millis"] = millis();
+
+    data["temperature_raw"] = temperature;
+    data["humidity_raw"] = temperature;
+    data["pressure_raw"] = pressure;
+    data["gas_resistance_raw"] = gas_resistance;
+
     data["updateInterval"] = PUBLISH_EVERY;
   }, PUBLISH_EVERY);
   mqtt->on_after_prepare_data([&](JsonObject * root) {

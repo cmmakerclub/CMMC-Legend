@@ -1,6 +1,6 @@
 {
   "name": "cmmc-admin",
-  "version": "1.0.9",
+  "version": "1.0.12",
   "description": "A Vue.js project",
   "author": "Nat <nat@cmmc.io>",
   "private": true,

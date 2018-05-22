@@ -12,39 +12,78 @@
 #include "_config.h"
 
 #include "webserver.h"
-#include "utils.hpp" 
-
-
-// extern _config
-extern String DEVICE_NAME;
-extern String MQTT_HOST;
-extern String MQTT_USERNAME;
-extern String MQTT_PASSWORD;
-extern String MQTT_CLIENT_ID;
-extern String MQTT_PREFIX;
-
-extern int    MQTT_PORT;
-extern int PUBLISH_EVERY;
-extern int MQTT_CONNECT_TIMEOUT;
-extern bool MQTT_LWT;
+#include "system.hpp" 
 
 // MQTT CONNECTOR
-MqttConnector *mqtt; 
-uint32_t lastRecv; 
 char myName[40]; 
 
 bool flag_mqtt_available = false; 
-
-
 bool flag_restart = false; 
+#include <Wire.h>
+#include <SPI.h>
+#include <Adafruit_Sensor.h>
+#include "Adafruit_BME680.h"
+
+
+#define SEALEVELPRESSURE_HPA (1013.25)
+CMMC_Interval sensorInterval;
+
+Adafruit_BME680 bme; // I2C
+//Adafruit_BME680 bme(BME_CS); // hardware SPI
+//Adafruit_BME680 bme(BME_CS, BME_MOSI, BME_MISO,  BME_SCK);
+
+uint32_t temperature;
+uint32_t humidity;
+uint32_t gas_resistance;
+uint32_t pressure;
 
 void setup() {
   init_gpio(); 
   init_userconfig(); 
   select_bootmode();
-  Serial.printf("app version=%s\r\n", LEGEND_APP_VERSION); 
+  Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION); 
+
+  if (!bme.begin()) {
+    Serial.println("Could not find a valid BME680 sensor, check wiring!");
+  } 
+  else {
+  // Set up oversampling and filter initialization
+  bme.setTemperatureOversampling(BME680_OS_8X);
+  bme.setHumidityOversampling(BME680_OS_2X);
+  bme.setPressureOversampling(BME680_OS_4X);
+  bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  bme.setGasHeater(320, 150); // 320*C for 150 ms 
+  }
 } 
 
 void loop() { 
   run();
+  sensorInterval.every_ms(5L*1000, []() {
+    if (!bme.performReading()) {
+      Serial.println("Failed to perform reading :(");
+      return;
+    }
+
+    temperature = bme.temperature*100;
+    humidity = bme.humidity*100;
+    pressure = bme.pressure;
+    gas_resistance = bme.gas_resistance;
+    Serial.print("Temperature = ");
+    Serial.print(bme.temperature);
+    Serial.println(" *C");
+
+    Serial.print("Pressure = ");
+    Serial.print(bme.pressure / 100.0);
+    Serial.println(" hPa");
+
+    Serial.print("Humidity = ");
+    Serial.print(bme.humidity);
+    Serial.println(" %");
+
+    Serial.print("Gas = ");
+    Serial.print(bme.gas_resistance / 1000.0);
+    Serial.println(" KOhms");
+    Serial.println();
+
+    });
 } 
