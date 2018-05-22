@@ -355,10 +355,10 @@ void setupWebServer() {
 
     int headers = request->headers();
     int i;
-    for (i = 0; i < headers; i++) {
-      AsyncWebHeader* h = request->getHeader(i);
-      // Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
-    }
+    // for (i = 0; i < headers; i++) {
+    //   // AsyncWebHeader* h = request->getHeader(i);
+    //   // Serial.printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+    // }
 
     int params = request->params();
     for (i = 0; i < params; i++) {
