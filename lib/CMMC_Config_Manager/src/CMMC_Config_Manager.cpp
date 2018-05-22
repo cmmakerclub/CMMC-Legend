@@ -79,10 +79,10 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   const char* b = buf.get();
   USER_DEBUG_PRINTF("[load_config] size = %d\r\n", size); 
   USER_DEBUG_PRINTF("[load_config] config content ->%s<-", b);
-  Serial.printf("[0] heap: %lu\r\n", ESP.getFreeHeap());
+  USER_DEBUG_PRINTF("[0] heap: %lu\r\n", ESP.getFreeHeap());
   this->jsonBuffer.clear();
   JsonObject& json = this->jsonBuffer.parseObject(b); 
-  Serial.printf("[1] heap: %lu\r\n", ESP.getFreeHeap());
+  USER_DEBUG_PRINTF("[1] heap: %lu\r\n", ESP.getFreeHeap());
   if (json.success()) {
     USER_DEBUG_PRINTF("[load_config] Parsing config success.");
     if (cb != NULL) {

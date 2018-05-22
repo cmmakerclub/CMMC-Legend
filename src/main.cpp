@@ -27,6 +27,7 @@ extern String MQTT_USERNAME;
 extern String MQTT_PASSWORD;
 extern String MQTT_CLIENT_ID;
 extern String MQTT_PREFIX;
+
 extern int    MQTT_PORT;
 extern int PUBLISH_EVERY;
 extern int MQTT_CONNECT_TIMEOUT;
@@ -121,8 +122,17 @@ void init_userconfig() {
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
-     const char* mqtt_configs[7] = {(*root)["host"], (*root)["username"], 
-     (*root)["password"], (*root)["clientId"], (*root)["port"], (*root)["deviceName"], (*root)["prefix"]};
+    Serial.println(content);
+     const char* mqtt_configs[] = {(*root)["host"], 
+        (*root)["username"], 
+        (*root)["password"], 
+        (*root)["clientId"], 
+        (*root)["port"], 
+        (*root)["deviceName"], 
+        (*root)["prefix"], // [6]
+        (*root)["lwt"],
+        (*root)["publishRateSecond"]
+     };
 
     if (mqtt_configs[0] != NULL) {
       strcpy(mqtt_host, mqtt_configs[0]);
@@ -133,13 +143,24 @@ void init_userconfig() {
       strcpy(mqtt_device_name, mqtt_configs[5]);
       strcpy(mqtt_prefix, mqtt_configs[6]);
 
+      bool lwt = String(mqtt_configs[7]).toInt();
+      uint32_t port = String(mqtt_configs[4]).toInt();
+      uint32_t pubEveryS = String(mqtt_configs[8]).toInt();
+
+      if (strcmp(mqtt_device_name, "") == 0) {
+        sprintf(mqtt_device_name, "%08x", ESP.getChipId());
+      }
+
       MQTT_HOST = String(mqtt_host);
       MQTT_USERNAME = String(mqtt_user);
       MQTT_PASSWORD = String(mqtt_pass);
       MQTT_CLIENT_ID = String(mqtt_clientId);
       MQTT_PORT = String(mqtt_port).toInt();
       MQTT_PREFIX = String(mqtt_prefix);
+      PUBLISH_EVERY = pubEveryS;
+      MQTT_LWT = lwt;
       DEVICE_NAME = String(mqtt_device_name); 
+      Serial.printf("port = %lu, pubRate = %lus\r\n", port, pubEveryS);
     }
   });
 }
@@ -155,7 +176,7 @@ void setup() {
 
   pinMode(0, INPUT_PULLUP); 
   Serial.begin(57600);
-  Serial.setDebugOutput(true); 
+  // Serial.setDebugOutput(true); 
   blinker->blink(500); 
   delay(10);
 

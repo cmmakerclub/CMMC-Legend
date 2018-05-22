@@ -7,6 +7,7 @@ extern String MQTT_USERNAME;
 extern String MQTT_PASSWORD;
 extern String MQTT_CLIENT_ID;
 extern String MQTT_PREFIX;
+extern bool MQTT_LWT;
 extern char myName[];
 
 extern int MQTT_PORT;
@@ -30,10 +31,11 @@ void init_mqtt()
   });
 
   mqtt->on_prepare_configuration([&](MqttConnector::Config *config) -> void {
+    Serial.printf("lwt = %lu\r\n", MQTT_LWT);
     MQTT_CLIENT_ID = ESP.getChipId();
     config->clientId  = MQTT_CLIENT_ID;
     config->channelPrefix = MQTT_PREFIX;
-    config->enableLastWill = true;
+    config->enableLastWill = MQTT_LWT;
     config->retainPublishMessage = false;
     /*
         config->mode
