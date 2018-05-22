@@ -187,14 +187,7 @@ void setup() {
   Serial.printf("app version=%s\r\n", LEGEND_APP_VERSION);
   init_userconfig(); 
   Serial.printf("app version=%s\r\n", LEGEND_APP_VERSION);
-  // Serial.printf("initializing SPIFFS ...");
-  // Dir dir = SPIFFS.openDir("/");
-  // Serial.print("dir = ");
-  // while (dir.next()) {
-  //   String fileName = dir.fileName();
-  //   size_t fileSize = dir.fileSize();
-  //   Serial.printf("FS File: %s, size: %s\r\n", fileName.c_str(), String(fileSize).c_str());
-  // } 
+
   if (!SPIFFS.exists("/enabled")) {
     blinker->blink(50);
     Serial.println("AP Only Mode.");  
@@ -223,10 +216,6 @@ void loop() {
     mqtt->loop(); 
   } 
 
-  // if (flag_restart) {
-  //   delay(2000);
-  //   ESP.restart();
-  // }
   checkConfigMode(); 
 } 
 
@@ -240,7 +229,8 @@ void checkConfigMode() {
       while(digitalRead(0) == LOW) {
         delay(10); 
       }
-      SPIFFS.remove("/enabled");
+      SPIFFS.remove("/enabled"); 
+      delay(300);
       ESP.restart();
     }
   }
