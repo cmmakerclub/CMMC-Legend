@@ -167,6 +167,8 @@ void setup() {
   Serial.setDebugOutput(true); 
   blinker->blink(500); 
   delay(10);
+
+  Serial.printf("app version=%s\r\n", APP_VERSION);
   init_userconfig(); 
   // Serial.printf("initializing SPIFFS ...");
   // Dir dir = SPIFFS.openDir("/");
