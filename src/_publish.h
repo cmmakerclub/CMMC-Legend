@@ -21,7 +21,7 @@ void register_publish_hooks() {
   mqtt->on_prepare_data([&](JsonObject *root) {
     JsonObject& data = (*root)["d"];
     JsonObject& info = (*root)["info"];
-    data["appVersion"] = APP_VERSION;
+    data["appVersion"] = LEGEND_APP_VERSION;
     data["myName"] = myName;
     data["millis"] = millis();
     data["updateInterval"] = PUBLISH_EVERY;

@@ -98,9 +98,9 @@ void init_ap() {
 }
 
 void init_userconfig() { 
-  mqttConfigManager.add_debug_listener([](const char* msg) {
-    Serial.printf(">> %s \r\n", msg);
-  }); 
+  // mqttConfigManager.add_debug_listener([](const char* msg) {
+  //   Serial.printf(">> %s \r\n", msg);
+  // }); 
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
 
@@ -117,19 +117,10 @@ void init_userconfig() {
     };
     strcpy(sta_ssid, sta_config[0]); 
     strcpy(sta_pwd, sta_config[1]); 
-  });
-
-  Serial.printf("initializing SPIFFS ...");
-  Dir dir = SPIFFS.openDir("/");
-  while (dir.next()) {
-    String fileName = dir.fileName();
-    size_t fileSize = dir.fileSize();
-    Serial.printf("FS File: %s, size: %s", fileName.c_str(), String(fileSize).c_str());
-  }
+  }); 
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
     Serial.println("[user] mqtt config json loaded..");
-    // Serial.println(content); 
      const char* mqtt_configs[7] = {(*root)["host"], (*root)["username"], 
      (*root)["password"], (*root)["clientId"], (*root)["port"], (*root)["deviceName"], (*root)["prefix"]};
 
@@ -168,8 +159,9 @@ void setup() {
   blinker->blink(500); 
   delay(10);
 
-  Serial.printf("app version=%s\r\n", APP_VERSION);
+  Serial.printf("app version=%s\r\n", LEGEND_APP_VERSION);
   init_userconfig(); 
+  Serial.printf("app version=%s\r\n", LEGEND_APP_VERSION);
   // Serial.printf("initializing SPIFFS ...");
   // Dir dir = SPIFFS.openDir("/");
   // Serial.print("dir = ");
