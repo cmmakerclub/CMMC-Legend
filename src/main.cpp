@@ -157,7 +157,7 @@ void init_userconfig() {
       MQTT_CLIENT_ID = String(mqtt_clientId);
       MQTT_PORT = String(mqtt_port).toInt();
       MQTT_PREFIX = String(mqtt_prefix);
-      PUBLISH_EVERY = pubEveryS;
+      PUBLISH_EVERY = pubEveryS*1000L;
       MQTT_LWT = lwt;
       DEVICE_NAME = String(mqtt_device_name); 
       Serial.printf("port = %lu, pubRate = %lus\r\n", port, pubEveryS);

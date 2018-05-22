@@ -122,6 +122,7 @@ void setupWebServer() {
         Serial.println("file open failed");
     }
     request->send(200, "text/plain", String("ENABLING.. ") + String(ESP.getFreeHeap()));
+    ESP.restart();
   });
 
 
