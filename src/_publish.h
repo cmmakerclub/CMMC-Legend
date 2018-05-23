@@ -28,13 +28,11 @@ void register_publish_hooks() {
     JsonObject& info = (*root)["info"];
     data["appVersion"] = LEGEND_APP_VERSION;
     data["myName"] = myName;
-    data["millis"] = millis();
-
+    data["millis"] = millis(); 
     data["temperature_raw"] = temperature;
     data["humidity_raw"] = temperature;
     data["pressure_raw"] = pressure;
-    data["gas_resistance_raw"] = gas_resistance;
-
+    data["gas_resistance_raw"] = gas_resistance; 
     data["updateInterval"] = PUBLISH_EVERY;
   }, PUBLISH_EVERY);
   mqtt->on_after_prepare_data([&](JsonObject * root) {
