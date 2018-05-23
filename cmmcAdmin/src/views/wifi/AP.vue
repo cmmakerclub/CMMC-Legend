@@ -51,7 +51,7 @@
         let context = this
         saveAPConfig(context, context.ap_ssid, context.ap_password)
           .then((resp) => {
-            this.server_response = resp
+            this.server_response = 'Saved.'
           })
           .catch((err) => {
             console.log('error', err)
