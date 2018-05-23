@@ -57,7 +57,7 @@ class CMMC_DHT: public CMMC_Sensor {
     that->interval.every_ms(every, []() {
       that->data.temperature = that->dht->readTemperature()*100;
       that->data.humidity = that->dht->readHumidity()*100;
-      c( (void*) &that->data);
+      c((void*) &that->data, sizeof(that->data));
     });
   }
 
@@ -105,24 +105,7 @@ class CMMC_BME: public CMMC_Sensor {
         that->data.humidity = that->bme.humidity * 100;
         that->data.pressure = that->bme.pressure;
         that->data.gas_resistance = that->bme.gas_resistance;
-        
-        Serial.print("Temperature = ");
-        Serial.print(that->bme.temperature);
-        Serial.println(" *C");
-
-        Serial.print("Pressure = ");
-        Serial.print(that->bme.pressure / 100.0);
-        Serial.println(" hPa");
-
-        Serial.print("Humidity = ");
-        Serial.print(that->bme.humidity);
-        Serial.println(" %");
-
-        Serial.print("Gas = ");
-        Serial.print(that->bme.gas_resistance / 1000.0);
-        Serial.println(" KOhms");
-        Serial.println();
-        c( (void*) &that->data);
+        c( (void*) &that->data, sizeof(CMMC_DHT::SENSOR_DATA));
       });
     };
 };
@@ -140,9 +123,9 @@ void setup() {
 
 void loop() {
   run();
-  myDHT.read(6000, [](void *d) {
+  myDHT.read(6000, [](void *d, size_t len) {
     CMMC_DHT::SENSOR_DATA data;
-    memcpy(&data, d, sizeof (CMMC_DHT::SENSOR_DATA));
+    memcpy(&data, d, len);
     Serial.println(data.temperature);
     Serial.println(data.humidity);
   });
