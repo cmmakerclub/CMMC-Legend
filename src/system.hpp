@@ -12,7 +12,7 @@ MqttConnector *mqtt;
 uint32_t lastRecv; 
 
 CMMC_Interval interval; 
-static CMMC_Blink *blinker;
+CMMC_Blink *blinker;
 
 enum MODE{SETUP, RUN}; 
 MODE mode;

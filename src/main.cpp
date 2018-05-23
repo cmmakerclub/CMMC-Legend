@@ -59,6 +59,7 @@ void setup() {
 void loop() { 
   run();
   sensorInterval.every_ms(5L*1000, []() {
+    if (mode != RUN) return;
     if (!bme.performReading()) {
       Serial.println("Failed to perform reading :(");
       return;

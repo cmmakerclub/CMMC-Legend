@@ -27,8 +27,7 @@ typedef void (*cmmc_json_loaded_cb_t)(JsonObject* root, const char* content);
 typedef std::map<String, String> Items;
 
 #define USER_DEBUG_PRINTF(fmt, args...) { \
-  sprintf(this->debug_buffer, fmt, ## args); \
-  _user_debug_cb(this->debug_buffer); \
+  Serial.printf(fmt, ## args); \
 }
 
 class CMMC_Config_Manager
@@ -48,17 +47,16 @@ class CMMC_Config_Manager
 
   private:
     bool _busy = false;
-    void _init_json_file(cmmc_json_loaded_cb_t cb = NULL);
+    File _init_json_file(cmmc_json_loaded_cb_t cb = NULL);
     Items items;
     DynamicJsonBuffer jsonBuffer;
     cmmc_debug_cb_t _user_debug_cb;
     File configFile;
     char filename_c[60];
-    char debug_buffer[600];
     u8 _status = 0;
     char _k[40];
     char _v[60];
-    void _open_file();
+    File _open_file();
 };
 
 #endif //CMMC_Config_Manager_H

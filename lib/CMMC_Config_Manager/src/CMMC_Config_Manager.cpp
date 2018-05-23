@@ -47,7 +47,7 @@ void CMMC_Config_Manager::commit() {
       _this->configFile.close();
     }
     else {
-      Serial.println("loading config FAILED!!"); 
+      Serial.println("loading config FAILED!!\r\n"); 
     }
   });
   
@@ -60,16 +60,16 @@ void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   USER_DEBUG_PRINTF("___ START [add_field] with %s:%s (%x)", key, value, this);
   items[_k] = _v;
   // show content:
-  USER_DEBUG_PRINTF("Iterate through items...");
+  USER_DEBUG_PRINTF("Iterate through items...\r\n");
   for (Items::iterator it = items.begin(); it != items.end(); ++it) {
     USER_DEBUG_PRINTF("> %s->%s", it->first.c_str(), it->second.c_str());
   } 
   USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
-  USER_DEBUG_PRINTF("___ END add field");
+  USER_DEBUG_PRINTF("___ END add field\r\n");
 }
 
 void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
-  USER_DEBUG_PRINTF("[load_config] Loading Config..");
+  USER_DEBUG_PRINTF("[load_config] Loading Config..\r\n");
   _open_file();
   size_t size = configFile.size() + 1;
   std::unique_ptr<char[]> buf(new char[size + 1]);
@@ -78,32 +78,31 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   configFile.close();
   const char* b = buf.get();
   USER_DEBUG_PRINTF("[load_config] size = %d\r\n", size); 
-  USER_DEBUG_PRINTF("[load_config] config content ->%s<-", b);
+  USER_DEBUG_PRINTF("[load_config] config content ->%s<-\r\n", b);
   USER_DEBUG_PRINTF("[0] heap: %lu\r\n", ESP.getFreeHeap());
   this->jsonBuffer.clear();
   JsonObject& json = this->jsonBuffer.parseObject(b); 
   USER_DEBUG_PRINTF("[1] heap: %lu\r\n", ESP.getFreeHeap());
   if (json.success()) {
-    USER_DEBUG_PRINTF("[load_config] Parsing config success.");
+    USER_DEBUG_PRINTF("[load_config] Parsing config success.\r\n");
     if (cb != NULL) {
-      USER_DEBUG_PRINTF("[load_config] calling callback fn");
+      USER_DEBUG_PRINTF("[load_config] calling callback fn\r\n");
       cb(&json, b);
     }
   }
   else {
-    USER_DEBUG_PRINTF("[load_config] Failed to parse config file.");
+    USER_DEBUG_PRINTF("[load_config] Failed to parse config file.\r\n");
     _init_json_file(cb); 
     cb(NULL, NULL);
   }
 }
 
-void CMMC_Config_Manager::_init_json_file(cmmc_json_loaded_cb_t cb) {
-  USER_DEBUG_PRINTF("[_init_json_file]");
+File CMMC_Config_Manager::_init_json_file(cmmc_json_loaded_cb_t cb) {
+  USER_DEBUG_PRINTF("[_init_json_file]\r\n");
   configFile = SPIFFS.open(this->filename_c, "w");
   JsonObject& json = this->jsonBuffer.createObject();
   json.printTo(configFile);
-  USER_DEBUG_PRINTF("[_init_json_file] closing file..");
-  configFile.close();
+  USER_DEBUG_PRINTF("[_init_json_file] closing file..\r\n");
   load_config(cb);
 }
 
@@ -131,8 +130,8 @@ void CMMC_Config_Manager::add_debug_listener(cmmc_debug_cb_t cb) {
   }
 }
 
-void CMMC_Config_Manager::_open_file()  {
-  USER_DEBUG_PRINTF("[open_file] open filename: %s", this->filename_c);
+File CMMC_Config_Manager::_open_file()  {
+  USER_DEBUG_PRINTF("[open_file] open filename: %s\r\n", this->filename_c);
   // USER_DEBUG_PRINTF("DEBUGGIN SPIFFS ...");
   // Dir dir = SPIFFS.openDir("/");
   // while (dir.next()) {
@@ -142,14 +141,16 @@ void CMMC_Config_Manager::_open_file()  {
   // }
   if (SPIFFS.exists(this->filename_c)) {
     configFile = SPIFFS.open(this->filename_c, "r");
-    USER_DEBUG_PRINTF("[open_file] config size = %lu bytes", configFile.size());
-    if (configFile.size() > 512) {
-      USER_DEBUG_PRINTF("[open_file] Config file size is too large");
-    } else {
-      USER_DEBUG_PRINTF("[open_file] check file size ok.");
-    }
+    return configFile;
+    USER_DEBUG_PRINTF("[open_file] config size = %lu bytes\r\n", configFile.size()); 
+    // if (configFile.size() > 512) {
+    //   USER_DEBUG_PRINTF("[open_file] Config file size is too large");
+
+    // } else {
+    //   USER_DEBUG_PRINTF("[open_file] check file size ok.");
+    // }
   } else { // file not exists
-    USER_DEBUG_PRINTF("[open_file] file not existsing so create a new file");
-    _init_json_file();
+    USER_DEBUG_PRINTF("[open_file] file not existsing so create a new file.\r\n");
+    return _init_json_file();
   }
 }

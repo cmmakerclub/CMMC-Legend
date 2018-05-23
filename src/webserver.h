@@ -2,6 +2,7 @@
 #include <ESPAsyncWebServer.h>
 #include <CMMC_Config_Manager.h>
 #include <SPIFFSEditor.h>
+#include <CMMC_Blink.hpp>
 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
@@ -10,8 +11,10 @@ AsyncEventSource events("/events");
 const char* http_username = "admin";
 const char* http_password = "admin";
 
+
 extern CMMC_Config_Manager wifiConfigManager;
 extern CMMC_Config_Manager mqttConfigManager; 
+extern CMMC_Blink *blinker;
 
 extern bool flag_restart;
 
@@ -179,6 +182,7 @@ void setupWebServer() {
     if (final) { // if the final flag is set then this is the last frame of data
       if (Update.end(true)) { //true to set the size to the current progress
         Serial.printf("Update Success: %u B\nRebooting...\n", index + len);
+        blinker->blink(1000);
       } else {
         Update.printError(Serial);
       }
@@ -218,6 +222,7 @@ void setupWebServer() {
     if (final) { // if the final flag is set then this is the last frame of data
       if (Update.end(true)) { //true to set the size to the current progress
         Serial.printf("Update Success: %u B\nRebooting...\n", index + len);
+        blinker->blink(1000);
       } else {
         Update.printError(Serial);
       }
