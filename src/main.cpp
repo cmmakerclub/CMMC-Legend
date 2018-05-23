@@ -31,7 +31,38 @@ uint32_t temperature;
 uint32_t humidity;
 uint32_t gas_resistance;
 uint32_t pressure;
-#include <CMMC_Sensor.hpp>
+
+#include <CMMC_Sensor.hpp> 
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+class CMMC_DHT: public CMMC_Sensor {
+  public:
+  typedef struct SENSOR_DATA {
+      uint32_t temperature;
+      uint32_t humidity;
+  }; 
+
+  SENSOR_DATA data; 
+  DHT *dht;
+  void setup() {
+    dht = new DHT(12, DHT22);
+    dht->begin(); 
+    data.temperature = dht->readTemperature()*100;
+    data.humidity = dht->readHumidity()*100; 
+  };
+
+  int read(uint32_t every, callback_t cb) {
+    static callback_t c = cb;
+    static CMMC_DHT* that = this;
+    that->interval.every_ms(every, []() {
+      that->data.temperature = that->dht->readTemperature()*100;
+      that->data.humidity = that->dht->readHumidity()*100;
+      c( (void*) &that->data);
+    });
+  }
+
+};
+
 
 class CMMC_BME: public CMMC_Sensor {
   private:
@@ -43,6 +74,9 @@ class CMMC_BME: public CMMC_Sensor {
       uint32_t gas_resistance;
       uint32_t pressure;
     };
+
+    SENSOR_DATA data;
+
     void setup() {
       if (!bme.begin()) {
         Serial.println("Could not find a valid BME680 sensor, check wiring!");
@@ -61,17 +95,17 @@ class CMMC_BME: public CMMC_Sensor {
     int read(uint32_t every, callback_t cb) {
       static callback_t c = cb;
       static CMMC_BME* that = this;
-      static SENSOR_DATA data;
       that->interval.every_ms(every, []() {
         if (!that->bme.performReading()) {
           Serial.println("Failed to perform reading :(");
           return;
         }
 
-        data.temperature = that->bme.temperature * 100;
-        data.humidity = that->bme.humidity * 100;
-        data.pressure = that->bme.pressure;
-        data.gas_resistance = that->bme.gas_resistance;
+        that->data.temperature = that->bme.temperature * 100;
+        that->data.humidity = that->bme.humidity * 100;
+        that->data.pressure = that->bme.pressure;
+        that->data.gas_resistance = that->bme.gas_resistance;
+        
         Serial.print("Temperature = ");
         Serial.print(that->bme.temperature);
         Serial.println(" *C");
@@ -88,28 +122,28 @@ class CMMC_BME: public CMMC_Sensor {
         Serial.print(that->bme.gas_resistance / 1000.0);
         Serial.println(" KOhms");
         Serial.println();
-        c( (void*) &data);
+        c( (void*) &that->data);
       });
     };
 };
 
-CMMC_BME hello;
+CMMC_BME bme680;
+CMMC_DHT myDHT;
 void setup() {
   init_gpio();
   init_userconfig();
   select_bootmode();
-  hello.setup();
+  // bme680.setup();
+  myDHT.setup();
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
-
 }
 
 void loop() {
   run();
-  hello.read(6000, [](void *d) {
-    CMMC_BME::SENSOR_DATA data;
-    memcpy(&data, d, sizeof (CMMC_BME::SENSOR_DATA));
+  myDHT.read(6000, [](void *d) {
+    CMMC_DHT::SENSOR_DATA data;
+    memcpy(&data, d, sizeof (CMMC_DHT::SENSOR_DATA));
     Serial.println(data.temperature);
     Serial.println(data.humidity);
-    Serial.println(data.pressure);
   });
 }
