@@ -16,11 +16,11 @@ rsync --delete -av cmmcAdmin/dist/ data --progress
 rsync -av wifi.json data/
 rsync -av mymqtt.json data/
 
-read -p "Upload SPIFFS Image (y/n)? " choice
-case "$choice" in 
-  y|Y ) platformio run --target uploadfs;;
-  n|N ) echo "no";;
-  * ) echo "invalid";;
-esac
+# read -p "Upload SPIFFS Image (y/n)? " choice
+# case "$choice" in 
+#   y|Y ) platformio run --target uploadfs;;
+#   n|N ) echo "no";;
+#   * ) echo "invalid";;
+# esac
 
 # pio run -t uploadfs 

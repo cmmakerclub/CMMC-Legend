@@ -40,6 +40,8 @@ update-version:
 version:
 	echo "CURRENT_VERSION=${VERSION}"
 spiffs:
+	echo "CURRENT_VERSION=${VERSION}"
+	./rebuild-spiffs.sh
 	$(SPIFFS) -c data -p 256 -b 8192 -s 1028096 binaries/spiffs.bin
 test:
 	./pio_build_test.sh
