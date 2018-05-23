@@ -45,18 +45,20 @@ class CMMC_Blink
       this->blink(ms);
     }
 
+    void detach() {
+      this->_ticker->detach();
+      this->_ticker2->detach();
+    }
+
     void blink(uint32_t ms) {
       if (_initialized == false) return;
         if (_ledPin == 254) return;
         static int _pin = this->_ledPin;
-        this->_ticker->detach();
-        this->_ticker2->detach();
+        this->detach();
         delete this->_ticker;
-        delete this->_ticker2;
-
+        delete this->_ticker2; 
         this->_ticker = new Ticker;
-        this->_ticker2 = new Ticker;
-
+        this->_ticker2 = new Ticker; 
         static CMMC_Blink *_that = this;
         static auto lambda = []() {
             _that->state = !_that->state;

@@ -162,6 +162,7 @@ void setupWebServer() {
     //Upload handler chunks in data 
     if (!index) { // if index == 0 then this is the first frame of data
       SPIFFS.end();
+      blinker->detach();
       Serial.println("upload start...");
       Serial.printf("UploadStart: %s\n", filename.c_str()); 
       Serial.setDebugOutput(true); 
@@ -201,6 +202,7 @@ void setupWebServer() {
   }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
     //Upload handler chunks in data 
     if (!index) { // if index == 0 then this is the first frame of data
+      blinker->detach();
       SPIFFS.end();
       Serial.println("upload start...");
       Serial.printf("UploadStart: %s\n", filename.c_str()); 
