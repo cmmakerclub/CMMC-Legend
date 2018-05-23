@@ -39,8 +39,6 @@ void setup() {
   init_userconfig(); 
   select_bootmode();
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION); 
-  Serial.setDebugOutput(true);
-  WiFi.begin("CMMC-3rd", "espertap");
 
   if (!bme.begin()) {
     Serial.println("Could not find a valid BME680 sensor, check wiring!");
