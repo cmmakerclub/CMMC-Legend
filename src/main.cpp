@@ -35,6 +35,7 @@ uint32_t pressure;
 #include <CMMC_Sensor.hpp> 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
+
 class CMMC_DHT: public CMMC_Sensor {
   public:
   typedef struct SENSOR_DATA {
@@ -44,8 +45,8 @@ class CMMC_DHT: public CMMC_Sensor {
 
   SENSOR_DATA data; 
   DHT *dht;
-  void setup() {
-    dht = new DHT(12, DHT22);
+  void setup(int pin, int type) {
+    dht = new DHT(pin, type);
     dht->begin(); 
     data.temperature = dht->readTemperature()*100;
     data.humidity = dht->readHumidity()*100; 
@@ -62,7 +63,6 @@ class CMMC_DHT: public CMMC_Sensor {
   }
 
 };
-
 
 class CMMC_BME: public CMMC_Sensor {
   private:
@@ -83,7 +83,6 @@ class CMMC_BME: public CMMC_Sensor {
       }
       else {
         // Set up oversampling and filter initialization
-        Serial.println("setup ok");
         bme.setTemperatureOversampling(BME680_OS_8X);
         bme.setHumidityOversampling(BME680_OS_2X);
         bme.setPressureOversampling(BME680_OS_4X);
@@ -105,7 +104,7 @@ class CMMC_BME: public CMMC_Sensor {
         that->data.humidity = that->bme.humidity * 100;
         that->data.pressure = that->bme.pressure;
         that->data.gas_resistance = that->bme.gas_resistance;
-        c( (void*) &that->data, sizeof(CMMC_DHT::SENSOR_DATA));
+        c( (void*) &that->data, sizeof(that->data));
       });
     };
 };
@@ -117,12 +116,13 @@ void setup() {
   init_userconfig();
   select_bootmode();
   // bme680.setup();
-  myDHT.setup();
+  myDHT.setup(12, 22);
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
 void loop() {
   run();
+
   myDHT.read(6000, [](void *d, size_t len) {
     CMMC_DHT::SENSOR_DATA data;
     memcpy(&data, d, len);
