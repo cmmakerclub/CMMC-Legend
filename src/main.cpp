@@ -29,8 +29,9 @@ uint32_t pressure;
 
 #include "sensors.hpp" 
 
-CMMC_BME bme680;
+CMMC_BME680 bme680;
 CMMC_DHT myDHT;
+
 void setup() {
   init_gpio();
   init_userconfig();
