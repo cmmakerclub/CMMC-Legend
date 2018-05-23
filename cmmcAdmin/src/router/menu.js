@@ -51,8 +51,8 @@ export default [
     ]
   },
   {
-    name: 'Calibrations',
-    path: '/calibrate',
+    name: 'Sensors',
+    path: '/sensors',
     meta: {
       icon: 'fa-sort',
       expanded: false
@@ -62,7 +62,7 @@ export default [
       {
         name: 'DHT',
         path: 'dht',
-        component: require('../views/calibrations/DHT')
+        component: require('../views/sensors/DHT')
       }
     ]
   },
