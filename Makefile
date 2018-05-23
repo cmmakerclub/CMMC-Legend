@@ -3,6 +3,7 @@ SHELL := /bin/bash
 CWD=$(shell pwd)
 VERSION=$(shell node -pe "require('./library.json').version")
 SEMVER=`git-semver.sh`
+SPIFFS=$(HOME)/.platformio//packages/tool-mkspiffs/mkspiffs
 
 define release
 	test -n "$(1)" 
@@ -38,5 +39,7 @@ update-version:
 	@$(call commit,$m) 
 version:
 	echo "CURRENT_VERSION=${VERSION}"
+spiffs:
+	$(SPIFFS) -c data -p 256 -b 8192 -s 1028096 binaries/spiffs.bin
 test:
 	./pio_build_test.sh
