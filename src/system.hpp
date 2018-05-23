@@ -43,6 +43,9 @@ void init_gpio() {
   blinker->setPin(2); 
   pinMode(0, INPUT_PULLUP); 
   Serial.begin(57600);
+  Serial.println();
+  Serial.println();
+  Serial.println();
   blinker->blink(500); 
   delay(10);
 }
@@ -76,7 +79,13 @@ void init_userconfig() {
   mqttConfigManager.init("/mymqtt.json");
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
-    Serial.println("[user] wifi config json loaded..");
+    if (root == NULL) {
+      Serial.println("load wifi failed.");
+      Serial.print(">");
+      Serial.println(content);
+      return ;
+    }
+    Serial.print("[user] wifi config json loaded.. >");
     Serial.println(content); 
     const char* sta_config[2];
     sta_config[0] = (*root)["sta_ssid"];
@@ -91,7 +100,13 @@ void init_userconfig() {
   }); 
 
   mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
-    Serial.println("[user] mqtt config json loaded..");
+    if (root == NULL) { 
+      Serial.println("load mqtt failed.");
+      Serial.print(">");
+      Serial.println(content);
+      return ;
+    }
+    Serial.print("[user] mqtt config json loaded.. >"); 
     Serial.println(content);
      const char* mqtt_configs[] = {(*root)["host"], 
         (*root)["username"], 
