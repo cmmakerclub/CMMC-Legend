@@ -1,4 +1,13 @@
 #include <MqttConnector.h>
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+
+#define DHTPIN 12
+// #define DHTTYPE DHT11
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
 
 extern MqttConnector* mqtt;
 extern char myName[];
@@ -30,7 +39,7 @@ void register_publish_hooks() {
     data["myName"] = myName;
     data["millis"] = millis(); 
     data["temperature_raw"] = temperature;
-    data["humidity_raw"] = temperature;
+    data["humidity_raw"] = humidity;
     data["pressure_raw"] = pressure;
     data["gas_resistance_raw"] = gas_resistance; 
     data["updateInterval"] = PUBLISH_EVERY;
@@ -47,4 +56,8 @@ void register_publish_hooks() {
 static void readSensor() {
   // perform reading sensor 
   Serial.println("Perform reading and publishing senso data.");
+
+  // read DHT22 sensor
+  temperature = dht.readTemperature();
+  humidity = dht.readHumidity();
 }
