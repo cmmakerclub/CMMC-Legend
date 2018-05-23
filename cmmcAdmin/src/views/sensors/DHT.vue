@@ -6,11 +6,30 @@
           <div class="heading">
             <h1 class="title">DHT Calibration</h1>
           </div>
-          <label class="label">Start Offset</label>
+          <label class="label">Sensor Type</label>
+          <div class="control">
+            <label class="radio">
+              <input type="radio" name="type" v-model="dhtType" value="dht11">
+              DHT11
+            </label>
+            <label class="radio">
+              <input type="radio" name="type" v-model="dhtType" value="dht22">
+              DHT22
+            </label>
+          </div>
+          <label class="label">Pin</label>
           <p class="control has-icon">
-            <input class="input" placeholder="Offset Temperature">
+            <input class="input" placeholder="Pin Number"/>
             <i class="fa fa-thermometer"></i>
           </p>
+          <label class="label">Offset</label>
+          <p class="control has-icon">
+            <input class="input" placeholder=""/>
+            <i class="fa fa-thermometer"></i>
+          </p>
+          <div class="control">
+            <input type="checkbox" v-model="enable"> enable
+          </div>
           <p class="control">
             <button class="button is-primary" v-on:click="onSubmit">Submit</button>
             <button class="button is-link">Cancel</button>
@@ -22,7 +41,8 @@
 </template>
 
 <script>
-  import {saveAPConfig, getAPConfig} from '../../api'
+  import { saveAPConfig, getAPConfig } from '../../api'
+
   export default {
     components: {},
 
@@ -32,13 +52,13 @@
       onSubmit () {
         let context = this
         saveAPConfig(context, context.ssid, context.password)
-        .then((resp) => resp.json())
-        .then((json) => {
-          console.log(json)
-        })
-        .catch((err) => {
-          console.log('error', err)
-        })
+          .then((resp) => resp.json())
+          .then((json) => {
+            console.log(json)
+          })
+          .catch((err) => {
+            console.log('error', err)
+          })
       }
     },
     data () {
@@ -57,9 +77,9 @@
         this.ssid = json.ssid
         this.password = json.password
       })
-      .catch((err) => {
-        console.log('error:', err)
-      })
+        .catch((err) => {
+          console.log('error:', err)
+        })
     }
   }
 </script>

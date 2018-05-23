@@ -20,11 +20,12 @@
 
     beforeMount () {
       const config = this.config
-      const { body } = document
+      const {body} = document
       const WIDTH = 768
       const RATIO = 3
 
       const handler = () => {
+        console.log('handler')
         if (!document.hidden) {
           let rect = body.getBoundingClientRect()
           config.mobile = rect.width - RATIO < WIDTH

@@ -42,12 +42,12 @@ void setup()
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 
   dht.begin();
-  
 
-  if (!bme.begin()){
+
+  if (!bme.begin()) {
     Serial.println("Could not find a valid BME680 sensor, check wiring!");
   }
-  else{
+  else {
     // Set up oversampling and filter initialization
     bme.setTemperatureOversampling(BME680_OS_8X);
     bme.setHumidityOversampling(BME680_OS_2X);
