@@ -5,8 +5,47 @@
 #include <DHT.h>
 #include <Wire.h>
 #include <SPI.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
 #define SEALEVELPRESSURE_HPA (1013.25)
+
+class CMMC_18B20 : public CMMC_Sensor
+{
+public:
+  typedef struct SENSOR_DATA
+  {
+    uint32_t temperature;
+  };
+
+  SENSOR_DATA data;
+  OneWire *oneWire;
+  DallasTemperature *sensors;
+  
+  void setup(int pin)
+  {
+    oneWire = new OneWire(pin);
+    sensors = new DallasTemperature(oneWire);
+    DeviceAddress insideThermometer;
+
+    sensors->begin();
+    sensors->isParasitePowerMode();
+    sensors->getAddress(insideThermometer, 0);
+    sensors->setResolution(insideThermometer, 9);
+    sensors->requestTemperatures();
+    data.temperature = sensors->getTempC(insideThermometer);
+  };
+
+  void read()
+  {
+    static CMMC_18B20 *that = this;
+    that->interval.every_ms(that->everyMs, []() {
+      that->sensors->requestTemperatures();
+      that->data.temperature = that->sensors->getTempCByIndex(0);
+      that->cb((void *)&that->data, sizeof(that->data));
+    });
+  }
+};
 
 class CMMC_DHT : public CMMC_Sensor
 {
