@@ -28,7 +28,7 @@ String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configMan
     if (p->isPost()) {
       const char* key = p->name().c_str();
       const char* value = p->value().c_str();
-      Serial.printf("POST[%s]->%s\n", key, value);
+      // Serial.printf("POST[%s]->%s\n", key, value);
       String v;
       if (value == 0) {
         Serial.println("value is null..");
@@ -44,9 +44,7 @@ String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configMan
       else {
         output += ":\"" + v + "\",";
       }
-      Serial.println("add field.");
       configManager->add_field(key, v.c_str());
-      Serial.println("/add field.");
     }
   }
   output += "}"; 
@@ -173,8 +171,7 @@ void setupWebServer() {
     }
     request->send(200, "text/plain", String("ENABLING.. ") + String(ESP.getFreeHeap()));
     // ESP.restart();
-  });
-
+  }); 
 
   static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
   static const char* serverIndex = "<form method='POST' action='/do-firmware' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
@@ -288,11 +285,15 @@ void setupWebServer() {
   });
 
   server.on("/api/sensors/dht", HTTP_POST, [](AsyncWebServerRequest * request) {
+    Serial.println();
+    Serial.println("PATH === /dht");
     String output = saveConfig(request, &dhtConfigManager); 
     request->send(200, "application/json", output);
   });
 
   server.on("/api/sensors/bme", HTTP_POST, [](AsyncWebServerRequest * request) {
+    Serial.println();
+    Serial.println("PATH === /bme");
     String output = saveConfig(request, &bmeConfigManager); 
     request->send(200, "application/json", output);
   });

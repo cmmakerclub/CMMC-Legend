@@ -41,14 +41,17 @@ void CMMC_Config_Manager::commit() {
   USER_DEBUG_PRINTF("Commit FS..... from [%x]\r\n", _this);
 
   load_config([](JsonObject * root, const char* content) {
+    Serial.println("------------");
     Serial.printf("before commit DO: loading config... from [%x]\r\n", root);
+    Serial.println(content);
+    Serial.println("------------");
     if (root != NULL) {
       _this->configFile = SPIFFS.open(_this->filename_c, "w");
       for (Items::iterator it = _this->items.begin(); it != _this->items.end(); ++it) {
         String first  = it->first;
         String second = it->second;
         root->set(first, second);
-        Serial.printf("W: %s->%s\r\n", first.c_str(), second.c_str());
+        Serial.printf("[std::map]: %s->%s\r\n", first.c_str(), second.c_str());
       }
       size_t configSize = root->printTo(_this->configFile);
       root->printTo(Serial);
@@ -65,20 +68,20 @@ void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   strcpy(this->_k, key);
   strcpy(this->_v, value);
   static CMMC_Config_Manager *_this = this;
-  USER_DEBUG_PRINTF("___ START [add_field] with %s:%s (%x)", key, value, this);
+  USER_DEBUG_PRINTF("START [add_field] %s ----> %s (with addr: %x)\r\n", key, value, this);
   items[_k] = _v;
   // show content:
-  USER_DEBUG_PRINTF("Iterate through items...\r\n");
+  USER_DEBUG_PRINTF("Iterate through items object...\r\n");
   for (Items::iterator it = items.begin(); it != items.end(); ++it) {
-    USER_DEBUG_PRINTF("> %s->%s", it->first.c_str(), it->second.c_str());
+    USER_DEBUG_PRINTF("> %s->%s\r\n", it->first.c_str(), it->second.c_str());
   }
-  USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
-  USER_DEBUG_PRINTF("___ END add field\r\n");
+  // USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
+  // USER_DEBUG_PRINTF("END add field\r\n");
 }
 
 void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   _load_raw_content();
-  jsonBuffer.clear();
+  jsonBuffer.clear(); 
   const char *b =  this->fileContent;
   JsonObject& json = jsonBuffer.parseObject(b);
   if (cb) {

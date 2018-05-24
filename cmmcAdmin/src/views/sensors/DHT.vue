@@ -6,6 +6,9 @@
           <div class="heading">
             <h1 class="title">DHT Calibration</h1>
           </div>
+          <div v-if="server_response" class="notification is-primary">
+            {{ server_response }}
+          </div>
           <label class="label">Sensor Type</label>
           <div class="control">
             <label class="radio">
@@ -41,8 +44,6 @@
 </template>
 
 <script>
-  import { saveAPConfig, getAPConfig } from '../../api'
-
   export default {
     components: {},
 
@@ -56,7 +57,7 @@
           .then((json) => {
             context.dht_pin = json.dht_pin
             context.dht_type = json.dht_type
-            context.enable = parseInt(json.enable)
+            context.enable = parseInt(json.dht_enable)
           })
           .catch((err) => {
             console.log(err)
@@ -67,10 +68,11 @@
         let formData = new window.FormData()
         formData.append('dht_pin', context.dht_pin)
         formData.append('dht_type', context.dht_type)
-        formData.append('enable', context.enable ? '1' : '0')
+        formData.append('dht_enable', context.enable ? '1' : '0')
         context.$http.post('/api/sensors/dht', formData)
           .then((response) => response.json())
           .then((json) => {
+            context.server_response = 'Saved'
             context.loadDht()
           })
           .catch((err) => {
@@ -83,6 +85,7 @@
         loading: false,
         dht_type: '22',
         dht_pin: '12',
+        server_response: '',
         enable: '0'
       }
     },

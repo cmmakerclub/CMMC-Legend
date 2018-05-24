@@ -29,12 +29,17 @@ uint32_t humidity;
 uint32_t gas_resistance;
 uint32_t pressure;
 
+CMMC_Sensor *sensorInstance;
 
 CMMC_18B20 dTemp;
 CMMC_Gpio gpio;
-// CMMC_BME280 bme280;
-// CMMC_BME680 bme680;
-// CMMC_DHT myDHT;
+
+extern int bmeEnable;
+extern int bmeType;
+
+extern int dhtEnable;
+extern int dhtPin;
+extern int dhtType;
 
 void readSensorCb(void *d, size_t len)
 {
@@ -60,27 +65,34 @@ void setup()
 {
   init_gpio();
   init_userconfig();
+  if (bmeEnable) {
+    Serial.printf("bme enabled type = %d\r\n", bmeType);
+    if (bmeType == 280) {
+      sensorInstance = new CMMC_BME280;
+    }
+    else {
+      sensorInstance = new CMMC_BME680;
+    }
+    sensorInstance->setup();
+    sensorInstance->every(10L * 1000);
+    sensorInstance->onData([](void *d, size_t len) {
+      Serial.printf("onData len = %d\r\n", len);
+    });
+  }
+  else if (dhtEnable) {
+    Serial.println("DHT ENABLED.");
+    sensorInstance = new CMMC_DHT; 
+    // ((CMMC_DHT*)sensorInstance)->setup(4,5); 
+    sensorInstance->every(10L * 1000);
+    sensorInstance->setup(dhtPin, dhtType);
+  }
+  if (sensorInstance) {
+    Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
+  }
   select_bootmode();
   gpio.setup();
-  dTemp.setup(2);
-
-  dTemp.every(5000);
-  dTemp.onData(readSensorCb);
-
-  // bme280.setup();
-  // bme280.every(10000);
-  // bme280.onData(readSensorCb);
-  // bme280.setup();
-  // bme280.every(10000);
-  // bme280.onData(readSensorCb);
-  Serial.setDebugOutput(true);  
-  WiFi.begin("CMMC-3rd", "espertap");
-
-
-  // bme680.setup();
-  // bme680.every(10000);
-  // bme680.onData(readSensorCb);
-
+  Serial.setDebugOutput(true);
+  // WiFi.begin("CMMC-3rd", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
@@ -90,7 +102,9 @@ void loop()
   // bme280.read();
   // bme680.read();
   if (mode == RUN) {
-    dTemp.read();
-    // bme280.read(); 
-  } 
+    if (sensorInstance)
+      sensorInstance->read();
+    // dTemp.read();
+    // bme280.read();
+  }
 }

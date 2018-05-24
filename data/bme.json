@@ -1,1 +1,1 @@
-{"bme_type":"280","bme_pin":"", "enable": "1", "bme_addr": "0x77"} 
+{"bme_type":"280","bme_pin":"", "bme_enable": "1", "bme_addr": "0x77"} 

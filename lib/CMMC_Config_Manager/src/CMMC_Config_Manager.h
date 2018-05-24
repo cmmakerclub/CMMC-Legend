@@ -24,7 +24,6 @@ typedef void (*cmmc_succ_status_t)(u8 status);
 typedef void (*cmmc_debug_cb_t)(const char* cause);
 typedef void (*cmmc_dump_cb_t)(const char* msg, const char* k, const char* v);
 typedef void (*cmmc_json_loaded_cb_t)(JsonObject* root, const char* content);
-typedef std::map<String, String> Items;
 
 #define USER_DEBUG_PRINTF(fmt, args...) { \
     Serial.printf(fmt, ## args); \
@@ -36,6 +35,7 @@ class CMMC_Config_Manager
     // constructor
     CMMC_Config_Manager();
     ~CMMC_Config_Manager();
+    typedef std::map<String, String> Items;
 
     void init(const char* filename = "/config.json");
     void commit();
@@ -52,8 +52,8 @@ class CMMC_Config_Manager
     cmmc_debug_cb_t _user_debug_cb;
     File configFile;
     char filename_c[60];
-    char _k[40];
-    char _v[60];
+    char _k[40] = {0};
+    char _v[60] = {0};
     void _load_raw_content();
 };
 

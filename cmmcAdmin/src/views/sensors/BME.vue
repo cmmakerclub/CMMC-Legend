@@ -6,6 +6,9 @@
           <div class="heading">
             <h1 class="title">BME Configuration</h1>
           </div>
+          <div v-if="server_response" class="notification is-primary">
+            {{ server_response }}
+          </div>
           <label class="label">Sensor Type</label>
           <div class="control">
             <label class="radio">
@@ -55,7 +58,7 @@
             context.bme_pin = json.bme_pin
             context.bme_type = json.bme_type
             context.bme_addr = json.bme_addr
-            context.enable = parseInt(json.enable)
+            context.enable = parseInt(json.bme_enable)
           })
           .catch((err) => {
             console.log(err)
@@ -67,10 +70,11 @@
         formData.append('bme_type', context.bme_type)
         formData.append('bme_addr', '0x77')
         formData.append('bme_pin', `${context.bme_pin}`)
-        formData.append('enable', context.enable ? '1' : '0')
+        formData.append('bme_enable', context.enable ? '1' : '0')
         context.$http.post('/api/sensors/bme', formData)
           .then((response) => response.json())
           .then((json) => {
+            context.server_response = 'Saved'
             context.loadSensor()
           })
           .catch((err) => {
@@ -81,10 +85,11 @@
     data () {
       return {
         loading: false,
+        server_response: '',
         bme_type: '',
         bme_pin: '',
         bme_addr: '',
-        enable: '',
+        enable: '0',
       }
     },
 

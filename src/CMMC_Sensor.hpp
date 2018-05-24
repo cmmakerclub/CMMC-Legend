@@ -4,8 +4,15 @@
 #include <CMMC_Interval.hpp>
 class CMMC_Sensor {
   public:
+    String tag;
+    CMMC_Sensor() {
+      cb = [](void* d, uint32_t len) { 
+        Serial.println("DUMMY Sensor CB.");
+      };
+    }
     typedef std::function<void(void *, size_t len)> callback_t;
-    inline virtual void setup(int a = 0, int b = 0, int c = 0, int d = 0) {
+    inline virtual void setup(int a = 0, int b = 0) {
+      Serial.println("HELLO FATHER.");
       /*nothing*/
     };
     virtual void read() = 0;
@@ -18,6 +25,6 @@ class CMMC_Sensor {
   protected:
     callback_t cb;
     CMMC_Interval interval;
-    uint32_t everyMs;
+    uint32_t everyMs = 5000L;
 };
 #endif

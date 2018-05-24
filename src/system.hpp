@@ -36,6 +36,14 @@ char mqtt_prefix[40] = "";
 char mqtt_port[10] = "";
 char mqtt_device_name[15] = "";
 
+int bmeType;
+int bmeEnable;
+
+int dhtType;
+int dhtPin;
+int dhtEnable;
+
+
 void checkConfigMode();
 
 void init_gpio() {
@@ -108,8 +116,7 @@ void init_userconfig() {
       Serial.println(content);
       return ;
     }
-    Serial.print("[user] mqtt config json loaded.. >");
-    Serial.println(content);
+    Serial.println("[user] mqtt config json loaded.. >");
     Serial.print(">");
     Serial.println(content);
     const char* mqtt_configs[] = {(*root)["host"],
@@ -157,19 +164,25 @@ void init_userconfig() {
   });
 
   dhtConfigManager.load_config([](JsonObject * root, const char* content) {
+    Serial.println("loading dht..");
     if (root == NULL) {
-      Serial.println("load wifi failed.");
+      Serial.println("load dht failed.");
       Serial.print(">");
       Serial.println(content);
       return ;
     }
     Serial.print(">");
     Serial.println(content);
+    const char* dht_configs[] = { (*root)["dht_pin"], (*root)["dht_type"], (*root)["dht_enable"] };
+    dhtPin = String(dht_configs[0]).toInt();
+    dhtType = String(dht_configs[1]).toInt();
+    dhtEnable = String(dht_configs[2]).toInt();
   });
 
   bmeConfigManager.load_config([](JsonObject * root, const char* content) {
+    Serial.println("loading bme..");
     if (root == NULL) {
-      Serial.println("load wifi failed.");
+      Serial.println("load bmefailed.");
       Serial.print(">");
       Serial.println(content);
       return ;
@@ -177,11 +190,11 @@ void init_userconfig() {
     Serial.print(">");
     Serial.println(content);
     const char* bme_configs[] = { (*root)["bme_pin"], (*root)["bme_type"], (*root)["enable"] };
-    int bmeType = String(bme_configs[1]).toInt();
-    int bmeEnable = String(bme_configs[2]).toInt();
+    bmeType = String(bme_configs[1]).toInt();
+    bmeEnable = String(bme_configs[2]).toInt();
 
     if (bmeEnable) {
-      Serial.println("BME SENSOR ENABLED");
+      Serial.printf("BME SENSOR ENABLED: %d\r\n", bmeType);
       if (bmeType == 280) {
         Serial.println("FOUND BME 280");
       }
@@ -195,8 +208,6 @@ void init_userconfig() {
     else {
       Serial.println("BME SENSOR DISABLED.");
     }
-    // Serial.printf("BME PIN = %s, TYPE=%d, ENABLE=%d\r\n", bme_configs[0],
-    //   String(bme_configs[1]).toInt(), String(bme_configs[2]).toInt());
   });
 }
 

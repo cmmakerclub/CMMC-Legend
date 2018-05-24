@@ -10,8 +10,7 @@
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
-class CMMC_Gpio {
-
+class CMMC_Gpio { 
   public:
     void setup() {
       pinMode(15, OUTPUT);
@@ -81,10 +80,13 @@ public:
   DHT *dht;
   void setup(int pin, int type)
   {
+    Serial.printf("DHT BEGIN... pin=%d, type=%d\r\n", pin, type);
+    this->tag = String("DHT")+type;
     dht = new DHT(pin, type);
     dht->begin();
     data.temperature = dht->readTemperature() * 100;
     data.humidity = dht->readHumidity() * 100;
+    Serial.printf("temp %lu, hudmid %lu \r\n", data.temperature, data.humidity);
   };
 
   void read()
@@ -115,6 +117,7 @@ public:
 
   void setup()
   {
+    this->tag = "BME280";
     bme = new Adafruit_BME280;
     if (!bme->begin())
     {
@@ -148,17 +151,27 @@ public:
     uint32_t pressure;
   };
 
+  CMMC_BME680() {
+    this->tag = "BME680";
+    bme = new Adafruit_BME680;
+    Serial.println("680 constructure.");
+  }
+  ~CMMC_BME680() {
+    Serial.println("680 constructure.");
+    delete bme;
+  }
+
   SENSOR_DATA data;
 
   void setup()
   {
-    bme = new Adafruit_BME680;
     if (!bme->begin())
     {
       Serial.println("Could not find a valid BME680 sensor, check wiring!");
     }
     else
     {
+      Serial.println("BME680 initialized.");
       // Set up oversampling and filter initialization
       bme->setTemperatureOversampling(BME680_OS_8X);
       bme->setHumidityOversampling(BME680_OS_2X);
