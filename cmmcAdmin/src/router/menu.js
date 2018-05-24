@@ -63,6 +63,11 @@ export default [
         name: 'DHT',
         path: 'dht',
         component: require('../views/sensors/DHT')
+      },
+      {
+        name: 'BME',
+        path: 'bme',
+        component: require('../views/sensors/BME')
       }
     ]
   },

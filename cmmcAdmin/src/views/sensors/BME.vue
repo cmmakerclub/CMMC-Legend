@@ -4,22 +4,22 @@
       <div class="columns">
         <div class="column">
           <div class="heading">
-            <h1 class="title">DHT Calibration</h1>
+            <h1 class="title">BME Configuration</h1>
           </div>
           <label class="label">Sensor Type</label>
           <div class="control">
             <label class="radio">
-              <input type="radio" name="type" v-model="dht_type" value="11">
-              DHT11
+              <input type="radio" name="type" v-model="bmeType" value="bme280">
+              BME280
             </label>
             <label class="radio">
-              <input type="radio" name="type" v-model="dht_type" value="22">
-              DHT22
+              <input type="radio" name="type" v-model="dhtType" value="bme680">
+              BME680
             </label>
           </div>
-          <label class="label">Pin</label>
+          <label class="label">I2C Address</label>
           <p class="control has-icon">
-            <input class="input" placeholder="Pin Number" v-model="dht_pin"/>
+            <input class="input" placeholder="Address" value="" disabled/>
             <i class="fa fa-thermometer"></i>
           </p>
           <!--<label class="label">Offset</label>-->
@@ -49,47 +49,37 @@
     props: {},
 
     methods: {
-      loadDht () {
-        const context = this
-        context.$http.get('/dht.json')
-          .then((response) => response.json())
-          .then((json) => {
-            context.dht_pin = json.dht_pin
-            context.dht_type = json.dht_type
-            context.enalbe = parseInt(json.enable)
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-      },
       onSubmit () {
         let context = this
-        let formData = new window.FormData()
-        formData.append('dht_pin', context.dht_pin)
-        formData.append('dht_type', context.dht_type)
-        formData.append('enable', context.enalbe ? '1' : '0')
-        context.$http.post('/api/sensors/dht', formData)
-          .then((response) => response.json())
+        saveAPConfig(context, context.ssid, context.password)
+          .then((resp) => resp.json())
           .then((json) => {
-            context.loadDht()
+            console.log(json)
           })
           .catch((err) => {
-            console.log(err)
+            console.log('error', err)
           })
       }
     },
     data () {
       return {
         loading: false,
-        dht_type: '22',
-        dht_pin: '12',
-        enable: '0'
+        post: {},
+        ssid: '',
+        selected: '',
+        password: ''
       }
     },
 
     mounted () {
       console.log('mounted')
-      this.loadDht()
+      getAPConfig(this).then((json) => {
+        this.ssid = json.ssid
+        this.password = json.password
+      })
+        .catch((err) => {
+          console.log('error:', err)
+        })
     }
   }
 </script>
