@@ -42,7 +42,7 @@ public:
   OneWire *oneWire;
   DallasTemperature *sensor;
   
-  void setup(int pin)
+  void setup(int pin=0, int b=0)
   {
     oneWire = new OneWire(pin);
     sensor = new DallasTemperature(oneWire);
@@ -115,7 +115,7 @@ public:
 
   SENSOR_DATA data;
 
-  void setup()
+  void setup(int a=0, int b=0)
   {
     this->tag = "BME280";
     bme = new Adafruit_BME280;
