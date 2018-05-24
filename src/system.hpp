@@ -2,22 +2,22 @@
 #include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
 #include <FS.h>
-#include <SPIFFSEditor.h> 
+#include <SPIFFSEditor.h>
 
 #include <CMMC_Blink.hpp>
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
 
-MqttConnector *mqtt; 
-uint32_t lastRecv; 
+MqttConnector *mqtt;
+uint32_t lastRecv;
 
-CMMC_Interval interval; 
+CMMC_Interval interval;
 CMMC_Blink *blinker;
 
-enum MODE{SETUP, RUN}; 
+enum MODE {SETUP, RUN};
 MODE mode;
 
-CMMC_Config_Manager mqttConfigManager; 
+CMMC_Config_Manager mqttConfigManager;
 CMMC_Config_Manager wifiConfigManager;
 CMMC_Config_Manager dhtConfigManager;
 CMMC_Config_Manager bmeConfigManager;
@@ -26,7 +26,7 @@ char sta_ssid[30] = "";
 char sta_pwd[30] = "";
 
 char ap_ssid[30] = "CMMC-Legend";
-char ap_pwd[30] = ""; 
+char ap_pwd[30] = "";
 
 char mqtt_host[40] = "";
 char mqtt_user[40] = "";
@@ -40,43 +40,40 @@ void checkConfigMode();
 
 void init_gpio() {
   SPIFFS.begin();
-  blinker = new CMMC_Blink; 
+  blinker = new CMMC_Blink;
   blinker->init();
-  blinker->setPin(2); 
-  pinMode(0, INPUT_PULLUP); 
+  blinker->setPin(2);
+  pinMode(0, INPUT_PULLUP);
   Serial.begin(57600);
   Serial.println();
   Serial.println();
   Serial.println();
-  blinker->blink(500); 
+  blinker->blink(500);
   delay(10);
 }
 void init_sta() {
   WiFi.softAPdisconnect();
   WiFi.disconnect();
-  delay(20); 
+  delay(20);
   WiFi.mode(WIFI_STA);
   WiFi.hostname(ap_ssid);
-  WiFi.begin(sta_ssid, sta_pwd); 
-  digitalWrite(LED_BUILTIN, HIGH); 
+  WiFi.begin(sta_ssid, sta_pwd);
+  digitalWrite(LED_BUILTIN, HIGH);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
     checkConfigMode();
     delay(300);
-  } 
+  }
 }
 
-void init_ap() { 
+void init_ap() {
   WiFi.softAPdisconnect();
   WiFi.disconnect();
   WiFi.mode(WIFI_AP);
-  delay(20); 
+  delay(20);
 }
 
-void init_userconfig() { 
-  // mqttConfigManager.add_debug_listener([](const char* msg) {
-  //   Serial.printf(">> %s \r\n", msg);
-  // }); 
+void init_userconfig() {
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
   dhtConfigManager.init("/dht.json");
@@ -91,40 +88,40 @@ void init_userconfig() {
     }
     Serial.println("[user] wifi config json loaded..");
     Serial.print(">");
-    Serial.println(content); 
+    Serial.println(content);
     const char* sta_config[2];
     sta_config[0] = (*root)["sta_ssid"];
     sta_config[1] = (*root)["sta_password"];
-    if ((sta_config[0] == NULL) || (sta_config[1]==NULL)) {
+    if ((sta_config[0] == NULL) || (sta_config[1] == NULL)) {
       Serial.println("NULL..");
-      SPIFFS.remove("/enabled"); 
+      SPIFFS.remove("/enabled");
       return;
     };
-    strcpy(sta_ssid, sta_config[0]); 
-    strcpy(sta_pwd, sta_config[1]); 
-  }); 
+    strcpy(sta_ssid, sta_config[0]);
+    strcpy(sta_pwd, sta_config[1]);
+  });
 
-  mqttConfigManager.load_config([](JsonObject * root, const char* content) { 
-    if (root == NULL) { 
+  mqttConfigManager.load_config([](JsonObject * root, const char* content) {
+    if (root == NULL) {
       Serial.println("load mqtt failed.");
       Serial.print(">");
       Serial.println(content);
       return ;
     }
-    Serial.print("[user] mqtt config json loaded.. >"); 
+    Serial.print("[user] mqtt config json loaded.. >");
     Serial.println(content);
     Serial.print(">");
-    Serial.println(content); 
-     const char* mqtt_configs[] = {(*root)["host"], 
-        (*root)["username"], 
-        (*root)["password"], 
-        (*root)["clientId"], 
-        (*root)["port"], 
-        (*root)["deviceName"], 
-        (*root)["prefix"], // [6]
-        (*root)["lwt"],
-        (*root)["publishRateSecond"]
-     };
+    Serial.println(content);
+    const char* mqtt_configs[] = {(*root)["host"],
+                                  (*root)["username"],
+                                  (*root)["password"],
+                                  (*root)["clientId"],
+                                  (*root)["port"],
+                                  (*root)["deviceName"],
+                                  (*root)["prefix"], // [6]
+                                  (*root)["lwt"],
+                                  (*root)["publishRateSecond"]
+                                 };
 
     if (mqtt_configs[0] != NULL) {
       strcpy(mqtt_host, mqtt_configs[0]);
@@ -145,7 +142,7 @@ void init_userconfig() {
 
       if (strcmp(mqtt_clientId, "") == 0) {
         sprintf(mqtt_clientId, "%08x", ESP.getChipId());
-      } 
+      }
 
       MQTT_HOST = String(mqtt_host);
       MQTT_USERNAME = String(mqtt_user);
@@ -153,9 +150,9 @@ void init_userconfig() {
       MQTT_CLIENT_ID = String(mqtt_clientId);
       MQTT_PORT = String(mqtt_port).toInt();
       MQTT_PREFIX = String(mqtt_prefix);
-      PUBLISH_EVERY = pubEveryS*1000L;
+      PUBLISH_EVERY = pubEveryS * 1000L;
       MQTT_LWT = lwt;
-      DEVICE_NAME = String(mqtt_device_name); 
+      DEVICE_NAME = String(mqtt_device_name);
     }
   });
 
@@ -167,8 +164,9 @@ void init_userconfig() {
       return ;
     }
     Serial.print(">");
-    Serial.println(content); 
+    Serial.println(content);
   });
+
   bmeConfigManager.load_config([](JsonObject * root, const char* content) {
     if (root == NULL) {
       Serial.println("load wifi failed.");
@@ -177,21 +175,42 @@ void init_userconfig() {
       return ;
     }
     Serial.print(">");
-    Serial.println(content); 
+    Serial.println(content);
+    const char* bme_configs[] = { (*root)["bme_pin"], (*root)["bme_type"], (*root)["enable"] };
+    int bmeType = String(bme_configs[1]).toInt();
+    int bmeEnable = String(bme_configs[2]).toInt();
+
+    if (bmeEnable) {
+      Serial.println("BME SENSOR ENABLED");
+      if (bmeType == 280) {
+        Serial.println("FOUND BME 280");
+      }
+      else if (bmeType == 680) {
+        Serial.println("FOUND BME 680");
+      }
+      else {
+        Serial.println("INVALID BME TYPE");
+      }
+    }
+    else {
+      Serial.println("BME SENSOR DISABLED.");
+    }
+    // Serial.printf("BME PIN = %s, TYPE=%d, ENABLE=%d\r\n", bme_configs[0],
+    //   String(bme_configs[1]).toInt(), String(bme_configs[2]).toInt());
   });
-} 
+}
 
 void checkConfigMode() {
-  uint32_t prev = millis(); 
-  while(digitalRead(0) == LOW) {
-    delay(50); 
+  uint32_t prev = millis();
+  while (digitalRead(0) == LOW) {
+    delay(50);
     if (millis() - prev > 2000L) {
       Serial.println("LONG PRESSED.");
-      blinker->blink(50); 
-      while(digitalRead(0) == LOW) {
-        delay(10); 
+      blinker->blink(50);
+      while (digitalRead(0) == LOW) {
+        delay(10);
       }
-      SPIFFS.remove("/enabled"); 
+      SPIFFS.remove("/enabled");
       delay(300);
       ESP.restart();
     }
@@ -201,34 +220,34 @@ void checkConfigMode() {
 void select_bootmode() {
   if (!SPIFFS.exists("/enabled")) {
     blinker->blink(50);
-    Serial.println("AP Only Mode.");  
+    Serial.println("AP Only Mode.");
     mode = SETUP;
     Serial.printf("ESP8266 Chip id = %08X\n", ESP.getChipId());
     sprintf(&ap_ssid[5], "%08x", ESP.getChipId());
     init_ap();
     WiFi.softAP(ap_ssid, &ap_ssid[5]);
-    setupWebServer(); 
+    setupWebServer();
   }
   else {
     mode = RUN;
-    init_sta(); 
-    Serial.println("WiFi Connected."); 
+    init_sta();
+    Serial.println("WiFi Connected.");
     blinker->blink(4000);
     lastRecv = millis();
-    init_mqtt(); 
-  } 
+    init_mqtt();
+  }
 }
 
 
 void run() {
   if (mode == RUN) {
-    interval.every_ms(10L*1000, []() {
-      Serial.printf("Last Recv %lu ms ago.\r\n", (millis() - lastRecv)); 
-      if ( (millis() - lastRecv) > (PUBLISH_EVERY*3) ) {
+    interval.every_ms(10L * 1000, []() {
+      Serial.printf("Last Recv %lu ms ago.\r\n", (millis() - lastRecv));
+      if ( (millis() - lastRecv) > (PUBLISH_EVERY * 3) ) {
         ESP.restart();
       }
     });
-    mqtt->loop(); 
-  } 
-  checkConfigMode(); 
+    mqtt->loop();
+  }
+  checkConfigMode();
 }

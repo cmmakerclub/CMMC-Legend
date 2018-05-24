@@ -66,7 +66,7 @@
         let formData = new window.FormData()
         formData.append('bme_type', context.bme_type)
         formData.append('bme_addr', '0x77')
-        formData.append('bme_pin', `${context.bme_type}`)
+        formData.append('bme_pin', `${context.bme_pin}`)
         formData.append('enable', context.enable ? '1' : '0')
         context.$http.post('/api/sensors/bme', formData)
           .then((response) => response.json())

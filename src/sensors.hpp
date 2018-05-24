@@ -24,6 +24,7 @@ class CMMC_Gpio {
       digitalWrite(15, HIGH); 
       // digitalWrite(2, LOW); 
     }
+    
     void off() {
       digitalWrite(15, LOW); 
       // digitalWrite(2, HIGH); 
@@ -40,28 +41,28 @@ public:
 
   SENSOR_DATA data;
   OneWire *oneWire;
-  DallasTemperature *sensors;
+  DallasTemperature *sensor;
   
   void setup(int pin)
   {
     oneWire = new OneWire(pin);
-    sensors = new DallasTemperature(oneWire);
+    sensor = new DallasTemperature(oneWire);
     DeviceAddress insideThermometer;
 
-    sensors->begin();
-    sensors->isParasitePowerMode();
-    sensors->getAddress(insideThermometer, 0);
-    sensors->setResolution(insideThermometer, 9);
-    sensors->requestTemperatures();
-    data.temperature = sensors->getTempC(insideThermometer);
+    sensor->begin();
+    sensor->isParasitePowerMode();
+    sensor->getAddress(insideThermometer, 0);
+    sensor->setResolution(insideThermometer, 9);
+    sensor->requestTemperatures();
+    data.temperature = sensor->getTempC(insideThermometer);
   };
 
   void read()
   {
     static CMMC_18B20 *that = this;
     that->interval.every_ms(that->everyMs, []() {
-      that->sensors->requestTemperatures();
-      that->data.temperature = that->sensors->getTempCByIndex(0);
+      that->sensor->requestTemperatures();
+      that->data.temperature = that->sensor->getTempCByIndex(0);
       that->cb((void *)&that->data, sizeof(that->data));
     });
   }
