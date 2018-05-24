@@ -35,7 +35,7 @@ class CMMC_DHT: public CMMC_Sensor {
 
 };
 
-class CMMC_BME: public CMMC_Sensor {
+class CMMC_BME680: public CMMC_Sensor {
   private:
     Adafruit_BME680 bme; // I2C
   public:
@@ -64,7 +64,7 @@ class CMMC_BME: public CMMC_Sensor {
 
     int read(uint32_t every, callback_t cb) {
       static callback_t c = cb;
-      static CMMC_BME* that = this;
+      static CMMC_BME680* that = this;
       that->interval.every_ms(every, []() {
         if (!that->bme.performReading()) {
           Serial.println("Failed to perform reading :(");
