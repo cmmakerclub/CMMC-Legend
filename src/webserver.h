@@ -15,6 +15,7 @@ const char* http_password = "admin";
 extern CMMC_Config_Manager wifiConfigManager;
 extern CMMC_Config_Manager mqttConfigManager;
 extern CMMC_Config_Manager dhtConfigManager;
+extern CMMC_Config_Manager bmeConfigManager;
 extern CMMC_Blink *blinker;
 
 extern bool flag_restart;
@@ -288,6 +289,11 @@ void setupWebServer() {
 
   server.on("/api/sensors/dht", HTTP_POST, [](AsyncWebServerRequest * request) {
     String output = saveConfig(request, &dhtConfigManager); 
+    request->send(200, "application/json", output);
+  });
+
+  server.on("/api/sensors/bme", HTTP_POST, [](AsyncWebServerRequest * request) {
+    String output = saveConfig(request, &bmeConfigManager); 
     request->send(200, "application/json", output);
   });
   // ===== END /API/WIFI/STA =====

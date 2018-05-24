@@ -20,6 +20,7 @@ MODE mode;
 CMMC_Config_Manager mqttConfigManager; 
 CMMC_Config_Manager wifiConfigManager;
 CMMC_Config_Manager dhtConfigManager;
+CMMC_Config_Manager bmeConfigManager;
 
 char sta_ssid[30] = "";
 char sta_pwd[30] = "";
@@ -79,6 +80,7 @@ void init_userconfig() {
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
   dhtConfigManager.init("/dht.json");
+  bmeConfigManager.init("/bme.json");
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     if (root == NULL) {
@@ -87,7 +89,8 @@ void init_userconfig() {
       Serial.println(content);
       return ;
     }
-    Serial.print("[user] wifi config json loaded.. >");
+    Serial.println("[user] wifi config json loaded..");
+    Serial.print(">");
     Serial.println(content); 
     const char* sta_config[2];
     sta_config[0] = (*root)["sta_ssid"];
@@ -110,6 +113,8 @@ void init_userconfig() {
     }
     Serial.print("[user] mqtt config json loaded.. >"); 
     Serial.println(content);
+    Serial.print(">");
+    Serial.println(content); 
      const char* mqtt_configs[] = {(*root)["host"], 
         (*root)["username"], 
         (*root)["password"], 
@@ -153,7 +158,28 @@ void init_userconfig() {
       DEVICE_NAME = String(mqtt_device_name); 
     }
   });
-}
+
+  dhtConfigManager.load_config([](JsonObject * root, const char* content) {
+    if (root == NULL) {
+      Serial.println("load wifi failed.");
+      Serial.print(">");
+      Serial.println(content);
+      return ;
+    }
+    Serial.print(">");
+    Serial.println(content); 
+  });
+  bmeConfigManager.load_config([](JsonObject * root, const char* content) {
+    if (root == NULL) {
+      Serial.println("load wifi failed.");
+      Serial.print(">");
+      Serial.println(content);
+      return ;
+    }
+    Serial.print(">");
+    Serial.println(content); 
+  });
+} 
 
 void checkConfigMode() {
   uint32_t prev = millis(); 

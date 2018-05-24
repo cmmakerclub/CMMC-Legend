@@ -67,9 +67,9 @@ void setup()
   // bme280.setup();
   // bme280.every(10000);
   // bme280.onData(readSensorCb);
-  bme280.setup();
-  bme280.every(10000);
-  bme280.onData(readSensorCb);
+  // bme280.setup();
+  // bme280.every(10000);
+  // bme280.onData(readSensorCb);
   Serial.setDebugOutput(true);  
   WiFi.begin("CMMC-3rd", "espertap");
 
@@ -87,6 +87,6 @@ void loop()
   // bme680.read();
   if (mode == RUN) {
     dTemp.read();
-    bme280.read(); 
+    // bme280.read(); 
   } 
 }
