@@ -27,7 +27,7 @@ void CMMC_Config_Manager::_load_raw_content() {
 void CMMC_Config_Manager::init(const char* filename) {
   strcpy(this->filename_c, filename);
   if (SPIFFS.exists(this->filename_c)) {
-    _load_raw_content();
+    // _load_raw_content();
   }
   else {
     USER_DEBUG_PRINTF("creating.. %s \r\n", this->filename_c);

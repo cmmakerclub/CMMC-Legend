@@ -10,6 +10,26 @@
 
 #define SEALEVELPRESSURE_HPA (1013.25)
 
+class CMMC_Gpio {
+
+  public:
+    void setup() {
+      pinMode(2, OUTPUT);
+      pinMode(15, OUTPUT);
+      digitalWrite(15, HIGH); 
+      digitalWrite(2, HIGH); 
+    }
+
+    void on() {
+      digitalWrite(15, HIGH); 
+      digitalWrite(2, LOW); 
+    }
+    void off() {
+      digitalWrite(15, LOW); 
+      digitalWrite(2, HIGH); 
+    }
+};
+
 class CMMC_18B20 : public CMMC_Sensor
 {
 public:

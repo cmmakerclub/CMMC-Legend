@@ -5,6 +5,8 @@
 #include <ArduinoJson.h>
 #include <MqttConnector.h>
 
+#include "sensors.hpp"
+
 #include "version.h"
 #include "init_mqtt.h"
 #include "_publish.h"
@@ -27,9 +29,9 @@ uint32_t humidity;
 uint32_t gas_resistance;
 uint32_t pressure;
 
-#include "sensors.hpp"
 
 CMMC_18B20 dTemp;
+CMMC_Gpio gpio;
 // CMMC_BME280 bme280;
 // CMMC_BME680 bme680;
 // CMMC_DHT myDHT;
@@ -59,8 +61,9 @@ void setup()
   init_gpio();
   init_userconfig();
   select_bootmode();
-
+  gpio.setup();
   dTemp.setup(2);
+
   dTemp.every(5000);
   dTemp.onData(readSensorCb);
 
@@ -72,6 +75,7 @@ void setup()
   // bme280.onData(readSensorCb);
   Serial.setDebugOutput(true);  
   WiFi.begin("CMMC-3rd", "espertap");
+
 
   // bme680.setup();
   // bme680.every(10000);
