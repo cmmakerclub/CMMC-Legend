@@ -13,10 +13,45 @@ const char* http_password = "admin";
 
 
 extern CMMC_Config_Manager wifiConfigManager;
-extern CMMC_Config_Manager mqttConfigManager; 
+extern CMMC_Config_Manager mqttConfigManager;
+extern CMMC_Config_Manager dhtConfigManager;
 extern CMMC_Blink *blinker;
 
 extern bool flag_restart;
+
+String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
+  int params = request->params();
+  String output = "{";
+  for (int i = 0; i < params; i++) {
+    AsyncWebParameter* p = request->getParam(i);
+    if (p->isPost()) {
+      const char* key = p->name().c_str();
+      const char* value = p->value().c_str();
+      Serial.printf("POST[%s]->%s\n", key, value);
+      String v;
+      if (value == 0) {
+        Serial.println("value is null..");
+        v = String("");
+      }
+      else {
+        v = String(value);
+      }
+      output += "\"" + String(key) + "\"";
+      if (i == params - 1 ) {
+        output += ":\"" + v + "\"";
+      }
+      else {
+        output += ":\"" + v + "\",";
+      }
+      Serial.println("add field.");
+      configManager->add_field(key, v.c_str());
+      Serial.println("/add field.");
+    }
+  }
+  output += "}"; 
+  configManager->commit();
+  return output;
+};
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -125,7 +160,7 @@ void setupWebServer() {
   });
 
   server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(200, "text/plain", "OK"); 
+    request->send(200, "text/plain", "OK");
     blinker->blink(20);
     ESP.restart();
   });
@@ -133,23 +168,23 @@ void setupWebServer() {
   server.on("/enable", HTTP_GET, [](AsyncWebServerRequest * request) {
     File f = SPIFFS.open("/enabled", "a+");
     if (!f) {
-        Serial.println("file open failed");
+      Serial.println("file open failed");
     }
     request->send(200, "text/plain", String("ENABLING.. ") + String(ESP.getFreeHeap()));
     // ESP.restart();
   });
 
 
-  static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
-  static const char* serverIndex = "<form method='POST' action='/do-firmware' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>"; 
-  server.on("/firmware", HTTP_GET, [](AsyncWebServerRequest *request){
+  static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+  static const char* serverIndex = "<form method='POST' action='/do-firmware' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
+  server.on("/firmware", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", serverIndex);
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
     request->send(response);
   });
 
-  server.on("/fs", HTTP_GET, [](AsyncWebServerRequest *request){
+  server.on("/fs", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", fsServerIndex);
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
@@ -164,14 +199,14 @@ void setupWebServer() {
     response->addHeader("Access-Control-Allow-Origin", "*");
     // restartRequired = true;  // Tell the main loop to restart the ESP
     request->send(response);
-  }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-    //Upload handler chunks in data 
+  }, [](AsyncWebServerRequest * request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+    //Upload handler chunks in data
     if (!index) { // if index == 0 then this is the first frame of data
       SPIFFS.end();
       blinker->detach();
       Serial.println("upload start...");
-      Serial.printf("UploadStart: %s\n", filename.c_str()); 
-      Serial.setDebugOutput(true); 
+      Serial.printf("UploadStart: %s\n", filename.c_str());
+      Serial.setDebugOutput(true);
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
       bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
@@ -205,14 +240,14 @@ void setupWebServer() {
     response->addHeader("Access-Control-Allow-Origin", "*");
     // restartRequired = true;  // Tell the main loop to restart the ESP
     request->send(response);
-  }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-    //Upload handler chunks in data 
+  }, [](AsyncWebServerRequest * request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+    //Upload handler chunks in data
     if (!index) { // if index == 0 then this is the first frame of data
       blinker->detach();
       SPIFFS.end();
       Serial.println("upload start...");
-      Serial.printf("UploadStart: %s\n", filename.c_str()); 
-      Serial.setDebugOutput(true); 
+      Serial.printf("UploadStart: %s\n", filename.c_str());
+      Serial.setDebugOutput(true);
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
       bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
@@ -238,108 +273,29 @@ void setupWebServer() {
     }
   });
 
+
   server.on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
-    int params = request->params();
-        String output = "{";
-        for (int i = 0; i < params; i++) {
-          AsyncWebParameter* p = request->getParam(i);
-          if (p->isPost()) {
-            const char* key = p->name().c_str();
-            const char* value = p->value().c_str();
-            Serial.printf("POST[%s]->%s\n", key, value);
-            String v;
-            if (value == 0) {
-              Serial.println("value is null..");
-              v = String("");
-            }
-            else {
-              v = String(value);
-            }
-            output += "\"" + String(key) + "\"";
-            if (i == params - 1 ) {
-              output += ":\"" + v + "\"";
-            }
-            else {
-              output += ":\"" + v + "\",";
-            }
-            Serial.println("add field.");
-            wifiConfigManager.add_field(key, v.c_str());
-            Serial.println("/add field.");
-          }
-        }
-    output += "}";
-    Serial.println(output);
+    String output = saveConfig(request, &wifiConfigManager);
     request->send(200, "application/json", output);
   });
 
-  // ===== END /API/WIFI/AP ===== 
-  // ===== CREATE /API/WIFI/STA ===== 
-    server.on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
-      int params = request->params();
-          String output = "{";
-          for (int i = 0; i < params; i++) {
-            AsyncWebParameter* p = request->getParam(i);
-            if (p->isPost()) {
-              const char* key = p->name().c_str();
-              const char* value = p->value().c_str();
-              Serial.printf("POST[%s]: %s\n", key, value);
-              String v;
-              if (value == 0) {
-                Serial.println("value is null..");
-                v = String("");
-              }
-              else {
-                v = String(value);
-              }
-              output += "\"" + String(key) + "\"";
-              if (i == params - 1 ) {
-                output += ":\"" + v + "\"";
-              }
-              else {
-                output += ":\"" + v + "\",";
-              }
-              wifiConfigManager.add_field(key, v.c_str());
-            }
-          }
-      output += "}";
-      Serial.println(output);
-      request->send(200, "application/json", output);
-      wifiConfigManager.commit();
-    });
-    // ===== END /API/WIFI/STA =====
+  // ===== END /API/WIFI/AP =====
+  // ===== CREATE /API/WIFI/STA =====
+  server.on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
+    String output = saveConfig(request, &wifiConfigManager); 
+    request->send(200, "application/json", output);
+  });
+
+  server.on("/api/sensors/dht", HTTP_POST, [](AsyncWebServerRequest * request) {
+    String output = saveConfig(request, &dhtConfigManager); 
+    request->send(200, "application/json", output);
+  });
+  // ===== END /API/WIFI/STA =====
 
   server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
-    int params = request->params();
-    String output = "{";
-    for (int i = 0; i < params; i++) {
-      AsyncWebParameter* p = request->getParam(i);
-      if (p->isPost()) {
-        const char* key = p->name().c_str();
-        const char* value = p->value().c_str();
-        Serial.printf("POST[%s]: %s\n", key, value);
-        String v;
-        if (value == NULL) {
-          Serial.println("value is null..");
-          v = String("");
-        }
-        else {
-          v = String(value);
-        }
-        output += "\"" + String(key) + "\"";
-        if (i == params - 1 ) {
-          output += ":\"" + v + "\"";
-        }
-        else {
-          output += ":\"" + v + "\",";
-        }
-        mqttConfigManager.add_field(key, v.c_str());
-      }
-    }
-    output += "}";
-    Serial.println(output);
+    String output = saveConfig(request, &mqttConfigManager);
     request->send(200, "application/json", output);
-    mqttConfigManager.commit();
-  }); 
+  });
 
   server.onNotFound([](AsyncWebServerRequest * request) {
     Serial.printf("NOT_FOUND: ");

@@ -19,6 +19,7 @@ MODE mode;
 
 CMMC_Config_Manager mqttConfigManager; 
 CMMC_Config_Manager wifiConfigManager;
+CMMC_Config_Manager dhtConfigManager;
 
 char sta_ssid[30] = "";
 char sta_pwd[30] = "";
@@ -77,6 +78,7 @@ void init_userconfig() {
   // }); 
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
+  dhtConfigManager.init("/dht.json");
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     if (root == NULL) {

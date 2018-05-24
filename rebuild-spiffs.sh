@@ -15,6 +15,7 @@ popd
 rsync --delete -av cmmcAdmin/dist/ data --progress
 rsync -av wifi.json data/
 rsync -av mymqtt.json data/
+rsync -av dht.json data/
 
 # read -p "Upload SPIFFS Image (y/n)? " choice
 # case "$choice" in 
