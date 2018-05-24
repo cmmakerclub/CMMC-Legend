@@ -56,7 +56,7 @@
           .then((json) => {
             context.dht_pin = json.dht_pin
             context.dht_type = json.dht_type
-            context.enalbe = parseInt(json.enable)
+            context.enable = parseInt(json.enable)
           })
           .catch((err) => {
             console.log(err)
@@ -67,7 +67,7 @@
         let formData = new window.FormData()
         formData.append('dht_pin', context.dht_pin)
         formData.append('dht_type', context.dht_type)
-        formData.append('enable', context.enalbe ? '1' : '0')
+        formData.append('enable', context.enable ? '1' : '0')
         context.$http.post('/api/sensors/dht', formData)
           .then((response) => response.json())
           .then((json) => {

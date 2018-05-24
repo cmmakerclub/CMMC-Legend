@@ -9,11 +9,11 @@
           <label class="label">Sensor Type</label>
           <div class="control">
             <label class="radio">
-              <input type="radio" name="type" v-model="bmeType" value="bme280">
+              <input type="radio" name="type" v-model="bme_type" value="280">
               BME280
             </label>
             <label class="radio">
-              <input type="radio" name="type" v-model="dhtType" value="bme680">
+              <input type="radio" name="type" v-model="bme_type" value="680">
               BME680
             </label>
           </div>
@@ -41,45 +41,56 @@
 </template>
 
 <script>
-  import { saveAPConfig, getAPConfig } from '../../api'
-
   export default {
     components: {},
 
     props: {},
 
     methods: {
-      onSubmit () {
-        let context = this
-        saveAPConfig(context, context.ssid, context.password)
-          .then((resp) => resp.json())
+      loadSensor () {
+        const context = this
+        context.$http.get('/bme.json')
+          .then((response) => response.json())
           .then((json) => {
-            console.log(json)
+            context.bme_pin = json.bme_pin
+            context.bme_type = json.bme_type
+            context.bme_addr = json.bme_addr
+            context.enable = parseInt(json.enable)
           })
           .catch((err) => {
-            console.log('error', err)
+            console.log(err)
+          })
+      },
+      onSubmit () {
+        let context = this
+        let formData = new window.FormData()
+        formData.append('bme_type', context.bme_type)
+        formData.append('bme_addr', '0x77')
+        formData.append('bme_pin', `${context.bme_type}`)
+        formData.append('enable', context.enable ? '1' : '0')
+        context.$http.post('/api/sensors/bme', formData)
+          .then((response) => response.json())
+          .then((json) => {
+            context.loadSensor()
+          })
+          .catch((err) => {
+            console.log(err)
           })
       }
     },
     data () {
       return {
         loading: false,
-        post: {},
-        ssid: '',
-        selected: '',
-        password: ''
+        bme_type: '',
+        bme_pin: '',
+        bme_addr: '',
+        enable: '',
       }
     },
 
     mounted () {
       console.log('mounted')
-      getAPConfig(this).then((json) => {
-        this.ssid = json.ssid
-        this.password = json.password
-      })
-        .catch((err) => {
-          console.log('error:', err)
-        })
+      this.loadSensor()
     }
   }
 </script>
