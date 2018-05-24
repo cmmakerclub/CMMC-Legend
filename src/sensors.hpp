@@ -58,7 +58,7 @@ public:
     bme = new Adafruit_BME280;
     if (!bme->begin())
     {
-      Serial.println("Could not find a valid BME680 sensor, check wiring!");
+      Serial.println("Could not find a valid BME280 sensor, check wiring!");
     }
   };
 
