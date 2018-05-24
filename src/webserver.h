@@ -124,6 +124,12 @@ void setupWebServer() {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
   });
 
+  server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(200, "text/plain", "OK"); 
+    blinker->blink(20);
+    ESP.restart();
+  });
+
   server.on("/enable", HTTP_GET, [](AsyncWebServerRequest * request) {
     File f = SPIFFS.open("/enabled", "a+");
     if (!f) {
