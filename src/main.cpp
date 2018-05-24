@@ -30,25 +30,32 @@ uint32_t pressure;
 #include "sensors.hpp" 
 
 CMMC_BME680 bme680;
-CMMC_DHT myDHT;
+// CMMC_DHT myDHT;
+
+void readSensorCb(void *d, size_t len) {
+    CMMC_BME680::SENSOR_DATA data;
+    memcpy(&data, d, len);
+    Serial.printf("read at %lu\r\n", millis());
+    Serial.printf("temp=%lu\r\n", data.temperature);
+    Serial.printf("humid=%lu\r\n", data.humidity);
+    Serial.printf("pressure=%lu\r\n", data.pressure);
+    Serial.printf("gas r=%lu\r\n", data.gas_resistance-gas_resistance);
+    Serial.printf("============\r\n"); 
+    gas_resistance = data.gas_resistance;
+};
 
 void setup() {
   init_gpio();
   init_userconfig();
-  select_bootmode();
-
-  myDHT.setup(12, 22);
+  select_bootmode(); 
+  bme680.setup(); 
+  bme680.every(10000);
+  bme680.onData(readSensorCb);
 
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
 void loop() {
-  run();
-
-  myDHT.read(6000, [](void *d, size_t len) {
-    CMMC_DHT::SENSOR_DATA data;
-    memcpy(&data, d, len);
-    Serial.println(data.temperature);
-    Serial.println(data.humidity);
-  });
+  run(); 
+  bme680.read();
 }

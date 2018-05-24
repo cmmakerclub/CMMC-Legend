@@ -23,59 +23,56 @@ class CMMC_DHT: public CMMC_Sensor {
       data.humidity = dht->readHumidity() * 100;
     };
 
-    int read(uint32_t every, callback_t cb) {
-      static callback_t c = cb;
+    void read() {
       static CMMC_DHT* that = this;
-      that->interval.every_ms(every, []() {
+      that->interval.every_ms(that->everyMs, []() {
         that->data.temperature = that->dht->readTemperature() * 100;
         that->data.humidity = that->dht->readHumidity() * 100;
-        c((void*) &that->data, sizeof(that->data));
+        that->cb((void*) &that->data, sizeof(that->data));
       });
-    }
-
+    } 
 };
 
 class CMMC_BME680: public CMMC_Sensor {
-  private:
-    Adafruit_BME680 bme; // I2C
-  public:
-    typedef struct SENSOR_DATA {
-      uint32_t temperature;
-      uint32_t humidity;
-      uint32_t gas_resistance;
-      uint32_t pressure;
-    };
+ private:
+   Adafruit_BME680 *bme; // I2C
+ public:
+   typedef struct SENSOR_DATA {
+     uint32_t temperature;
+     uint32_t humidity;
+     uint32_t gas_resistance;
+     uint32_t pressure;
+   };
 
-    SENSOR_DATA data;
+   SENSOR_DATA data;
 
-    void setup() {
-      if (!bme.begin()) {
-        Serial.println("Could not find a valid BME680 sensor, check wiring!");
-      }
-      else {
-        // Set up oversampling and filter initialization
-        bme.setTemperatureOversampling(BME680_OS_8X);
-        bme.setHumidityOversampling(BME680_OS_2X);
-        bme.setPressureOversampling(BME680_OS_4X);
-        bme.setIIRFilterSize(BME680_FILTER_SIZE_3);
-        bme.setGasHeater(320, 150); // 320*C for 150 ms
-      }
-    };
+   void setup() {
+     bme = new Adafruit_BME680;
+     if (!bme->begin()) {
+       Serial.println("Could not find a valid BME680 sensor, check wiring!");
+     }
+     else {
+       // Set up oversampling and filter initialization
+       bme->setTemperatureOversampling(BME680_OS_8X);
+       bme->setHumidityOversampling(BME680_OS_2X);
+       bme->setPressureOversampling(BME680_OS_4X);
+       bme->setIIRFilterSize(BME680_FILTER_SIZE_3);
+       bme->setGasHeater(320, 150); // 320*C for 150 ms
+     }
+   };
 
-    int read(uint32_t every, callback_t cb) {
-      static callback_t c = cb;
+    void read() {
       static CMMC_BME680* that = this;
-      that->interval.every_ms(every, []() {
-        if (!that->bme.performReading()) {
+      that->interval.every_ms(that->everyMs, []() {
+        if (!that->bme->performReading()) {
           Serial.println("Failed to perform reading :(");
           return;
-        }
-
-        that->data.temperature = that->bme.temperature * 100;
-        that->data.humidity = that->bme.humidity * 100;
-        that->data.pressure = that->bme.pressure;
-        that->data.gas_resistance = that->bme.gas_resistance;
-        c( (void*) &that->data, sizeof(that->data));
+        } 
+        that->data.temperature = that->bme->temperature * 100;
+        that->data.humidity = that->bme->humidity * 100;
+        that->data.pressure = that->bme->pressure;
+        that->data.gas_resistance = that->bme->gas_resistance;
+        that->cb((void*) &that->data, sizeof(that->data));
       });
-    };
+   };
 };

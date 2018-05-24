@@ -14,7 +14,7 @@ class CMMC_Interval
     typedef std::function<void(void)> void_callback_t;
 
     CMMC_Interval() {
-      _prev = millis();
+      _prev = 0;
       _now  = millis();
     };
 
