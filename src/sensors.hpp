@@ -68,7 +68,7 @@ public:
     that->interval.every_ms(that->everyMs, []() {
       that->data.temperature = that->bme->readTemperature();
       that->data.humidity = that->bme->readHumidity();
-      that->data.pressure = that->bme->readPressure() / 100.0;
+      that->data.pressure = that->bme->readPressure() / 100.0f;
       that->data.altitude = that->bme->readAltitude(SEALEVELPRESSURE_HPA);
       that->cb((void *)&that->data, sizeof(that->data));
     });
