@@ -1,8 +1,5 @@
 #include <MqttConnector.h>
 
-
-
-
 extern MqttConnector* mqtt;
 extern char myName[];
 
