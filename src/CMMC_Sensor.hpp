@@ -11,9 +11,7 @@ class CMMC_Sensor {
       };
     }
     typedef std::function<void(void *, size_t len)> callback_t;
-    inline virtual void setup(int a = 0, int b = 0) {
-      Serial.println("HELLO FATHER.");
-      /*nothing*/
+    inline virtual void setup(int a = 0, int b = 0) = 0;
     };
     virtual void read() = 0;
     void onData(callback_t cb) {

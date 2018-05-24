@@ -74,7 +74,7 @@ void setup()
       sensorInstance = new CMMC_BME680;
     }
     sensorInstance->setup();
-    sensorInstance->every(10L * 1000);
+    sensorInstance->every(5L * 1000);
     sensorInstance->onData([](void *d, size_t len) {
       Serial.printf("onData len = %d\r\n", len);
     });
@@ -82,9 +82,11 @@ void setup()
   else if (dhtEnable) {
     Serial.println("DHT ENABLED.");
     sensorInstance = new CMMC_DHT; 
-    // ((CMMC_DHT*)sensorInstance)->setup(4,5); 
     sensorInstance->every(10L * 1000);
     sensorInstance->setup(dhtPin, dhtType);
+    sensorInstance->onData([](void *d, size_t len) {
+      Serial.printf("onData len = %d\r\n", len);
+    });
   }
   if (sensorInstance) {
     Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
@@ -102,8 +104,9 @@ void loop()
   // bme280.read();
   // bme680.read();
   if (mode == RUN) {
-    if (sensorInstance)
+    if (sensorInstance) {
       sensorInstance->read();
+    }
     // dTemp.read();
     // bme280.read();
   }

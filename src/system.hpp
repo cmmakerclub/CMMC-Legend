@@ -189,7 +189,7 @@ void init_userconfig() {
     }
     Serial.print(">");
     Serial.println(content);
-    const char* bme_configs[] = { (*root)["bme_pin"], (*root)["bme_type"], (*root)["enable"] };
+    const char* bme_configs[] = { (*root)["bme_pin"], (*root)["bme_type"], (*root)["bme_enable"] };
     bmeType = String(bme_configs[1]).toInt();
     bmeEnable = String(bme_configs[2]).toInt();
 

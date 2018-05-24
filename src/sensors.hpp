@@ -163,8 +163,9 @@ public:
 
   SENSOR_DATA data;
 
-  void setup()
+  void setup(int a=0, int b=0)
   {
+    Serial.println("BME680 begin..");
     if (!bme->begin())
     {
       Serial.println("Could not find a valid BME680 sensor, check wiring!");
