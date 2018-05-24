@@ -29,21 +29,24 @@ uint32_t pressure;
 
 #include "sensors.hpp"
 
-CMMC_BME280 bme280;
+CMMC_18B20 dTemp;
+// CMMC_BME280 bme280;
 // CMMC_BME680 bme680;
 // CMMC_DHT myDHT;
 
 void readSensorCb(void *d, size_t len)
 {
-  CMMC_BME280::SENSOR_DATA data;
+  CMMC_18B20::SENSOR_DATA data;
+  // CMMC_BME280::SENSOR_DATA data;
   // CMMC_BME680::SENSOR_DATA data;
 
   memcpy(&data, d, len);
   Serial.printf("read at %lu\r\n", millis());
   Serial.printf("temp=%lu\r\n", data.temperature);
-  Serial.printf("humid=%lu\r\n", data.humidity);
-  Serial.printf("pressure=%lu\r\n", data.pressure);
-  Serial.printf("alt=%lu\r\n", data.altitude);
+
+  // Serial.printf("humid=%lu\r\n", data.humidity);
+  // Serial.printf("pressure=%lu\r\n", data.pressure);
+  // Serial.printf("alt=%lu\r\n", data.altitude);
 
   // Serial.printf("gas r=%lu\r\n", data.gas_resistance - gas_resistance);
   // gas_resistance = data.gas_resistance;
@@ -57,9 +60,13 @@ void setup()
   init_userconfig();
   select_bootmode();
 
-  bme280.setup();
-  bme280.every(10000);
-  bme280.onData(readSensorCb);
+  dTemp.setup(2);
+  dTemp.every(5000);
+  dTemp.onData(readSensorCb);
+
+  // bme280.setup();
+  // bme280.every(10000);
+  // bme280.onData(readSensorCb);
 
   // bme680.setup();
   // bme680.every(10000);
@@ -72,6 +79,7 @@ void loop()
 {
   run();
 
-  bme280.read();
+  dTemp.read();
+  // bme280.read();
   // bme680.read();
 }
