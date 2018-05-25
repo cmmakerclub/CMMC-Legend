@@ -49,27 +49,18 @@ extern int dhtType;
 
 void readSensorCb(void *d, size_t len)
 {
-  CMMC_18B20::SENSOR_DATA data;
-  // CMMC_BME280::SENSOR_DATA data;
-  // CMMC_BME680::SENSOR_DATA data;
-
+  CMMC_BME680::SENSOR_DATA data; 
   memcpy(&data, d, len);
   Serial.printf("read at %lu\r\n", millis());
   Serial.printf("temp=%lu\r\n", data.temperature);
-
-  // Serial.printf("humid=%lu\r\n", data.humidity);
-  // Serial.printf("pressure=%lu\r\n", data.pressure);
-  // Serial.printf("alt=%lu\r\n", data.altitude);
-
-  // Serial.printf("gas r=%lu\r\n", data.gas_resistance - gas_resistance);
-  // gas_resistance = data.gas_resistance;
-
+  Serial.printf("humid=%lu\r\n", data.humidity); 
   Serial.printf("============\r\n");
 };
 
 void setup()
 {
   init_gpio();
+  gpio.setup();
   init_userconfig();
   if (bmeEnable) {
     Serial.printf("bme enabled type = %d\r\n", bmeType);
@@ -80,25 +71,18 @@ void setup()
       sensorInstance = new CMMC_BME680;
     }
     sensorInstance->setup();
-    sensorInstance->every(5L * 1000);
-    sensorInstance->onData([](void *d, size_t len) {
-      Serial.printf("onData len = %d\r\n", len);
-    });
   }
   else if (dhtEnable) {
     Serial.println("DHT ENABLED.");
     sensorInstance = new CMMC_DHT; 
-    sensorInstance->every(10L * 1000);
     sensorInstance->setup(dhtPin, dhtType);
-    sensorInstance->onData([](void *d, size_t len) {
-      Serial.printf("onData len = %d\r\n", len);
-    });
   }
   if (sensorInstance) {
+    sensorInstance->every(10L * 1000);
+    sensorInstance->onData(readSensorCb);
     Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
   }
   select_bootmode();
-  gpio.setup();
   Serial.setDebugOutput(true);
   // WiFi.begin("ampere", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
@@ -107,13 +91,9 @@ void setup()
 void loop()
 {
   run();
-  // bme280.read();
-  // bme680.read();
   if (mode == RUN) {
     if (sensorInstance) {
       sensorInstance->read();
     }
-    // dTemp.read();
-    // bme280.read();
   }
 }
