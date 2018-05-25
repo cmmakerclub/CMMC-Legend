@@ -1,10 +1,16 @@
 #include <Arduino.h>
+
+#include <CMMC_18B20.hpp> 
+#include <CMMC_DHT.hpp>
+
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 
 #include <ArduinoJson.h>
 #include <MqttConnector.h>
 
+#include <CMMC_BME680.hpp>
+#include <CMMC_BME280.hpp>
 #include "sensors.hpp"
 
 #include "version.h"
@@ -94,7 +100,7 @@ void setup()
   select_bootmode();
   gpio.setup();
   Serial.setDebugOutput(true);
-  // WiFi.begin("CMMC-3rd", "espertap");
+  WiFi.begin("ampere", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
