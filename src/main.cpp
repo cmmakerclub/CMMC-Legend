@@ -11,7 +11,7 @@
 
 #include <CMMC_BME680.hpp>
 #include <CMMC_BME280.hpp>
-#include "sensors.hpp"
+#include "gpio.hpp"
 
 #include "version.h"
 #include "init_mqtt.h"
@@ -100,7 +100,7 @@ void setup()
   select_bootmode();
   gpio.setup();
   Serial.setDebugOutput(true);
-  WiFi.begin("ampere", "espertap");
+  // WiFi.begin("ampere", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
