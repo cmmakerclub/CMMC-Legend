@@ -55,6 +55,9 @@ void readSensorCb(void *d, size_t len)
   Serial.printf("temp=%lu\r\n", data.temperature);
   Serial.printf("humid=%lu\r\n", data.humidity); 
   Serial.printf("============\r\n");
+
+  temperature = data.temperature;
+  humidity = data.humidity;
 };
 
 void setup()
@@ -83,7 +86,7 @@ void setup()
     Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
   }
   select_bootmode();
-  Serial.setDebugOutput(true);
+  // Serial.setDebugOutput(true);
   // WiFi.begin("ampere", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }

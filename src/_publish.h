@@ -13,6 +13,12 @@ extern uint32_t humidity;
 extern uint32_t gas_resistance;
 extern uint32_t pressure;
 
+extern int bmeType;
+extern int bmeEnable;
+
+extern int dhtType;
+extern int dhtEnable;
+
 void register_publish_hooks() {
   strcpy(myName, DEVICE_NAME.c_str());
   mqtt->on_prepare_data_once([&](void) {
@@ -31,8 +37,10 @@ void register_publish_hooks() {
     data["millis"] = millis(); 
     data["temperature_raw"] = temperature;
     data["humidity_raw"] = humidity;
-    data["pressure_raw"] = pressure;
-    data["gas_resistance_raw"] = gas_resistance; 
+    data["dhtEnable"] = dhtEnable;
+    data["bmeEnable"] = bmeEnable;
+    data["dhtType"] = dhtType;
+    data["bmeType"] = bmeType;
     data["updateInterval"] = PUBLISH_EVERY;
   }, PUBLISH_EVERY);
   mqtt->on_after_prepare_data([&](JsonObject * root) {
