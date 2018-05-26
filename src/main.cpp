@@ -89,23 +89,23 @@ void setup()
   }
 
   if (sensorInstance) {
-    sensorInstance->every(5L * 1000);
+    sensorInstance->every(10L * 1000);
     sensorInstance->onData(readSensorCb);
     Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
   }
 
   select_bootmode();
   Serial.setDebugOutput(true);
-  WiFi.begin("CMMC-3rd", "espertap");
+  // WiFi.begin("CMMC-3rd", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
 void loop()
 {
   run();
-//  if (mode == RUN) {
+ if (mode == RUN) {
     if (sensorInstance) {
       sensorInstance->read();
     }
- // }
+ }
 }

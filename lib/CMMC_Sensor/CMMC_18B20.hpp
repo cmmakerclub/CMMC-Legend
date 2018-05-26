@@ -7,12 +7,20 @@ public:
   OneWire *oneWire;
   DallasTemperature *sensor;
   
+  CMMC_18B20() {
+     this->data.type = 0x04;
+  }
+
+  ~CMMC_18B20() {
+      delete oneWire;
+      delete sensor; 
+  }
+
   void setup(int pin=0, int b=0)
   {
-    oneWire = new OneWire(pin);
-    sensor = new DallasTemperature(oneWire);
     DeviceAddress insideThermometer;
-
+    oneWire = new OneWire(pin);
+    sensor = new DallasTemperature(oneWire); 
     sensor->begin();
     sensor->isParasitePowerMode();
     sensor->getAddress(insideThermometer, 0);

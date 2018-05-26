@@ -69,10 +69,9 @@
           .then((response) => response.json())
           .then((json) => {
             context.bme_pin = json.bme_pin
-            context.bme_type = json.bme_type
             context.bme_addr = json.bme_addr
-            context.enable = parseInt(json.bme_enable)
-            context.server_response = JSON.stringify(json)
+            context.sensorType = json.sensorType
+            // context.server_response = JSON.stringify(json)
           })
           .catch((err) => {
             console.log(err)
@@ -84,8 +83,6 @@
         formData.append('bme_pin', `${context.bme_pin}`)
         formData.append('bme_addr', '0x77')
         formData.append('dht_pin', context.dht_pin)
-        // formData.append('dht_type', context.dht_type)
-        // formData.append('bme_type', context.bme_type)
         formData.append('sensorType', context.sensorType)
         context.$http.post('/api/sensors/config', formData)
           .then((response) => response.json())
@@ -100,14 +97,11 @@
     },
     data () {
       return {
-        dht_type: '22',
-        dht_pin: '12',
         loading: false,
         server_response: '',
-        bme_type: '',
+        dht_pin: '12',
         bme_pin: '',
         bme_addr: '',
-        enable: '0',
         sensorType: 'BME680'
       }
     },

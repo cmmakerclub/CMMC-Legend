@@ -10,6 +10,7 @@ public:
   CMMC_BME680() {
     this->tag = "BME680";
     bme = new Adafruit_BME680;
+    this->data.type = 0x02;
     Serial.println("680 constructure.");
   }
   ~CMMC_BME680() {

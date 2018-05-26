@@ -6,10 +6,18 @@ class CMMC_BME280 : public CMMC_Sensor
 private:
   Adafruit_BME280 *bme; // I2C
 public:
+
+  ~CMMC_BME280() {
+    bme = new Adafruit_BME280;
+    this->tag = "BME280"; 
+    this->data.type = 0x01;
+  }
+
+  CMMC_BME280() {
+    delete bme; 
+  }
   void setup(int a=0, int b=0 )
   {
-    this->tag = "BME280";
-    bme = new Adafruit_BME280;
     if (!bme->begin())
     {
       Serial.println("Could not find a valid BME280 sensor, check wiring!");
