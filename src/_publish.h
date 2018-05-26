@@ -14,7 +14,9 @@ extern uint32_t gas_resistance;
 extern uint32_t pressure;
 
 extern int bmeType;
+extern int relayPinState;
 extern int dhtType;
+
 extern char sensorType[15];
 
 void register_publish_hooks() {
@@ -35,6 +37,7 @@ void register_publish_hooks() {
     data["millis"] = millis(); 
     data["temperature_raw"] = temperature;
     data["humidity_raw"] = humidity;
+    data["relayPinState"] = relayPinState;
     data["dhtType"] = dhtType;
     data["bmeType"] = bmeType;
     data["sensorType"] = sensorType;

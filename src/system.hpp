@@ -43,6 +43,7 @@ int bmeEnable;
 int dhtType;
 int dhtPin;
 int dhtEnable;
+int relayPinState = 0;
 
 
 void checkConfigMode();
@@ -52,6 +53,8 @@ void init_gpio() {
   blinker = new CMMC_Blink;
   blinker->init();
   blinker->setPin(2);
+  gpio.setup();
+  relayPinState = 1;
   pinMode(0, INPUT_PULLUP);
   Serial.begin(57600);
   Serial.println();

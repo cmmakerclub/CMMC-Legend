@@ -63,7 +63,6 @@ void readSensorCb(void *d, size_t len)
 void setup()
 {
   init_gpio();
-  gpio.setup();
   init_userconfig();
   Serial.println("USER MAIN SPACE.");
   Serial.printf("sensor Type = %s \r\n", sensorType);
