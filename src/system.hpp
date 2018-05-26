@@ -2,7 +2,6 @@
 #include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
 #include <FS.h>
-#include <SPIFFSEditor.h>
 
 #include <CMMC_Blink.hpp>
 #include <CMMC_Interval.hpp>
@@ -35,6 +34,8 @@ char mqtt_clientId[40] = "";
 char mqtt_prefix[40] = "";
 char mqtt_port[10] = "";
 char mqtt_device_name[15] = "";
+
+char sensorType[15];
 
 int bmeType;
 int bmeEnable;
@@ -163,51 +164,40 @@ void init_userconfig() {
   });
 
   sensorsConfigManager.load_config([](JsonObject * root, const char* content) {
-    Serial.println("loading dht..");
+    Serial.println("loading sensors configuration..");
     if (root == NULL) {
-      Serial.println("load dht failed.");
+      Serial.println("load sensors config failed.");
       Serial.print(">");
       Serial.println(content);
       return ;
     }
     Serial.print(">");
     Serial.println(content);
-    const char* dht_configs[] = { (*root)["dht_pin"], (*root)["dht_type"], (*root)["dht_enable"] };
-    dhtPin = String(dht_configs[0]).toInt();
-    dhtType = String(dht_configs[1]).toInt();
-    dhtEnable = String(dht_configs[2]).toInt();
-  });
+    const char* sensor_configs[] = { 
+      (*root)["sensorType"], 
+      (*root)["dht_pin"], 
+      (*root)["bme_pin"], 
+      };
 
-  bmeConfigManager.load_config([](JsonObject * root, const char* content) {
-    Serial.println("loading bme..");
-    if (root == NULL) {
-      Serial.println("load bmefailed.");
-      Serial.print(">");
-      Serial.println(content);
-      return ;
+    strcpy(sensorType, sensor_configs[0]); 
+    String _s = String(sensorType);
+    if (_s == "BME280") {
+      bmeType = 280; 
     }
-    Serial.print(">");
-    Serial.println(content);
-    const char* bme_configs[] = { (*root)["bme_pin"], (*root)["bme_type"], (*root)["bme_enable"] };
-    bmeType = String(bme_configs[1]).toInt();
-    bmeEnable = String(bme_configs[2]).toInt();
+    else if (_s == "BME680") {
+      bmeType = 680; 
+    } 
+    else if (_s == "DHT11") {
+      dhtType = 11; 
+      dhtPin = String(sensor_configs[1]).toInt();
+    }
+    else if (_s == "DHT22") {
+      dhtType = 22; 
+      dhtPin = String(sensor_configs[1]).toInt();
+    }
 
-    if (bmeEnable) {
-      Serial.printf("BME SENSOR ENABLED: %d\r\n", bmeType);
-      if (bmeType == 280) {
-        Serial.println("FOUND BME 280");
-      }
-      else if (bmeType == 680) {
-        Serial.println("FOUND BME 680");
-      }
-      else {
-        Serial.println("INVALID BME TYPE");
-      }
-    }
-    else {
-      Serial.println("BME SENSOR DISABLED.");
-    }
-  });
+    Serial.printf("sensorType = %s\r\n", sensorType);
+  }); 
 }
 
 void checkConfigMode() {

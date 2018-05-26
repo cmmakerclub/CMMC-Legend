@@ -7,14 +7,6 @@ class CMMC_BME680 : public CMMC_Sensor
 private:
   Adafruit_BME680 *bme; // I2C
 public:
-  typedef struct SENSOR_DATA
-  {
-    uint32_t temperature;
-    uint32_t humidity;
-    uint32_t gas_resistance;
-    uint32_t pressure;
-  };
-
   CMMC_BME680() {
     this->tag = "BME680";
     bme = new Adafruit_BME680;
@@ -24,8 +16,6 @@ public:
     Serial.println("680 constructure.");
     delete bme;
   }
-
-  SENSOR_DATA data;
 
   void setup(int a=0, int b=0)
   {
@@ -55,10 +45,10 @@ public:
         Serial.println("Failed to perform reading :(");
         return;
       }
-      that->data.temperature = that->bme->temperature * 100;
-      that->data.humidity = that->bme->humidity * 100;
-      that->data.pressure = that->bme->pressure;
-      that->data.gas_resistance = that->bme->gas_resistance;
+      that->data.field1 = that->bme->temperature * 100;
+      that->data.field2 = that->bme->humidity * 100;
+      that->data.field3 = that->bme->pressure;
+      that->data.field4 = that->bme->gas_resistance;
       that->cb((void *)&that->data, sizeof(that->data));
     });
   };

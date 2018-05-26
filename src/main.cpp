@@ -49,15 +49,15 @@ extern int dhtType;
 
 void readSensorCb(void *d, size_t len)
 {
-  CMMC_BME680::SENSOR_DATA data; 
+  CMMC_SENSOR_DATA_T  data; 
   memcpy(&data, d, len);
   Serial.printf("read at %lu\r\n", millis());
-  Serial.printf("temp=%lu\r\n", data.temperature);
-  Serial.printf("humid=%lu\r\n", data.humidity); 
+  Serial.printf("field1=%lu\r\n", data.field1);
+  Serial.printf("field2=%lu\r\n", data.field2); 
   Serial.printf("============\r\n");
 
-  temperature = data.temperature;
-  humidity = data.humidity;
+  temperature = data.field1;
+  humidity = data.field2;
 };
 
 void setup()
@@ -65,28 +65,37 @@ void setup()
   init_gpio();
   gpio.setup();
   init_userconfig();
-  // if (bmeEnable) {
-  //   Serial.printf("bme enabled type = %d\r\n", bmeType);
-  //   if (bmeType == 280) {
-  //     sensorInstance = new CMMC_BME280;
-  //   }
-  //   else {
-  //     sensorInstance = new CMMC_BME680;
-  //   }
-  //   sensorInstance->setup();
-  // }
-  // else if (dhtEnable) {
-  //   Serial.println("DHT ENABLED.");
-  //   sensorInstance = new CMMC_DHT; 
-  //   sensorInstance->setup(dhtPin, dhtType);
-  // }
-  // if (sensorInstance) {
-  //   sensorInstance->every(10L * 1000);
-  //   sensorInstance->onData(readSensorCb);
-  //   Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
-  // }
+  Serial.println("USER MAIN SPACE.");
+  Serial.printf("sensor Type = %s \r\n", sensorType);
+  String _sensorType = String(sensorType);
+  if (_sensorType == "BME280") {
+      sensorInstance = new CMMC_BME280;
+      sensorInstance->setup();
+  }
+  else if (_sensorType == "BME680") {
+      sensorInstance = new CMMC_BME680;
+      sensorInstance->setup();
+  }
+  else if (_sensorType == "DHT11") {
+      sensorInstance = new CMMC_DHT; 
+      sensorInstance->setup(dhtPin, 11);
+  }
+  else if (_sensorType == "DHT22") {
+      sensorInstance = new CMMC_DHT; 
+      sensorInstance->setup(dhtPin, 22);
+  }
+  else {
+    Serial.println("ELSE...");
+  }
+
+  if (sensorInstance) {
+    sensorInstance->every(5L * 1000);
+    sensorInstance->onData(readSensorCb);
+    Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
+  }
+
   select_bootmode();
-  // Serial.setDebugOutput(true);
+  Serial.setDebugOutput(true);
   WiFi.begin("CMMC-3rd", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
@@ -94,9 +103,9 @@ void setup()
 void loop()
 {
   run();
-  if (mode == RUN) {
+//  if (mode == RUN) {
     if (sensorInstance) {
       sensorInstance->read();
     }
-  }
+ // }
 }

@@ -3,13 +3,7 @@
 
 class CMMC_18B20 : public CMMC_Sensor
 {
-public:
-  typedef struct SENSOR_DATA
-  {
-    uint32_t temperature;
-  };
-
-  SENSOR_DATA data;
+public: 
   OneWire *oneWire;
   DallasTemperature *sensor;
   
@@ -24,7 +18,7 @@ public:
     sensor->getAddress(insideThermometer, 0);
     sensor->setResolution(insideThermometer, 9);
     sensor->requestTemperatures();
-    data.temperature = sensor->getTempC(insideThermometer);
+    data.field1 = sensor->getTempC(insideThermometer);
   };
 
   void read()
@@ -32,7 +26,7 @@ public:
     static CMMC_18B20 *that = this;
     that->interval.every_ms(that->everyMs, []() {
       that->sensor->requestTemperatures();
-      that->data.temperature = that->sensor->getTempCByIndex(0);
+      that->data.field1 = that->sensor->getTempCByIndex(0);
       that->cb((void *)&that->data, sizeof(that->data));
     });
   }
