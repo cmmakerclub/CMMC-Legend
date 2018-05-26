@@ -72,6 +72,7 @@
             context.bme_type = json.bme_type
             context.bme_addr = json.bme_addr
             context.enable = parseInt(json.bme_enable)
+            context.server_response = JSON.stringify(json)
           })
           .catch((err) => {
             console.log(err)
