@@ -242,7 +242,7 @@ void select_bootmode() {
 void run() {
   if (mode == RUN) {
     interval.every_ms(10L * 1000, []() {
-      Serial.printf("Last Recv %lu ms ago.\r\n", (millis() - lastRecv));
+      Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv)/1000));
       if ( (millis() - lastRecv) > (PUBLISH_EVERY * 3) ) {
         ESP.restart();
       }
