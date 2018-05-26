@@ -1,28 +1,37 @@
 #!/bin/bash
 
 pushd cmmcAdmin 
-./spiffs.sh
-rm -v dist/static/img/*.svg
-rm -v dist/static/js/app*.js
-rm -v dist/static/js/vendor*.js
-rm -v dist/static/css/*.css
-rm -v dist/static/fonts/*.ttf
-rm -v dist/static/fonts/*.eot
-rm -v dist/static/fonts/*.woff
-rm -v dist/static/fonts/*.woff2 
+VERSION=`node -pe "require('./package.json').version"`
+echo "VVVV: ${VERSION}"
+NEXT_VERSION=`node -pe "require('semver').inc('$VERSION', 'patch')"`
+echo $NEXT_VERSION
+node -e "\
+	var j = require('./package.json');\
+j.version = '${NEXT_VERSION}';\
+	var s = JSON.stringify(j, null, 4) + '\n';\
+	require('fs').writeFileSync('./package.json', s);"
 
-popd 
-rsync --delete -av cmmcAdmin/dist/ data --progress
-rsync -av wifi.json data/
-rsync -av mymqtt.json data/
-rsync -av dht.json data/
-rsync -av bme.json data/
+# ./spiffs.sh
+# rm -v dist/static/img/*.svg
+# rm -v dist/static/js/app*.js
+# rm -v dist/static/js/vendor*.js
+# rm -v dist/static/css/*.css
+# rm -v dist/static/fonts/*.ttf
+# rm -v dist/static/fonts/*.eot
+# rm -v dist/static/fonts/*.woff
+# rm -v dist/static/fonts/*.woff2 
 
-# read -p "Upload SPIFFS Image (y/n)? " choice
-# case "$choice" in 
-#   y|Y ) platformio run --target uploadfs;;
-#   n|N ) echo "no";;
-#   * ) echo "invalid";;
-# esac
+# popd 
+# rsync --delete -av cmmcAdmin/dist/ data --progress
+# rsync -av wifi.json data/
+# rsync -av mymqtt.json data/
+# rsync -av sensors.json data/
 
-# pio run -t uploadfs 
+# # read -p "Upload SPIFFS Image (y/n)? " choice
+# # case "$choice" in 
+# #   y|Y ) platformio run --target uploadfs;;
+# #   n|N ) echo "no";;
+# #   * ) echo "invalid";;
+# # esac
+
+# # pio run -t uploadfs 

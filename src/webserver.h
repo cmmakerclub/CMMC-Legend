@@ -14,8 +14,7 @@ const char* http_password = "admin";
 
 extern CMMC_Config_Manager wifiConfigManager;
 extern CMMC_Config_Manager mqttConfigManager;
-extern CMMC_Config_Manager dhtConfigManager;
-extern CMMC_Config_Manager bmeConfigManager;
+extern CMMC_Config_Manager sensorsConfigManager;
 extern CMMC_Blink *blinker;
 
 extern bool flag_restart;
@@ -284,17 +283,10 @@ void setupWebServer() {
     request->send(200, "application/json", output);
   });
 
-  server.on("/api/sensors/dht", HTTP_POST, [](AsyncWebServerRequest * request) {
+  server.on("/api/sensors/config", HTTP_POST, [](AsyncWebServerRequest * request) {
     Serial.println();
-    Serial.println("PATH === /dht");
-    String output = saveConfig(request, &dhtConfigManager); 
-    request->send(200, "application/json", output);
-  });
-
-  server.on("/api/sensors/bme", HTTP_POST, [](AsyncWebServerRequest * request) {
-    Serial.println();
-    Serial.println("PATH === /bme");
-    String output = saveConfig(request, &bmeConfigManager); 
+    Serial.println("PATH === /sensors/config");
+    String output = saveConfig(request, &sensorsConfigManager); 
     request->send(200, "application/json", output);
   });
   // ===== END /API/WIFI/STA =====

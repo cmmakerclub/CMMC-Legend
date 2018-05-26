@@ -4,44 +4,57 @@
       <div class="columns">
         <div class="column">
           <div class="heading">
-            <h1 class="title">BME Configuration</h1>
+            <h1 class="title">Sensor Configuration</h1>
           </div>
           <div v-if="server_response" class="notification is-primary">
             {{ server_response }}
           </div>
-          <label class="label">Sensor Type</label>
+          <label class="label">Sensors</label>
           <div class="control">
-            <label class="radio">
-              <input type="radio" name="type" v-model="bme_type" value="280">
-              BME280
-            </label>
-            <label class="radio">
-              <input type="radio" name="type" v-model="bme_type" value="680">
-              BME680
-            </label>
+            <input type="radio" id="BME280" value="BME280" v-model="sensorType">
+            <label for="BME280">BME 280</label>
+            <br>
+            <input type="radio" id="BME680" value="BME680" v-model="sensorType">
+            <label for="BME680">BME 680</label>
+            <br>
+            <input type="radio" id="DHT11" value="DHT11" v-model="sensorType">
+            <label for="DHT11">DHT 11</label>
+            <br>
+            <input type="radio" id="DHT22" value="DHT22" v-model="sensorType">
+            <label for="DHT22">DHT 22</label>
+            <br>
           </div>
-          <label class="label">I2C Address</label>
-          <p class="control has-icon">
-            <input class="input" placeholder="Address" value="" disabled/>
-            <i class="fa fa-thermometer"></i>
-          </p>
-          <!--<label class="label">Offset</label>-->
-          <!--<p class="control has-icon">-->
-          <!--<input class="input" placeholder=""/>-->
-          <!--<i class="fa fa-thermometer"></i>-->
-          <!--</p>-->
+
           <div class="control">
-            <input type="checkbox" v-model="enable"> enable
+            <label class="label">BME I2C Address</label>
+            <p class="control has-icon">
+              <input class="input" placeholder="BME Address" value="" disabled/>
+              <i class="fa fa-thermometer"></i>
+            </p>
           </div>
+
+
+          <div class="control">
+            <label class="label">DHT PIN</label>
+            <p class="control has-icon">
+              <input class="input" placeholder="Pin Number" v-model="dht_pin"/>
+              <i class="fa fa-thermometer"></i>
+            </p>
+          </div>
+
+
           <p class="control">
-            <button class="button is-primary" v-on:click="onSubmit">Submit</button>
+            <button class="button is-primary" v-on:click="onSubmit">Activate</button>
             <button class="button is-link">Cancel</button>
           </p>
         </div>
       </div>
     </section>
+    <router-view></router-view>
   </div>
+
 </template>
+
 
 <script>
   export default {
@@ -52,7 +65,7 @@
     methods: {
       loadSensor () {
         const context = this
-        context.$http.get('/bme.json')
+        context.$http.get('/sensors.json')
           .then((response) => response.json())
           .then((json) => {
             context.bme_pin = json.bme_pin
@@ -67,11 +80,13 @@
       onSubmit () {
         let context = this
         let formData = new window.FormData()
-        formData.append('bme_type', context.bme_type)
-        formData.append('bme_addr', '0x77')
         formData.append('bme_pin', `${context.bme_pin}`)
-        formData.append('bme_enable', context.enable ? '1' : '0')
-        context.$http.post('/api/sensors/bme', formData)
+        formData.append('bme_addr', '0x77')
+        formData.append('dht_pin', context.dht_pin)
+        // formData.append('dht_type', context.dht_type)
+        // formData.append('bme_type', context.bme_type)
+        formData.append('sensorType', context.sensorType)
+        context.$http.post('/api/sensors/config', formData)
           .then((response) => response.json())
           .then((json) => {
             context.server_response = 'Saved'
@@ -84,12 +99,15 @@
     },
     data () {
       return {
+        dht_type: '22',
+        dht_pin: '12',
         loading: false,
         server_response: '',
         bme_type: '',
         bme_pin: '',
         bme_addr: '',
         enable: '0',
+        sensorType: 'BME680'
       }
     },
 

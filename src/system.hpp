@@ -19,7 +19,7 @@ MODE mode;
 
 CMMC_Config_Manager mqttConfigManager;
 CMMC_Config_Manager wifiConfigManager;
-CMMC_Config_Manager dhtConfigManager;
+CMMC_Config_Manager sensorsConfigManager;
 CMMC_Config_Manager bmeConfigManager;
 
 char sta_ssid[30] = "";
@@ -84,8 +84,7 @@ void init_ap() {
 void init_userconfig() {
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
-  dhtConfigManager.init("/dht.json");
-  bmeConfigManager.init("/bme.json");
+  sensorsConfigManager.init("/sensors.json");
 
   wifiConfigManager.load_config([](JsonObject * root, const char* content) {
     if (root == NULL) {
@@ -163,7 +162,7 @@ void init_userconfig() {
     }
   });
 
-  dhtConfigManager.load_config([](JsonObject * root, const char* content) {
+  sensorsConfigManager.load_config([](JsonObject * root, const char* content) {
     Serial.println("loading dht..");
     if (root == NULL) {
       Serial.println("load dht failed.");

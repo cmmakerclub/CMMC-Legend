@@ -14,7 +14,7 @@ export default [
       icon: 'fa-wifi',
       expanded: true
     },
-    component: require('../views/charts'),
+    component: require('../views/blank'),
 
     children: [
       {
@@ -36,7 +36,7 @@ export default [
       icon: 'fa-life-saver',
       expanded: true
     },
-    component: require('../views/charts'),
+    component: require('../views/blank'),
     children: [
       // {
       //   name: 'NTP',
@@ -54,21 +54,26 @@ export default [
     name: 'Sensors',
     path: '/sensors',
     meta: {
-      icon: 'fa-sort',
+      icon: 'fa-puzzle-piece',
       expanded: false
     },
-    component: require('../views/charts'),
+    component: require('../views/sensors/ALL'),
     children: [
-      {
-        name: 'DHT',
-        path: 'dht',
-        component: require('../views/sensors/DHT')
-      },
-      {
-        name: 'BME',
-        path: 'bme',
-        component: require('../views/sensors/BME')
-      }
+      // {
+      //   name: 'Sensor Activation',
+      //   path: 'type',
+      //   component: require('../views/sensors/ALL')
+      // },
+      // {
+      //   name: 'DHT',
+      //   path: 'dht',
+      //   component: require('../views/sensors/DHT')
+      // },
+      // {
+      //   name: 'BME',
+      //   path: 'bme',
+      //   component: require('../views/sensors/BME')
+      // }
     ]
   },
   {
@@ -78,7 +83,7 @@ export default [
       icon: 'fa-bank',
       expanded: false
     },
-    component: require('../views/charts'),
+    component: require('../views/blank'),
     children: []
   },
   {
@@ -88,7 +93,7 @@ export default [
       icon: 'fa-beer',
       expanded: false
     },
-    component: require('../views/charts'),
+    component: require('../views/blank'),
     children: []
   },
   {

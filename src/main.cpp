@@ -65,29 +65,29 @@ void setup()
   init_gpio();
   gpio.setup();
   init_userconfig();
-  if (bmeEnable) {
-    Serial.printf("bme enabled type = %d\r\n", bmeType);
-    if (bmeType == 280) {
-      sensorInstance = new CMMC_BME280;
-    }
-    else {
-      sensorInstance = new CMMC_BME680;
-    }
-    sensorInstance->setup();
-  }
-  else if (dhtEnable) {
-    Serial.println("DHT ENABLED.");
-    sensorInstance = new CMMC_DHT; 
-    sensorInstance->setup(dhtPin, dhtType);
-  }
-  if (sensorInstance) {
-    sensorInstance->every(10L * 1000);
-    sensorInstance->onData(readSensorCb);
-    Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
-  }
+  // if (bmeEnable) {
+  //   Serial.printf("bme enabled type = %d\r\n", bmeType);
+  //   if (bmeType == 280) {
+  //     sensorInstance = new CMMC_BME280;
+  //   }
+  //   else {
+  //     sensorInstance = new CMMC_BME680;
+  //   }
+  //   sensorInstance->setup();
+  // }
+  // else if (dhtEnable) {
+  //   Serial.println("DHT ENABLED.");
+  //   sensorInstance = new CMMC_DHT; 
+  //   sensorInstance->setup(dhtPin, dhtType);
+  // }
+  // if (sensorInstance) {
+  //   sensorInstance->every(10L * 1000);
+  //   sensorInstance->onData(readSensorCb);
+  //   Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
+  // }
   select_bootmode();
   // Serial.setDebugOutput(true);
-  // WiFi.begin("ampere", "espertap");
+  WiFi.begin("CMMC-3rd", "espertap");
   Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
