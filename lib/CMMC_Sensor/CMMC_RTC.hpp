@@ -21,26 +21,26 @@ public:
 
   SENSOR_DATA data;
   RTC_DS1307 *rtc;
-  DateTime *now;
+  
 
   void setup(int a = 0, int b = 0)
   {
     rtc = new RTC_DS1307;
-    now = new DateTime;
+  
 
     rtc->begin();
     if (!rtc->isrunning()) {
       rtc->adjust(DateTime(F(__DATE__), F(__TIME__)));
     }
 
-    now = rtc->now();
+    DateTime now = rtc->now();
 
-    data.hour = now->hour();
-    data.minute = now->hour();
-    data.second = now->second();
-    data.day = now->day();
-    data.month = now->month();
-    data.year = now->year();
+    data.hour = now.hour();
+    data.minute = now.hour();
+    data.second = now.second();
+    data.day = now.day();
+    data.month = now.month();
+    data.year = now.year();
   };
 
   void read()
