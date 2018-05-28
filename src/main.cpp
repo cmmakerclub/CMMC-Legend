@@ -73,7 +73,7 @@ void setup()
       sensorInstance->setup(dhtPin, 22);
   }
   else {
-    Serial.println("ELSE...");
+    Serial.println("No sensor selected.");
   }
 
   if (sensorInstance) {
