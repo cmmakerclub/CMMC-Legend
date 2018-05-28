@@ -86,14 +86,13 @@ class CMMC_BME680 : public CMMC_Sensor
           Serial.printf("temp=%f, rawTemp=%f, humidity=%f, raw_humididy=%f, iaq=%f, iaqAcc=%u\r\n", 
             iaqSensor.temperature, iaqSensor.rawTemperature,
             iaqSensor.humidity, iaqSensor.rawHumidity, 
-            iaqSensor.iaqEstimate, iaqSensor.iaqAccuracy);
-
+            iaqSensor.iaqEstimate, iaqSensor.iaqAccuracy); 
           data.field1 = iaqSensor.temperature*100;
           data.field2 = iaqSensor.humidity*100;
           data.field3 = iaqSensor.iaqEstimate*100;
           data.field4 = iaqSensor.iaqAccuracy;
-          data.field5 = iaqSensor.rawTemperature;
-          data.field6 = iaqSensor.rawTemperature;
+          data.field5 = iaqSensor.rawTemperature*100;
+          data.field6 = iaqSensor.rawHumidity*100;
           data.ms = millis(); 
         } else {
           checkIaqSensorStatus();

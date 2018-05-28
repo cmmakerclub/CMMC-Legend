@@ -35,8 +35,6 @@ void register_publish_hooks() {
     data["myName"] = myName;
     data["millis"] = millis(); 
     data["relayPinState"] = relayPinState;
-    data["dhtType"] = dhtType;
-    data["bmeType"] = bmeType;
     data["sensorType"] = sensorType;
     data["updateInterval"] = PUBLISH_EVERY;
     if (sensorData.field1) data["field1"] = sensorData.field1;
