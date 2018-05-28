@@ -21,12 +21,8 @@ class CMMC_BME680 : public CMMC_Sensor
     // Create an object of the class Bsec
     Bsec iaqSensor;
     String output;
-    bool bmeInitOk = true;
-    void checkIaqSensorStatus(void)
-    {
-      Serial.println("check IaQ status.");
+    void checkIaqSensorStatus(void) {
       if (iaqSensor.status != BSEC_OK) {
-          bmeInitOk = false;
         if (iaqSensor.status < BSEC_OK) {
           output = "BSEC error code : " + String(iaqSensor.status);
           Serial.println(output); 
@@ -37,7 +33,6 @@ class CMMC_BME680 : public CMMC_Sensor
       }
 
       if (iaqSensor.bme680Status != BME680_OK) {
-          bmeInitOk = false;
         if (iaqSensor.bme680Status < BME680_OK) {
           output = "BME680 error code : " + String(iaqSensor.bme680Status);
           Serial.println(output);
@@ -46,7 +41,6 @@ class CMMC_BME680 : public CMMC_Sensor
           Serial.println(output);
         }
       }
-      Serial.println("/checkIaqStatus");
     } 
   public:
     CMMC_BME680() {
@@ -88,24 +82,23 @@ class CMMC_BME680 : public CMMC_Sensor
 
     void read()
     {
-        if (bmeInitOk && iaqSensor.run()) { // If new data is available
-          output = String(millis());
-          output += ", " + String(iaqSensor.rawTemperature);
-          output += ", " + String(iaqSensor.pressure);
-          output += ", " + String(iaqSensor.rawHumidity);
-          output += ", " + String(iaqSensor.gasResistance);
-          output += ", " + String(iaqSensor.iaqEstimate);
-          output += ", " + String(iaqSensor.iaqAccuracy);
-          output += ", " + String(iaqSensor.temperature);
-          output += ", " + String(iaqSensor.humidity);
-          Serial.println(output);
+        if (iaqSensor.run()) { // If new data is available 
+          Serial.printf("temp=%f, rawTemp=%f, humidity=%f, raw_humididy=%f, iaq=%f, iaqAcc=%u\r\n", 
+            iaqSensor.temperature, iaqSensor.rawTemperature,
+            iaqSensor.humidity, iaqSensor.rawHumidity, 
+            iaqSensor.iaqEstimate, iaqSensor.iaqAccuracy);
+
+          data.field1 = iaqSensor.temperature*100;
+          data.field2 = iaqSensor.humidity*100;
+          data.field3 = iaqSensor.iaqEstimate*100;
+          data.field4 = iaqSensor.iaqAccuracy;
+          data.field5 = iaqSensor.rawTemperature;
+          data.field6 = iaqSensor.rawTemperature;
+          data.ms = millis(); 
         } else {
           checkIaqSensorStatus();
         }
       static CMMC_BME680 *that = this;
-      that->readSensorInterval.every_ms(1000, []() {
-      });
-
       that->interval.every_ms(that->everyMs, []() {
         that->cb((void *)&that->data, sizeof(that->data));
       });

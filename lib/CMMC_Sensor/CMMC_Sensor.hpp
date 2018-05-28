@@ -20,6 +20,9 @@
     uint32_t field4 = 0x00;
     uint32_t field5 = 0x00;
     uint32_t field6 = 0x00;
+    uint32_t field7 = 0x00;
+    uint32_t field8 = 0x00;
+    uint32_t field9 = 0x00;
     uint8_t nameLen = 0x00;
     char sensorName[16];
     uint32_t ms = 0;

@@ -38,20 +38,15 @@ CMMC_Sensor *sensorInstance;
 CMMC_18B20 dTemp;
 CMMC_Gpio gpio;
 
-extern int bmeType;
-
-extern int dhtEnable;
+extern int bmeType; 
 extern int dhtPin;
 extern int dhtType;
 
+CMMC_SENSOR_DATA_T sensorData;
+
 void readSensorCb(void *d, size_t len)
 {
-  CMMC_SENSOR_DATA_T  data; 
-  memcpy(&data, d, len);
-
-
-  temperature = data.field1;
-  humidity = data.field2;
+  memcpy(&sensorData, d, len); 
 };
 
 void setup()
@@ -97,8 +92,8 @@ void loop()
 {
   run();
 // if (mode == RUN) {
-    // if (sensorInstance) {
-    //   sensorInstance->read();
-    // }
- //}
+    if (sensorInstance) {
+      sensorInstance->read();
+    }
+//  }
 }
