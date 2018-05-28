@@ -188,24 +188,25 @@ while (dir.next()) {
       (*root)["bme_pin"], 
       };
 
-    strcpy(sensorType, sensor_configs[0]); 
-    String _s = String(sensorType);
-    if (_s == "BME280") {
-      bmeType = 280; 
+    if (sensor_configs[0] != NULL) {
+      strcpy(sensorType, sensor_configs[0]); 
+      String _s = String(sensorType);
+      if (_s == "BME280") {
+        bmeType = 280; 
+      }
+      else if (_s == "BME680") {
+        bmeType = 680; 
+      } 
+      else if (_s == "DHT11") {
+        dhtType = 11; 
+        dhtPin = String(sensor_configs[1]).toInt();
+      }
+      else if (_s == "DHT22") {
+        dhtType = 22; 
+        dhtPin = String(sensor_configs[1]).toInt();
+      } 
+      Serial.printf("sensorType = %s\r\n", sensorType); 
     }
-    else if (_s == "BME680") {
-      bmeType = 680; 
-    } 
-    else if (_s == "DHT11") {
-      dhtType = 11; 
-      dhtPin = String(sensor_configs[1]).toInt();
-    }
-    else if (_s == "DHT22") {
-      dhtType = 22; 
-      dhtPin = String(sensor_configs[1]).toInt();
-    }
-
-    Serial.printf("sensorType = %s\r\n", sensorType);
   }); 
 }
 
