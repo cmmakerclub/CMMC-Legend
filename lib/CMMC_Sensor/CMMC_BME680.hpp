@@ -89,7 +89,7 @@ class CMMC_BME680 : public CMMC_Sensor
             iaqSensor.iaqEstimate, iaqSensor.iaqAccuracy); 
           data.field1 = iaqSensor.temperature*100;
           data.field2 = iaqSensor.humidity*100;
-          data.field3 = iaqSensor.iaqEstimate*100;
+          data.field3 = (iaqSensor.iaqEstimate*100)+1;
           data.field4 = iaqSensor.iaqAccuracy;
           data.field5 = iaqSensor.rawTemperature*100;
           data.field6 = iaqSensor.rawHumidity*100;
