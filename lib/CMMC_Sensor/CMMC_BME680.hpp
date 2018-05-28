@@ -1,56 +1,113 @@
 #include <Arduino.h>
 #include <CMMC_Sensor.hpp>
+#include <bsec.h>
+
+// Helper functions declarations
+void checkIaqSensorStatus(void);
+void errLeds(void);
+
+
 #define SEALEVELPRESSURE_HPA (1013.25)
+#define CMMC_BME680_MAX_DATA_ARRAY (50)
 
 class CMMC_BME680 : public CMMC_Sensor
 {
-private:
-  Adafruit_BME680 *bme; // I2C
-public:
-  CMMC_BME680() {
-    this->tag = "BME680";
-    bme = new Adafruit_BME680;
-    this->data.type = 0x02;
-    Serial.println("680 constructure.");
-  }
-  ~CMMC_BME680() {
-    Serial.println("680 constructure.");
-    delete bme;
-  }
-
-  void setup(int a=0, int b=0)
-  {
-    Serial.println("BME680 begin..");
-    if (!bme->begin())
+  private:
+    uint32_t _gas_data[CMMC_BME680_MAX_DATA_ARRAY] = { 0.0 };
+    CMMC_Interval readSensorInterval;
+    uint32_t startMeasurementAtMs;
+    uint8_t measurementIdx = 0;
+    uint32_t measurementCounter = 0;
+    // Create an object of the class Bsec
+    Bsec iaqSensor;
+    String output;
+    bool bmeInitOk = true;
+    void checkIaqSensorStatus(void)
     {
-      Serial.println("Could not find a valid BME680 sensor, check wiring!");
-    }
-    else
-    {
-      Serial.println("BME680 initialized.");
-      // Set up oversampling and filter initialization
-      bme->setTemperatureOversampling(BME680_OS_8X);
-      bme->setHumidityOversampling(BME680_OS_2X);
-      bme->setPressureOversampling(BME680_OS_4X);
-      bme->setIIRFilterSize(BME680_FILTER_SIZE_3);
-      bme->setGasHeater(320, 150); // 320*C for 150 ms
-    }
-  };
-
-  void read()
-  {
-    static CMMC_BME680 *that = this;
-    that->interval.every_ms(that->everyMs, []() {
-      if (!that->bme->performReading())
-      {
-        Serial.println("Failed to perform reading :(");
-        return;
+      Serial.println("check IaQ status.");
+      if (iaqSensor.status != BSEC_OK) {
+          bmeInitOk = false;
+        if (iaqSensor.status < BSEC_OK) {
+          output = "BSEC error code : " + String(iaqSensor.status);
+          Serial.println(output); 
+        } else {
+          output = "BSEC warning code : " + String(iaqSensor.status);
+          Serial.println(output);
+        }
       }
-      that->data.field1 = that->bme->temperature * 100;
-      that->data.field2 = that->bme->humidity * 100;
-      that->data.field3 = that->bme->pressure;
-      that->data.field4 = that->bme->gas_resistance;
-      that->cb((void *)&that->data, sizeof(that->data));
-    });
-  };
+
+      if (iaqSensor.bme680Status != BME680_OK) {
+          bmeInitOk = false;
+        if (iaqSensor.bme680Status < BME680_OK) {
+          output = "BME680 error code : " + String(iaqSensor.bme680Status);
+          Serial.println(output);
+        } else {
+          output = "BME680 warning code : " + String(iaqSensor.bme680Status);
+          Serial.println(output);
+        }
+      }
+      Serial.println("/checkIaqStatus");
+    } 
+  public:
+    CMMC_BME680() {
+      this->tag = "BME680";
+      this->data.type = 0x02;
+      Serial.println("680 constructure.");
+    }
+    ~CMMC_BME680() {
+      Serial.println("680 destructure.");
+    }
+
+    void setup() {
+      setup(0, 0);
+    }
+
+    void setup(int a = 0, int b = 0)
+    {
+      Serial.println("BME680 begin..");
+      Serial.println("BME680 initialized.");
+      this->startMeasurementAtMs = millis();
+      iaqSensor.begin(0x77, Wire);
+      output = "\nBSEC library version " + String(iaqSensor.version.major) + "." + String(iaqSensor.version.minor) + "." + String(iaqSensor.version.major_bugfix) + "." + String(iaqSensor.version.minor_bugfix);
+      Serial.println(output);
+      checkIaqSensorStatus();
+
+      bsec_virtual_sensor_t sensorList[7] = {
+        BSEC_OUTPUT_RAW_TEMPERATURE,
+        BSEC_OUTPUT_RAW_PRESSURE,
+        BSEC_OUTPUT_RAW_HUMIDITY,
+        BSEC_OUTPUT_RAW_GAS,
+        BSEC_OUTPUT_IAQ_ESTIMATE,
+        BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE,
+        BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY,
+      };
+
+      iaqSensor.updateSubscription(sensorList, 7, BSEC_SAMPLE_RATE_LP);
+      checkIaqSensorStatus(); 
+    };
+
+    void read()
+    {
+        if (bmeInitOk && iaqSensor.run()) { // If new data is available
+          output = String(millis());
+          output += ", " + String(iaqSensor.rawTemperature);
+          output += ", " + String(iaqSensor.pressure);
+          output += ", " + String(iaqSensor.rawHumidity);
+          output += ", " + String(iaqSensor.gasResistance);
+          output += ", " + String(iaqSensor.iaqEstimate);
+          output += ", " + String(iaqSensor.iaqAccuracy);
+          output += ", " + String(iaqSensor.temperature);
+          output += ", " + String(iaqSensor.humidity);
+          Serial.println(output);
+        } else {
+          checkIaqSensorStatus();
+        }
+      static CMMC_BME680 *that = this;
+      that->readSensorInterval.every_ms(1000, []() {
+      });
+
+      that->interval.every_ms(that->everyMs, []() {
+        that->cb((void *)&that->data, sizeof(that->data));
+      });
+    };
 };

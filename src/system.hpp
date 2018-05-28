@@ -86,6 +86,12 @@ void init_ap() {
 }
 
 void init_userconfig() {
+  Dir dir = SPIFFS.openDir("/");
+while (dir.next()) {
+    Serial.print(dir.fileName());
+    File f = dir.openFile("r");
+    Serial.println(f.size());
+}
   wifiConfigManager.init("/wifi.json");
   mqttConfigManager.init("/mymqtt.json");
   sensorsConfigManager.init("/sensors.json");
@@ -221,6 +227,7 @@ void checkConfigMode() {
 }
 
 void select_bootmode() {
+  Serial.println("slect bootmode");
   if (!SPIFFS.exists("/enabled")) {
     blinker->blink(50);
     Serial.println("AP Only Mode.");

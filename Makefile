@@ -3,7 +3,9 @@ SHELL := /bin/bash
 CWD=$(shell pwd)
 VERSION=$(shell node -pe "require('./library.json').version")
 SEMVER=`git-semver.sh`
-SPIFFS=$(HOME)/.platformio//packages/tool-mkspiffs/mkspiffs
+SPIFFS=$(HOME)/.platformio/packages/tool-mkspiffs/mkspiffs
+ESPTOOL=$(HOME)/Library/Arduino15/packages/esp8266/tools/esptool/0.4.13/esptool 
+
 
 define release
 	test -n "$(1)" 
@@ -43,5 +45,9 @@ spiffs:
 	echo "CURRENT_VERSION=${VERSION}"
 	./rebuild-spiffs.sh
 	$(SPIFFS) -c data -p 256 -b 8192 -s 1028096 binaries/spiffs.bin
+flash-firmware:
+	$(ESPTOOL) -vv -cd nodemcu -cb 460800 -cp "/dev/cu.SLAB_USBtoUART" -cf .pioenvs/latte_v2/firmware.bin 
+flash-spiffs:
+	$(ESPTOOL) -vv -cd nodemcu -cb 460800 -cp "/dev/cu.SLAB_USBtoUART" -ca 0x300000 -cf .pioenvs/latte_v2/spiffs.bin
 test:
 	./pio_build_test.sh

@@ -1,8 +1,6 @@
-#include <Arduino.h>
-
+#include <Arduino.h> 
 #include <CMMC_18B20.hpp> 
-#include <CMMC_DHT.hpp>
-
+#include <CMMC_DHT.hpp> 
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 
@@ -40,7 +38,6 @@ CMMC_Sensor *sensorInstance;
 CMMC_18B20 dTemp;
 CMMC_Gpio gpio;
 
-extern int bmeEnable;
 extern int bmeType;
 
 extern int dhtEnable;
@@ -51,10 +48,7 @@ void readSensorCb(void *d, size_t len)
 {
   CMMC_SENSOR_DATA_T  data; 
   memcpy(&data, d, len);
-  Serial.printf("read at %lu\r\n", millis());
-  Serial.printf("field1=%lu\r\n", data.field1);
-  Serial.printf("field2=%lu\r\n", data.field2); 
-  Serial.printf("============\r\n");
+
 
   temperature = data.field1;
   humidity = data.field2;
@@ -102,9 +96,9 @@ void setup()
 void loop()
 {
   run();
- if (mode == RUN) {
-    if (sensorInstance) {
-      sensorInstance->read();
-    }
- }
+// if (mode == RUN) {
+    // if (sensorInstance) {
+    //   sensorInstance->read();
+    // }
+ //}
 }
