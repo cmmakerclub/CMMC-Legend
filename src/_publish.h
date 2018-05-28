@@ -14,6 +14,7 @@ extern uint32_t pressure;
 extern int bmeType;
 extern int relayPinState;
 extern int dhtType;
+
 extern CMMC_SENSOR_DATA_T sensorData;
 
 extern char sensorType[15];
@@ -37,16 +38,23 @@ void register_publish_hooks() {
     data["relayPinState"] = relayPinState;
     data["sensorType"] = sensorType;
     data["updateInterval"] = PUBLISH_EVERY;
-    if (sensorData.field1) data["field1"] = sensorData.field1;
-    if (sensorData.field2) data["field2"] = sensorData.field2;
-    if (sensorData.field3) data["field3"] = sensorData.field3;
-    if (sensorData.field4) data["field4"] = sensorData.field4;
-    if (sensorData.field5) data["field5"] = sensorData.field5;
-    if (sensorData.field6) data["field6"] = sensorData.field6;
-    if (sensorData.field7) data["field7"] = sensorData.field7;
-    if (sensorData.field8) data["field8"] = sensorData.field8;
-    if (sensorData.ms) data["ms"] = sensorData.ms;
-    if (sensorData.battery) data["battery"] = sensorData.battery;
+    Serial.printf("field1 = %lu \r\n", sensorData.field1);
+    Serial.printf("field2 = %lu \r\n", sensorData.field2);
+    Serial.printf("field3 = %lu \r\n", sensorData.field3);
+    Serial.printf("field4 = %lu \r\n", sensorData.field4);
+    Serial.printf("field5 = %lu \r\n", sensorData.field5);
+    Serial.printf("field6 = %lu \r\n", sensorData.field6);
+
+    if (sensorData.field1) { data["field1"] = sensorData.field1; }
+    if (sensorData.field2) { data["field2"] = sensorData.field2; }
+    if (sensorData.field3) { data["field3"] = sensorData.field3; }
+    if (sensorData.field4) { data["field4"] = sensorData.field4; }
+    if (sensorData.field5) { data["field5"] = sensorData.field5; }
+    if (sensorData.field6) { data["field6"] = sensorData.field6; }
+    if (sensorData.field7) { data["field7"] = sensorData.field7; } 
+    if (sensorData.field8) { data["field8"] = sensorData.field8; }
+    if (sensorData.ms) { data["ms"] = sensorData.ms; }
+    if (sensorData.battery) { data["battery"] = sensorData.battery; }
 
   }, PUBLISH_EVERY);
   mqtt->on_after_prepare_data([&](JsonObject * root) {

@@ -29,8 +29,18 @@ public:
   {
     static CMMC_DHT *that = this;
     that->interval.every_ms(that->everyMs, []() {
-      that->data.field1 = that->dht->readTemperature() * 100;
-      that->data.field2 = that->dht->readHumidity() * 100;
+      float t,h;
+      t = that->dht->readTemperature()*100;
+      h = that->dht->readHumidity()*100;
+      if (isnan(t) || isnan(h)) {
+        // that->data.field1 = (0); 
+        // that->data.field2 = (0); 
+      }
+      else {
+        Serial.printf(">> temp=%f, humid=%f\r\n", t,h);
+        that->data.field1 = (t);
+        that->data.field2 = (h); 
+      }
       that->cb((void *)&that->data, sizeof(that->data));
     });
   }

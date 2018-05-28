@@ -47,6 +47,7 @@ CMMC_SENSOR_DATA_T sensorData;
 void readSensorCb(void *d, size_t len)
 {
   memcpy(&sensorData, d, len); 
+  Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
 };
 
 void setup()
@@ -91,9 +92,9 @@ void setup()
 void loop()
 {
   run();
-// if (mode == RUN) {
+if (mode == RUN) {
     if (sensorInstance) {
       sensorInstance->read();
     }
-//  }
+ }
 }
