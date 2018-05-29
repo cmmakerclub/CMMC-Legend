@@ -43,8 +43,14 @@ version:
 	echo "CURRENT_VERSION=${VERSION}"
 spiffs:
 	echo "CURRENT_VERSION=${VERSION}"
-	./rebuild-spiffs.sh
-	$(SPIFFS) -c data -p 256 -b 8192 -s 1028096 binaries/spiffs.bin
+	# ./rebuild-spiffs.sh
+	rm data/index.htm
+	$(SPIFFS) -c data -p 256 -b 8192 -s 1028096 binaries/spiffs-1M.bin 
+spiffs-512:
+	rm data/index.htm
+	echo "CURRENT_VERSION=${VERSION}"
+	# ./rebuild-spiffs.sh
+	$(SPIFFS) -c data -p 256 -b 8192 -s 524288 binaries/spiffs-512k.bin
 flash-firmware:
 	$(ESPTOOL) -vv -cd nodemcu -cb 460800 -cp "/dev/cu.SLAB_USBtoUART" -cf .pioenvs/latte_v2/firmware.bin 
 flash-spiffs:
