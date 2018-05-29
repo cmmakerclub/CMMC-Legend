@@ -18,21 +18,26 @@ class CMMC_BME680 : public CMMC_Sensor
     uint32_t startMeasurementAtMs;
     uint8_t measurementIdx = 0;
     uint32_t measurementCounter = 0;
-    // Create an object of the class Bsec
     Bsec iaqSensor;
     String output;
+    bool isBmeError = false;
     void checkIaqSensorStatus(void) {
       if (iaqSensor.status != BSEC_OK) {
         if (iaqSensor.status < BSEC_OK) {
           output = "BSEC error code : " + String(iaqSensor.status);
           Serial.println(output); 
+          isBmeError = true;
         } else {
           output = "BSEC warning code : " + String(iaqSensor.status);
           Serial.println(output);
         }
       }
+      else {
+        isBmeError = false;
+      }
 
       if (iaqSensor.bme680Status != BME680_OK) {
+          isBmeError = true;
         if (iaqSensor.bme680Status < BME680_OK) {
           output = "BME680 error code : " + String(iaqSensor.bme680Status);
           Serial.println(output);
@@ -40,6 +45,9 @@ class CMMC_BME680 : public CMMC_Sensor
           output = "BME680 warning code : " + String(iaqSensor.bme680Status);
           Serial.println(output);
         }
+      }
+      else {
+        isBmeError = false;
       }
     } 
   public:
@@ -82,7 +90,7 @@ class CMMC_BME680 : public CMMC_Sensor
 
     void read()
     {
-        if (iaqSensor.run()) { // If new data is available 
+        if (!isBmeError && iaqSensor.run()) { // If new data is available 
           Serial.printf("temp=%f, rawTemp=%f, humidity=%f, raw_humididy=%f, iaq=%f, iaqAcc=%u\r\n", 
             iaqSensor.temperature, iaqSensor.rawTemperature,
             iaqSensor.humidity, iaqSensor.rawHumidity, 

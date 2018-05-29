@@ -86,7 +86,7 @@ void setup()
   select_bootmode();
   // Serial.setDebugOutput(true);
   // WiFi.begin("CMMC-3rd", "espertap");
-  Serial.printf("\r\nAPP VERSION: %s\r\n", LEGEND_APP_VERSION);
+  Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
 void loop()
