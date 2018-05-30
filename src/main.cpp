@@ -59,29 +59,29 @@ void setup()
   Serial.println("USER MAIN SPACE.");
   Serial.printf("sensor Type = %s \r\n", sensorType);
 
-  // String _sensorType = String(sensorType);
-  // if (_sensorType == "BME280") {
-  //     sensorInstance = new CMMC_BME280;
-  //     sensorInstance->setup();
-  // }
-  // else if (_sensorType == "BME680") {
-  //     sensorInstance = new CMMC_BME680;
-  //     sensorInstance->setup();
-  // }
-  // else if (_sensorType == "DHT11") {
-  //     sensorInstance = new CMMC_DHT; 
-  //     sensorInstance->setup(dhtPin, 11);
-  // }
-  // else if (_sensorType == "DHT22") {
-  //     sensorInstance = new CMMC_DHT; 
-  //     sensorInstance->setup(dhtPin, 22);
-  // }
-  // else {
-  //   Serial.println("No sensor selected.");
-  // }
+  String _sensorType = String(sensorType);
+  if (_sensorType == "BME280") {
+      sensorInstance = new CMMC_BME280;
+      sensorInstance->setup();
+  }
+  else if (_sensorType == "BME680") {
+      sensorInstance = new CMMC_BME680;
+      sensorInstance->setup();
+  }
+  else if (_sensorType == "DHT11") {
+      sensorInstance = new CMMC_DHT; 
+      sensorInstance->setup(dhtPin, 11);
+  }
+  else if (_sensorType == "DHT22") {
+      sensorInstance = new CMMC_DHT; 
+      sensorInstance->setup(dhtPin, 22);
+  }
+  else {
+    Serial.println("No sensor selected.");
+  }
 
-  sensorInstance = new CMMC_HX711; 
-  sensorInstance->setup(12, 14);
+  // sensorInstance = new CMMC_HX711; 
+  // sensorInstance->setup(12, 14);
 
   if (sensorInstance) {
     sensorInstance->every(10L * 1000);
