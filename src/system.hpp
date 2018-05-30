@@ -214,7 +214,7 @@ void checkConfigMode() {
   uint32_t prev = millis();
   while (digitalRead(0) == LOW) {
     delay(50);
-    if (millis() - prev > 2000L) {
+    if (millis() - prev > 10L*1000L) {
       Serial.println("LONG PRESSED.");
       blinker->blink(50);
       while (digitalRead(0) == LOW) {

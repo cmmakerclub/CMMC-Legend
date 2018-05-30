@@ -1,3 +1,6 @@
+#ifndef CMMC_SENSOR_RTC_H
+#define CMMC_SENSOR_RTC_H
+
 #include <Arduino.h>
 #include <CMMC_Sensor.hpp>
 #include <Wire.h>
@@ -53,3 +56,5 @@ public:
     });
   }
 };
+
+#endif

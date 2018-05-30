@@ -1,3 +1,6 @@
+#ifndef CMMC_SENSOR_DHT_H
+#define CMMC_SENSOR_DHT_H
+
 #include <Arduino.h>
 #include <CMMC_Sensor.hpp>
 
@@ -44,4 +47,5 @@ public:
       that->cb((void *)&that->data, sizeof(that->data));
     });
   }
-};
+}; 
+#endif

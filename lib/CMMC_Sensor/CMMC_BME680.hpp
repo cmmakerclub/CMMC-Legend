@@ -1,3 +1,6 @@
+#ifndef CMMC_SENSOR_BME680_H
+#define CMMC_SENSOR_BME680_H
+
 #include <Arduino.h>
 #include <CMMC_Sensor.hpp>
 #include <bsec.h>
@@ -110,4 +113,5 @@ class CMMC_BME680 : public CMMC_Sensor
         that->cb((void *)&that->data, sizeof(that->data));
       });
     };
-};
+}; 
+#endif

@@ -1,3 +1,6 @@
+#ifndef CMMC_SENSOR_HX711_H
+#define CMMC_SENSOR_HX711_H
+
 #include <Arduino.h>
 #include <CMMC_Sensor.hpp>
 #include "HX711.h"
@@ -51,3 +54,5 @@ public:
     });
   };
 };
+
+#endif

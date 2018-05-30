@@ -1,3 +1,6 @@
+#ifndef CMMC_SENSOR_18B20_H
+#define CMMC_SENSOR_18B20_H
+
 #include <Arduino.h>
 #include <CMMC_Sensor.hpp>
 
@@ -39,3 +42,5 @@ public:
     });
   }
 };
+
+#endif

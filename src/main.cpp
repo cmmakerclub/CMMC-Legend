@@ -1,4 +1,6 @@
 #include <Arduino.h> 
+#include <CMMC_18B20.hpp> 
+#include <CMMC_DHT.hpp> 
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 

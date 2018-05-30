@@ -43,11 +43,26 @@ version:
 	echo "CURRENT_VERSION=${VERSION}"
 spiffs:
 	echo "CURRENT_VERSION=${VERSION}"
+	# ./rebuild-spiffs.sh
+	rm data/index.htm
+	$(SPIFFS) -c data -p 256 -b 8192 -s 1028096 binaries/spiffs-1M.bin 
+build-spiffs: 
 	./rebuild-spiffs.sh
-	$(SPIFFS) -c data -p 256 -b 8192 -s 1028096 binaries/spiffs.bin
+build:
+	pio run -t build -e latte_v2
+	pio run -t build -e espresso_lite_v2
+	cp .pioenvs/latte_v2/firmware.bin binaries/latte.bin
+	cp .pioenvs/espresso_lite_v2/firmware.bin binaries/espressolite.bin
+	rm data/index.htm
+	echo "CURRENT_VERSION=${VERSION}"
+	$(SPIFFS) -c data -p 256 -b 8192 -s 524288 binaries/spiffs-512k.bin
+spiffs-512:
+	rm data/index.htm
+	echo "CURRENT_VERSION=${VERSION}"
+	$(SPIFFS) -c data -p 256 -b 8192 -s 524288 binaries/spiffs-512k.bin
 flash-firmware:
-	$(ESPTOOL) -vv -cd nodemcu -cb 460800 -cp "/dev/cu.SLAB_USBtoUART" -cf .pioenvs/latte_v2/firmware.bin 
+	$(ESPTOOL) -vv -cd nodemcu -cb 460800 -cf .pioenvs/latte_v2/firmware.bin  -cp "/dev/cu.SLAB_USBtoUART" 
 flash-spiffs:
-	$(ESPTOOL) -vv -cd nodemcu -cb 460800 -cp "/dev/cu.SLAB_USBtoUART" -ca 0x300000 -cf .pioenvs/latte_v2/spiffs.bin
+	$(ESPTOOL) -vv -cd nodemcu -cb 460800 -ca 0x300000 -cf .pioenvs/latte_v2/spiffs.bin -cp "/dev/cu.SLAB_USBtoUART" 
 test:
 	./pio_build_test.sh
