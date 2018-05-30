@@ -1,3 +1,6 @@
+#ifndef CMMC_SENSOR_BME280_H
+#define CMMC_SENSOR_BME280_H
+
 #include <Arduino.h>
 #include <CMMC_Sensor.hpp>
 
@@ -36,3 +39,5 @@ public:
     });
   };
 };
+
+#endif
