@@ -31,12 +31,20 @@ char ap_ssid[30] = "CMMC-Legend";
 char ap_pwd[30] = "";
 MQTT_Config_T mqttConfig;
 char sensorType[15];
+MqttConnector *mqtt;
+uint32_t lastRecv; 
+CMMC_Interval interval;
+CMMC_Blink *blinker;
 
 
 class CMMC_Legend: public CMMC_System {
   public:
     void setup() {
-
+      init_gpio();
+      init_fs();
+      init_userconfig();
+      select_bootmode();
+      init_network(); 
     }
     void init_fs() {
       Dir dir = SPIFFS.openDir("/");
@@ -51,15 +59,13 @@ class CMMC_Legend: public CMMC_System {
     }
 
     void init_gpio() {
+      pinMode(0, INPUT_PULLUP);
       SPIFFS.begin();
       blinker = new CMMC_Blink;
       blinker->init();
       blinker->setPin(2);
       gpio.setup();
-      pinMode(0, INPUT_PULLUP);
       Serial.begin(57600);
-      Serial.println();
-      Serial.println();
       Serial.println();
       blinker->blink(500);
       delay(10);
@@ -160,78 +166,66 @@ class CMMC_Legend: public CMMC_System {
         if (sensor_configs[0] != NULL) {
           strcpy(sensorType, sensor_configs[0]);
           String _s = String(sensorType);
-          // if (_s == "BME280") {
-          //   // bmeType = 280;
-          // }
-          // else if (_s == "BME680") {
-          //   bmeType = 680;
-          // }
-          // else if (_s == "DHT11") {
-          //   dhtType = 11;
-          //   // dhtPin = String(sensor_configs[1]).toInt();
-          // }
-          // else if (_s == "DHT22") {
-          //   dhtType = 22;
-          //   // dhtPin = String(sensor_configs[1]).toInt();
-          // }
-          Serial.printf("sensorType = %s\r\n", sensorType);
+        }
+        else if (sensor_configs[1] != NULL) {
+          //   dhtPin = String(sensor_configs[1]).toInt();
+        }
+        else if (sensor_configs[2] != NULL) {
+          //   dhtPin = String(sensor_configs[1]).toInt();
         }
       });
     }
+
     void init_network() {
 
     }
-  private:
-    MqttConnector *mqtt;
-    uint32_t lastRecv;
-
-    CMMC_Interval interval;
-    CMMC_Blink *blinker;
+    
+  private: 
     void run() {
       if (mode == RUN) {
         static CMMC_Legend *that = this; 
         interval.every_ms(10L * 1000, []() {
-          Serial.printf("Last Recv %lus ago.\r\n", ((millis() - that->lastRecv) / 1000));
-          if ( (millis() - that->lastRecv) > (PUBLISH_EVERY * 3) ) {
+          Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv) / 1000));
+          if ( (millis() - lastRecv) > (PUBLISH_EVERY * 3) ) {
             ESP.restart();
           }
         });
         mqtt->loop();
       }
-      checkConfigMode();
+      isLongPressed();
     }
 
     void init_ap() {
       WiFi.softAPdisconnect();
       WiFi.disconnect();
       WiFi.mode(WIFI_AP);
+      sprintf(&ap_ssid[5], "%08x", ESP.getChipId());
+      WiFi.softAP(ap_ssid, &ap_ssid[5]);
       delay(20);
     }
 
     void select_bootmode() {
-      Serial.println("slect bootmode");
       if (!SPIFFS.exists("/enabled")) {
-        blinker->blink(50);
-        Serial.println("AP Only Mode.");
         mode = SETUP;
-        Serial.printf("ESP8266 Chip id = %08X\n", ESP.getChipId());
-        sprintf(&ap_ssid[5], "%08x", ESP.getChipId());
-        init_ap();
-        WiFi.softAP(ap_ssid, &ap_ssid[5]);
-        setupWebServer();
       }
       else {
         mode = RUN;
-        init_sta();
-        Serial.println("WiFi Connected.");
-        blinker->blink(4000);
-        lastRecv = millis();
-        init_mqtt();
+      } 
+
+      if (mode == SETUP) {
+        init_ap();
+        setupWebServer(); 
+        blinker->blink(50);
       }
-    }
+      else if (mode == RUN) {
+        init_sta();
+        init_mqtt(); 
+        lastRecv = millis();
+        blinker->blink(4000);
+      } 
+    } 
 
-
-    void checkConfigMode() {
+    void isLongPressed() {
       uint32_t prev = millis();
       while (digitalRead(0) == LOW) {
         delay(50);
@@ -258,7 +252,7 @@ class CMMC_Legend: public CMMC_System {
       digitalWrite(LED_BUILTIN, HIGH);
       while (WiFi.status() != WL_CONNECTED) {
         Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
-        checkConfigMode();
+        isLongPressed();
         delay(300);
       }
     }
