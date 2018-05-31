@@ -10,7 +10,7 @@ extern String MQTT_PREFIX;
 extern char myName[];
 extern uint32_t lastRecv; 
 extern CMMC_Gpio gpio;
-extern int relayPinState;
+// extern int relayPinState;
 
 void register_receive_hooks() {
   mqtt->on_subscribe([&](MQTT::Subscribe *sub) -> void {
@@ -32,10 +32,10 @@ void register_receive_hooks() {
       if (payload == "ON") {
         Serial.println("ON");
         gpio.on();
-        relayPinState = 1;
+        // relayPinState = 1;
       }
       else if (payload == "OFF") {
-        relayPinState = 0;
+        // relayPinState = 0;
         gpio.off();
         Serial.println("OFF");
       }

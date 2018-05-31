@@ -1,6 +1,6 @@
-#include <Arduino.h> 
-#include <CMMC_18B20.hpp> 
-#include <CMMC_DHT.hpp> 
+#include <Arduino.h>
+#include <CMMC_18B20.hpp>
+#include <CMMC_DHT.hpp>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
 
@@ -9,8 +9,8 @@
 
 #include <CMMC_BME680.hpp>
 #include <CMMC_BME280.hpp>
-#include <CMMC_18B20.hpp> 
-#include <CMMC_DHT.hpp> 
+#include <CMMC_18B20.hpp>
+#include <CMMC_DHT.hpp>
 #include <CMMC_HX711.hpp>
 #include "gpio.hpp"
 
@@ -41,57 +41,54 @@ CMMC_Sensor *sensorInstance;
 CMMC_18B20 dTemp;
 CMMC_Gpio gpio;
 
-extern int bmeType; 
-extern int dhtPin;
-extern int dhtType;
-
 CMMC_SENSOR_DATA_T sensorData;
 
 void readSensorCb(void *d, size_t len)
 {
-  memcpy(&sensorData, d, len); 
-  Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
+  memcpy(&sensorData, d, len);
+  Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2); 
 };
+
+
+CMMC_Legend os;
 
 void setup()
 {
-  init_gpio();
-  init_userconfig();
-
   Serial.println("USER MAIN SPACE.");
   Serial.printf("sensor Type = %s \r\n", sensorType);
+  os.setup();
 
   String _sensorType = String(sensorType);
   if (_sensorType == "BME280") {
-      sensorInstance = new CMMC_BME280;
-      sensorInstance->setup();
+    sensorInstance = new CMMC_BME280;
+    sensorInstance->setup();
   }
   else if (_sensorType == "BME680") {
-      sensorInstance = new CMMC_BME680;
-      sensorInstance->setup();
+    sensorInstance = new CMMC_BME680;
+    sensorInstance->setup();
   }
   else if (_sensorType == "DHT11") {
-      sensorInstance = new CMMC_DHT; 
-      sensorInstance->setup(dhtPin, 11);
+    sensorInstance = new CMMC_DHT;
+    // sensorInstance->setup(dhtPin, 11);
   }
   else if (_sensorType == "DHT22") {
-      sensorInstance = new CMMC_DHT; 
-      sensorInstance->setup(dhtPin, 22);
+    sensorInstance = new CMMC_DHT;
+    // sensorInstance->setup(dhtPin, 22);
   }
   else {
     Serial.println("No sensor selected.");
   }
 
-  // sensorInstance = new CMMC_HX711; 
+  // sensorInstance = new CMMC_HX711;
   // sensorInstance->setup(12, 14);
 
   if (sensorInstance) {
     sensorInstance->every(10L * 1000);
     sensorInstance->onData(readSensorCb);
-    Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str()); 
+    Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
   }
 
-  select_bootmode();
+  // select_bootmode();
   // Serial.setDebugOutput(true);
   // WiFi.begin("CMMC-3rd", "espertap");
   // Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
@@ -99,10 +96,10 @@ void setup()
 
 void loop()
 {
-  run();
-if (mode == RUN) {
-    if (sensorInstance) {
-      sensorInstance->read();
-    }
- }
+  // run();
+  // if (mode == RUN) {
+  //   if (sensorInstance) {
+  //     sensorInstance->read();
+  //   }
+  // }
 }

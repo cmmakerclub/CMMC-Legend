@@ -11,12 +11,11 @@ extern int PUBLISH_EVERY;
 extern uint32_t gas_resistance;
 extern uint32_t pressure;
 
-extern int bmeType;
-extern int relayPinState;
-extern int dhtType;
+// extern int bmeType;
+// extern int relayPinState;
+// extern int dhtType;
 
-extern CMMC_SENSOR_DATA_T sensorData;
-
+extern CMMC_SENSOR_DATA_T sensorData; 
 extern char sensorType[15];
 
 void register_publish_hooks() {
@@ -35,8 +34,8 @@ void register_publish_hooks() {
     data["appVersion"] = LEGEND_APP_VERSION;
     data["myName"] = myName;
     data["millis"] = millis(); 
-    data["relayPinState"] = relayPinState;
-    data["sensorType"] = sensorType;
+    // data["relayPinState"] = relayPinState;
+    // data["sensorType"] = sensorType;
     data["updateInterval"] = PUBLISH_EVERY;
     Serial.printf("field1 = %lu \r\n", sensorData.field1);
     Serial.printf("field2 = %lu \r\n", sensorData.field2);
