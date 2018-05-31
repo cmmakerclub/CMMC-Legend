@@ -12,6 +12,7 @@
 #include <CMMC_18B20.hpp>
 #include <CMMC_DHT.hpp>
 #include <CMMC_HX711.hpp>
+#include <CMMC_VL53L0X.hpp>
 #include "gpio.hpp"
 
 #include "version.h"
@@ -58,29 +59,32 @@ void setup()
   Serial.printf("sensor Type = %s \r\n", sensorType);
   os.setup();
 
-  String _sensorType = String(sensorType);
-  if (_sensorType == "BME280") {
-    sensorInstance = new CMMC_BME280;
-    sensorInstance->setup();
-  }
-  else if (_sensorType == "BME680") {
-    sensorInstance = new CMMC_BME680;
-    sensorInstance->setup();
-  }
-  else if (_sensorType == "DHT11") {
-    sensorInstance = new CMMC_DHT;
-    // sensorInstance->setup(dhtPin, 11);
-  }
-  else if (_sensorType == "DHT22") {
-    sensorInstance = new CMMC_DHT;
-    // sensorInstance->setup(dhtPin, 22);
-  }
-  else {
-    Serial.println("No sensor selected.");
-  }
+  // String _sensorType = String(sensorType);
+  // if (_sensorType == "BME280") {
+  //   sensorInstance = new CMMC_BME280;
+  //   sensorInstance->setup();
+  // }
+  // else if (_sensorType == "BME680") {
+  //   sensorInstance = new CMMC_BME680;
+  //   sensorInstance->setup();
+  // }
+  // else if (_sensorType == "DHT11") {
+  //   sensorInstance = new CMMC_DHT;
+  //   // sensorInstance->setup(dhtPin, 11);
+  // }
+  // else if (_sensorType == "DHT22") {
+  //   sensorInstance = new CMMC_DHT;
+  //   // sensorInstance->setup(dhtPin, 22);
+  // }
+  // else {
+  //   Serial.println("No sensor selected.");
+  // }
 
   // sensorInstance = new CMMC_HX711;
   // sensorInstance->setup(12, 14);
+
+  sensorInstance = new CMMC_VL53L0X;
+  sensorInstance->setup();
 
   if (sensorInstance) {
     sensorInstance->every(10L * 1000);
