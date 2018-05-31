@@ -46,7 +46,6 @@ CMMC_Legend os;
 
 void setup()
 {
-<<<<<<< HEAD
   Serial.println("USER MAIN SPACE.");
   Serial.printf("sensor Type = %s \r\n", sensorType);
   os.setup();
@@ -85,12 +84,11 @@ void setup()
   }
 
   // select_bootmode();
-=======
   Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
   os.setup(); 
   // sensorInstance = new CMMC_HX711;
   // sensorInstance->setup(12, 14); 
->>>>>>> 92d93a831bf4696ff77f83a72190732f25c347ef
+
   // Serial.setDebugOutput(true);
   // WiFi.begin("CMMC-3rd", "espertap");
 }
