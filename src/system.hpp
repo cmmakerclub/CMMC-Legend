@@ -47,11 +47,18 @@ class CMMC_Legend: public CMMC_System {
       init_network(); 
     }
     void init_fs() {
+      SPIFFS.begin();
       Dir dir = SPIFFS.openDir("/");
       while (dir.next()) {
         Serial.print(dir.fileName());
         File f = dir.openFile("r");
         Serial.println(f.size());
+      }
+      if (!SPIFFS.exists("/enabled")) {
+        mode = SETUP;
+      }
+      else {
+        mode = RUN;
       }
       wifiConfigManager.init("/wifi.json");
       mqttConfigManager.init("/mymqtt.json");
@@ -60,7 +67,6 @@ class CMMC_Legend: public CMMC_System {
 
     void init_gpio() {
       pinMode(0, INPUT_PULLUP);
-      SPIFFS.begin();
       blinker = new CMMC_Blink;
       blinker->init();
       blinker->setPin(2);
@@ -179,7 +185,7 @@ class CMMC_Legend: public CMMC_System {
     void init_network() {
 
     }
-    
+
   private: 
     void run() {
       if (mode == RUN) {
@@ -204,14 +210,7 @@ class CMMC_Legend: public CMMC_System {
       delay(20);
     }
 
-    void select_bootmode() {
-      if (!SPIFFS.exists("/enabled")) {
-        mode = SETUP;
-      }
-      else {
-        mode = RUN;
-      } 
-
+    void select_bootmode() { 
       if (mode == SETUP) {
         init_ap();
         setupWebServer(); 

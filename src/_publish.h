@@ -1,10 +1,7 @@
 #include <MqttConnector.h>
 
-extern MqttConnector* mqtt;
-extern char myName[];
-
+extern char myName[]; 
 static void readSensor(); 
-
 extern String DEVICE_NAME;
 extern int PUBLISH_EVERY;
 
@@ -18,7 +15,7 @@ extern uint32_t pressure;
 extern CMMC_SENSOR_DATA_T sensorData; 
 extern char sensorType[15];
 
-void register_publish_hooks() {
+void register_publish_hooks(MqttConnector* mqtt) {
   strcpy(myName, DEVICE_NAME.c_str());
   mqtt->on_prepare_data_once([&](void) {
     Serial.println("initializing sensor...");

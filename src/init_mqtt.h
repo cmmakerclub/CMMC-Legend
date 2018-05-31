@@ -14,11 +14,11 @@ extern int MQTT_PORT;
 extern int PUBLISH_EVERY;
 extern int MQTT_CONNECT_TIMEOUT;
 
-extern void register_publish_hooks();
-extern void register_receive_hooks();
+extern void register_publish_hooks(MqttConnector*);
+extern void register_receive_hooks(MqttConnector*);
 
 // MQTT INITIALIZER
-void init_mqtt()
+MqttConnector* init_mqtt()
 {
   mqtt = new MqttConnector(MQTT_HOST.c_str(), MQTT_PORT);
 
@@ -67,8 +67,9 @@ void init_mqtt()
     // sub->add_topic(MQTT_PREFIX + "/" + MQTT_CLIENT_ID + "/$/+");
   });
 
-  register_publish_hooks();
-  register_receive_hooks();
+  register_publish_hooks(mqtt);
+  register_receive_hooks(mqtt);
 
   mqtt->connect();
+  return mqtt;
 }
