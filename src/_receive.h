@@ -2,8 +2,6 @@
 #include <MqttConnector.h>
 #include <FS.h>
 
-extern MqttConnector* mqtt;
-
 extern String MQTT_CLIENT_ID;
 extern String MQTT_PREFIX;
 
@@ -12,7 +10,7 @@ extern uint32_t lastRecv;
 extern CMMC_Gpio gpio;
 // extern int relayPinState;
 
-void register_receive_hooks() {
+void register_receive_hooks(MqttConnector *mqtt) {
   mqtt->on_subscribe([&](MQTT::Subscribe *sub) -> void {
     Serial.printf("onSubScribe myName = %s \r\n", myName);
     sub->add_topic(MQTT_PREFIX + myName + String("/$/+"));

@@ -8,6 +8,8 @@
 #include <CMMC_Config_Manager.h>
 #include "CMMC_System.hpp"
 
+CMMC_Sensor *sensorInstance;
+
 struct MQTT_Config_T {
   char mqtt_host[40] = "";
   char mqtt_user[40] = "";
@@ -32,35 +34,43 @@ char ap_pwd[30] = "";
 MQTT_Config_T mqttConfig;
 char sensorType[15];
 MqttConnector *mqtt;
-uint32_t lastRecv; 
+uint32_t lastRecv;
 CMMC_Interval interval;
 CMMC_Blink *blinker;
+CMMC_SENSOR_DATA_T sensorData;
+void readSensorCb(void *d, size_t len)
+{
+  memcpy(&sensorData, d, len);
+  Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
+};
 
 
 class CMMC_Legend: public CMMC_System {
   public:
     void setup() {
-      init_gpio();
-      init_fs();
-      init_userconfig();
-      select_bootmode();
-      init_network(); 
+      CMMC_System::setup();
     }
     void init_fs() {
+      SPIFFS.begin();
       Dir dir = SPIFFS.openDir("/");
       while (dir.next()) {
         Serial.print(dir.fileName());
         File f = dir.openFile("r");
         Serial.println(f.size());
       }
+      if (!SPIFFS.exists("/enabled")) {
+        mode = SETUP;
+      }
+      else {
+        mode = RUN;
+      }
       wifiConfigManager.init("/wifi.json");
       mqttConfigManager.init("/mymqtt.json");
-      sensorsConfigManager.init("/sensors.json"); 
+      sensorsConfigManager.init("/sensors.json");
     }
 
     void init_gpio() {
       pinMode(0, INPUT_PULLUP);
-      SPIFFS.begin();
       blinker = new CMMC_Blink;
       blinker->init();
       blinker->setPin(2);
@@ -70,7 +80,40 @@ class CMMC_Legend: public CMMC_System {
       blinker->blink(500);
       delay(10);
     }
-    void init_userconfig() { 
+
+    void init_user_sensor() { 
+      if (mode == SETUP) return;
+      String _sensorType = String(sensorType);
+      if (_sensorType == "BME280") {
+        sensorInstance = new CMMC_BME280;
+        sensorInstance->setup();
+      }
+      else if (_sensorType == "BME680") {
+        sensorInstance = new CMMC_BME680;
+        sensorInstance->setup();
+      }
+      else if (_sensorType == "DHT11") {
+        sensorInstance = new CMMC_DHT;
+        sensorInstance->setup(12, 11);
+      }
+      else if (_sensorType == "DHT22") {
+        sensorInstance = new CMMC_DHT;
+        sensorInstance->setup(12, 22);
+      }
+      else {
+        Serial.println("No sensor selected.");
+      }
+
+      if (sensorInstance) {
+        sensorInstance->every(10L * 1000);
+        sensorInstance->onData(readSensorCb);
+        Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
+      }
+
+
+    }
+
+    void init_user_config() {
       wifiConfigManager.load_config([](JsonObject * root, const char* content) {
         if (root == NULL) {
           Serial.println("load wifi failed.");
@@ -177,13 +220,19 @@ class CMMC_Legend: public CMMC_System {
     }
 
     void init_network() {
-
+      if (mode == SETUP) {
+        _init_ap();
+        setupWebServer();
+        blinker->blink(50);
+      }
+      else if (mode == RUN) {
+        _init_sta();
+      }
     }
-    
-  private: 
+
     void run() {
       if (mode == RUN) {
-        static CMMC_Legend *that = this; 
+        static CMMC_Legend *that = this;
         interval.every_ms(10L * 1000, []() {
           Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv) / 1000));
           if ( (millis() - lastRecv) > (PUBLISH_EVERY * 3) ) {
@@ -195,54 +244,50 @@ class CMMC_Legend: public CMMC_System {
       isLongPressed();
     }
 
-    void init_ap() {
-      WiFi.softAPdisconnect();
+  private:
+    void _init_ap() {
       WiFi.disconnect();
+      WiFi.softAPdisconnect();
+      delay(10);
       WiFi.mode(WIFI_AP);
-      sprintf(&ap_ssid[5], "%08x", ESP.getChipId());
-      WiFi.softAP(ap_ssid, &ap_ssid[5]);
+      delay(10);
+      IPAddress Ip(192, 168, 4, 1);
+      IPAddress NMask(255, 255, 255, 0);
+      WiFi.softAPConfig(Ip, Ip, NMask);
+      sprintf(&ap_ssid[5], "%08x", ESP.getChipId()); 
+      WiFi.softAP(ap_ssid, &ap_ssid[5]); 
       delay(20);
+      IPAddress myIP = WiFi.softAPIP();
+      Serial.println();
+      Serial.print("AP IP address: ");
+      Serial.println(myIP);
     }
 
     void select_bootmode() {
-      if (!SPIFFS.exists("/enabled")) {
-        mode = SETUP;
-      }
-      else {
-        mode = RUN;
-      } 
-
-      if (mode == SETUP) {
-        init_ap();
-        setupWebServer(); 
-        blinker->blink(50);
-      }
-      else if (mode == RUN) {
-        init_sta();
-        init_mqtt(); 
-        lastRecv = millis();
-        blinker->blink(4000);
-      } 
-    } 
+      init_mqtt();
+      lastRecv = millis();
+      blinker->blink(4000);
+    }
 
     void isLongPressed() {
       uint32_t prev = millis();
       while (digitalRead(0) == LOW) {
         delay(50);
-        if (millis() - prev > 10L * 1000L) {
+        if ( (millis() - prev) > 5L * 1000L) {
           Serial.println("LONG PRESSED.");
           blinker->blink(50);
           while (digitalRead(0) == LOW) {
             delay(10);
           }
           SPIFFS.remove("/enabled");
-          delay(300);
+          Serial.println("being restarted.");
+          delay(1000);
           ESP.restart();
         }
       }
     }
 
-    void init_sta() {
+    void _init_sta() {
       WiFi.softAPdisconnect();
       WiFi.disconnect();
       delay(20);

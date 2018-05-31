@@ -37,24 +37,16 @@ uint32_t humidity;
 uint32_t gas_resistance;
 uint32_t pressure;
 
-CMMC_Sensor *sensorInstance;
 
 CMMC_18B20 dTemp;
 CMMC_Gpio gpio;
-
-CMMC_SENSOR_DATA_T sensorData;
-
-void readSensorCb(void *d, size_t len)
-{
-  memcpy(&sensorData, d, len);
-  Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2); 
-};
 
 
 CMMC_Legend os;
 
 void setup()
 {
+<<<<<<< HEAD
   Serial.println("USER MAIN SPACE.");
   Serial.printf("sensor Type = %s \r\n", sensorType);
   os.setup();
@@ -93,17 +85,17 @@ void setup()
   }
 
   // select_bootmode();
+=======
+  Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
+  os.setup(); 
+  // sensorInstance = new CMMC_HX711;
+  // sensorInstance->setup(12, 14); 
+>>>>>>> 92d93a831bf4696ff77f83a72190732f25c347ef
   // Serial.setDebugOutput(true);
   // WiFi.begin("CMMC-3rd", "espertap");
-  // Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 
-void loop()
+void loop() 
 {
-  // run();
-  // if (mode == RUN) {
-  //   if (sensorInstance) {
-  //     sensorInstance->read();
-  //   }
-  // }
+  os.run();
 }
