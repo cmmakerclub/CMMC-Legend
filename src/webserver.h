@@ -3,53 +3,16 @@
 #include <CMMC_Config_Manager.h>
 #include <SPIFFSEditor.h>
 #include <CMMC_Blink.hpp>
-
-AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
-AsyncEventSource events("/events");
-
 const char* http_username = "admin";
-const char* http_password = "admin";
-
+const char* http_password = "admin"; 
 
 extern CMMC_Config_Manager wifiConfigManager;
 extern CMMC_Config_Manager mqttConfigManager;
 extern CMMC_Config_Manager sensorsConfigManager;
-extern CMMC_Blink *blinker;
-
+extern CMMC_Blink *blinker; 
 extern bool flag_restart;
 
-String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
-  int params = request->params();
-  String output = "{";
-  for (int i = 0; i < params; i++) {
-    AsyncWebParameter* p = request->getParam(i);
-    if (p->isPost()) {
-      const char* key = p->name().c_str();
-      const char* value = p->value().c_str();
-      // Serial.printf("POST[%s]->%s\n", key, value);
-      String v;
-      if (value == 0) {
-        Serial.println("value is null..");
-        v = String("");
-      }
-      else {
-        v = String(value);
-      }
-      output += "\"" + String(key) + "\"";
-      if (i == params - 1 ) {
-        output += ":\"" + v + "\"";
-      }
-      else {
-        output += ":\"" + v + "\",";
-      }
-      configManager->add_field(key, v.c_str());
-    }
-  }
-  output += "}"; 
-  configManager->commit();
-  return output;
-};
+extern CMMC_Legend os;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -143,27 +106,28 @@ void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventT
     }
   }
 }
-void setupWebServer() {
-  ws.onEvent(onWsEvent);
-  server.addHandler(&ws);
-  server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
-  events.onConnect([](AsyncEventSourceClient * client) {
+
+void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource *events) { 
+  ws->onEvent(onWsEvent);
+  server->addHandler(ws);
+  server->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
+  events->onConnect([](AsyncEventSourceClient * client) {
     client->send("hello!", NULL, millis(), 1000);
   });
-  server.addHandler(&events);
-  server.addHandler(new SPIFFSEditor(http_username, http_password));
+  server->addHandler(events);
+  server->addHandler(new SPIFFSEditor(http_username, http_password));
 
-  server.on("/heap", HTTP_GET, [](AsyncWebServerRequest * request) {
+  server->on("/heap", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
   });
 
-  server.on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {
+  server->on("/reboot", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", "OK");
     blinker->blink(20);
     ESP.restart();
   });
 
-  server.on("/enable", HTTP_GET, [](AsyncWebServerRequest * request) {
+  server->on("/enable", HTTP_GET, [](AsyncWebServerRequest * request) {
     File f = SPIFFS.open("/enabled", "a+");
     if (!f) {
       Serial.println("file open failed");
@@ -174,21 +138,21 @@ void setupWebServer() {
 
   static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
   static const char* serverIndex = "<form method='POST' action='/do-firmware' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
-  server.on("/firmware", HTTP_GET, [](AsyncWebServerRequest * request) {
+  server->on("/firmware", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", serverIndex);
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
     request->send(response);
   });
 
-  server.on("/fs", HTTP_GET, [](AsyncWebServerRequest * request) {
+  server->on("/fs", HTTP_GET, [](AsyncWebServerRequest * request) {
     AsyncWebServerResponse *response = request->beginResponse(200, "text/html", fsServerIndex);
     response->addHeader("Connection", "close");
     response->addHeader("Access-Control-Allow-Origin", "*");
     request->send(response);
   });
 
-  server.on("/do-fs", HTTP_POST, [](AsyncWebServerRequest * request) {
+  server->on("/do-fs", HTTP_POST, [](AsyncWebServerRequest * request) {
     // the request handler is triggered after the upload has finished...
     // create the response, add header, and send response
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
@@ -229,7 +193,7 @@ void setupWebServer() {
     }
   });
 
-  server.on("/do-firmware", HTTP_POST, [](AsyncWebServerRequest * request) {
+  server->on("/do-firmware", HTTP_POST, [](AsyncWebServerRequest * request) {
     // the request handler is triggered after the upload has finished...
     // create the response, add header, and send response
     AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");
@@ -271,32 +235,32 @@ void setupWebServer() {
   });
 
 
-  server.on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = saveConfig(request, &wifiConfigManager);
+  server->on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
+    String output = os.saveConfig(request, &wifiConfigManager);
     request->send(200, "application/json", output);
   });
 
   // ===== END /API/WIFI/AP =====
   // ===== CREATE /API/WIFI/STA =====
-  server.on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = saveConfig(request, &wifiConfigManager); 
+  server->on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
+    String output = os.saveConfig(request, &wifiConfigManager); 
     request->send(200, "application/json", output);
   });
 
-  server.on("/api/sensors/config", HTTP_POST, [](AsyncWebServerRequest * request) {
+  server->on("/api/sensors/config", HTTP_POST, [](AsyncWebServerRequest * request) {
     Serial.println();
     Serial.println("PATH === /sensors/config");
-    String output = saveConfig(request, &sensorsConfigManager); 
+    String output = os.saveConfig(request, &sensorsConfigManager); 
     request->send(200, "application/json", output);
   });
   // ===== END /API/WIFI/STA =====
 
-  server.on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = saveConfig(request, &mqttConfigManager);
+  server->on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
+    String output = os.saveConfig(request, &mqttConfigManager);
     request->send(200, "application/json", output);
   });
 
-  server.onNotFound([](AsyncWebServerRequest * request) {
+  server->onNotFound([](AsyncWebServerRequest * request) {
     Serial.printf("NOT_FOUND: ");
     if (request->method() == HTTP_GET)
       Serial.printf("GET");
@@ -344,6 +308,6 @@ void setupWebServer() {
   });
 
 
-  server.begin();
-  Serial.println("Starting webserver...");
+  server->begin();
+  Serial.println("Starting webserver->..");
 }

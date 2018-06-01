@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <ESP8266mDNS.h>
 #include <ESPAsyncTCP.h>
+#include <AsyncWebSocket.h>
+#include <ESPAsyncWebServer.h>
 #include <FS.h>
 
 #include <CMMC_Blink.hpp>
@@ -8,7 +10,12 @@
 #include <CMMC_Config_Manager.h>
 #include "CMMC_System.hpp"
 
-CMMC_Sensor *sensorInstance;
+CMMC_Sensor *sensorInstance; 
+AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
+AsyncEventSource events("/events");
+
+extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *); 
 
 struct MQTT_Config_T {
   char mqtt_host[40] = "";
@@ -222,7 +229,7 @@ class CMMC_Legend: public CMMC_System {
     void init_network() {
       if (mode == SETUP) {
         _init_ap();
-        setupWebServer();
+        setupWebServer(&server, &ws, &events);
         blinker->blink(50);
       }
       else if (mode == RUN) {
@@ -242,6 +249,57 @@ class CMMC_Legend: public CMMC_System {
         mqtt->loop();
       }
       isLongPressed();
+    }
+
+    String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
+      int params = request->params();
+      String output = "{";
+      for (int i = 0; i < params; i++) {
+        AsyncWebParameter* p = request->getParam(i);
+        if (p->isPost()) {
+          const char* key = p->name().c_str();
+          const char* value = p->value().c_str();
+          // Serial.printf("POST[%s]->%s\n", key, value);
+          String v;
+          if (value == 0) {
+            Serial.println("value is null..");
+            v = String("");
+          }
+          else {
+            v = String(value);
+          }
+          output += "\"" + String(key) + "\"";
+          if (i == params - 1 ) {
+            output += ":\"" + v + "\"";
+          }
+          else {
+            output += ":\"" + v + "\",";
+          }
+          configManager->add_field(key, v.c_str());
+        }
+      }
+      output += "}"; 
+      configManager->commit();
+      return output;
+    };
+
+
+    void isLongPressed() {
+      uint32_t prev = millis();
+      while (digitalRead(0) == LOW) {
+        delay(50);
+        if ( (millis() - prev) > 5L * 1000L) {
+          Serial.println("LONG PRESSED.");
+          blinker->blink(50);
+          while (digitalRead(0) == LOW) {
+            delay(10);
+          }
+          SPIFFS.remove("/enabled");
+          Serial.println("being restarted.");
+          delay(1000);
+          ESP.restart();
+        }
+      }
     }
 
   private:
@@ -267,24 +325,6 @@ class CMMC_Legend: public CMMC_System {
       init_mqtt();
       lastRecv = millis();
       blinker->blink(4000);
-    }
-
-    void isLongPressed() {
-      uint32_t prev = millis();
-      while (digitalRead(0) == LOW) {
-        delay(50);
-        if ( (millis() - prev) > 5L * 1000L) {
-          Serial.println("LONG PRESSED.");
-          blinker->blink(50);
-          while (digitalRead(0) == LOW) {
-            delay(10);
-          }
-          SPIFFS.remove("/enabled");
-          Serial.println("being restarted.");
-          delay(1000);
-          ESP.restart();
-        }
-      }
     }
 
     void _init_sta() {

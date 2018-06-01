@@ -21,8 +21,8 @@
 #include "_receive.h"
 #include "_config.h"
 
-#include "webserver.h"
 #include "system.hpp"
+#include "webserver.h"
 
 // MQTT CONNECTOR
 char myName[40];
@@ -48,9 +48,7 @@ void setup()
 {
   Serial.println("USER MAIN SPACE.");
   Serial.printf("sensor Type = %s \r\n", sensorType);
-  os.setup();
-
-
+  os.setup(); 
   sensorInstance = new CMMC_VL53L0X;
   sensorInstance->setup();
 
