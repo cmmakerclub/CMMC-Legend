@@ -25,15 +25,13 @@ struct MQTT_Config_T {
   char mqtt_prefix[40] = "";
   char mqtt_port[10] = "";
   char mqtt_device_name[15] = "";
-};
-
+}; 
 
 enum MODE {SETUP, RUN};
-MODE mode;
+
 CMMC_Config_Manager mqttConfigManager;
 CMMC_Config_Manager wifiConfigManager;
 CMMC_Config_Manager sensorsConfigManager;
-CMMC_Config_Manager bmeConfigManager;
 char sta_ssid[30] = "";
 char sta_pwd[30] = "";
 char ap_ssid[30] = "CMMC-Legend";
@@ -49,22 +47,28 @@ void readSensorCb(void *d, size_t len)
 {
   memcpy(&sensorData, d, len);
   Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
-};
+}; 
 
+std::map<String, CMMC_Config_Manager*> configMap;
 
 class CMMC_Legend: public CMMC_System {
+  MODE mode;
+
   public:
     void setup() {
       CMMC_System::setup();
     }
     void init_fs() {
       SPIFFS.begin();
+      Serial.println("--------------------------");
       Dir dir = SPIFFS.openDir("/");
       while (dir.next()) {
-        Serial.print(dir.fileName());
         File f = dir.openFile("r");
-        Serial.println(f.size());
+        // Serial.print(dir.fileName());
+        // Serial.println(f.size());
+        Serial.printf("> %s \r\n", dir.fileName().c_str());
       }
+      Serial.println("--------------------------");
       if (!SPIFFS.exists("/enabled")) {
         mode = SETUP;
       }
@@ -129,8 +133,6 @@ class CMMC_Legend: public CMMC_System {
           return ;
         }
         Serial.println("[user] wifi config json loaded..");
-        Serial.print(">");
-        Serial.println(content);
         const char* sta_config[2];
         sta_config[0] = (*root)["sta_ssid"];
         sta_config[1] = (*root)["sta_password"];
@@ -150,9 +152,7 @@ class CMMC_Legend: public CMMC_System {
           Serial.println(content);
           return ;
         }
-        Serial.println("[user] mqtt config json loaded.. >");
-        Serial.print(">");
-        Serial.println(content);
+        Serial.println("[user] mqtt config json loaded.. ");
         const char* mqtt_configs[] = {(*root)["host"],
                                       (*root)["username"],
                                       (*root)["password"],
@@ -198,15 +198,13 @@ class CMMC_Legend: public CMMC_System {
       });
 
       sensorsConfigManager.load_config([](JsonObject * root, const char* content) {
-        Serial.println("loading sensors configuration..");
+        Serial.println("[user] sensors config json loaded..");
         if (root == NULL) {
           Serial.println("load sensors config failed.");
           Serial.print(">");
           Serial.println(content);
           return ;
         }
-        Serial.print(">");
-        Serial.println(content);
         const char* sensor_configs[] = {
           (*root)["sensorType"],
           (*root)["dht_pin"],

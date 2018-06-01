@@ -10,8 +10,6 @@ extern CMMC_Config_Manager wifiConfigManager;
 extern CMMC_Config_Manager mqttConfigManager;
 extern CMMC_Config_Manager sensorsConfigManager;
 extern CMMC_Blink *blinker; 
-extern bool flag_restart;
-
 extern CMMC_Legend os;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {

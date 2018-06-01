@@ -38,10 +38,6 @@ uint32_t gas_resistance;
 uint32_t pressure;
 
 
-CMMC_18B20 dTemp;
-CMMC_Gpio gpio;
-
-
 CMMC_Legend os;
 
 void setup()
@@ -49,14 +45,14 @@ void setup()
   Serial.println("USER MAIN SPACE.");
   Serial.printf("sensor Type = %s \r\n", sensorType);
   os.setup(); 
-  sensorInstance = new CMMC_VL53L0X;
-  sensorInstance->setup();
 
-  if (sensorInstance) {
-    sensorInstance->every(10L * 1000);
-    sensorInstance->onData(readSensorCb);
-    Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
-  } 
+  // sensorInstance = new CMMC_VL53L0X;
+  // sensorInstance->setup(); 
+  // if (sensorInstance) {
+  //   sensorInstance->every(10L * 1000);
+  //   sensorInstance->onData(readSensorCb);
+  //   Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
+  // } 
   Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
   os.setup(); 
   // sensorInstance = new CMMC_HX711;

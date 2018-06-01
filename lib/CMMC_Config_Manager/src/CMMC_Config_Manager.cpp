@@ -10,7 +10,7 @@ CMMC_Config_Manager::~CMMC_Config_Manager() {
 
 void CMMC_Config_Manager::_load_raw_content() {
   this->configFile = SPIFFS.open(this->filename_c, "r");
-  USER_DEBUG_PRINTF("[open_file] %s size = %lu bytes\r\n", this->filename_c, configFile.size());
+  // USER_DEBUG_PRINTF("> %s (%luB)\r\n", this->filename_c, configFile.size());
   size_t size = configFile.size() + 1;
   std::unique_ptr<char[]> buf(new char[size + 1]);
   bzero(buf.get(), size + 1);
