@@ -163,31 +163,6 @@ class CMMC_Legend: public CMMC_System {
         return;
       }
       Serial.printf("SENSOR TYPE=%s\r\n", sensorType);
-      String _sensorType = String(sensorType);
-      // if (_sensorType == "BME280") {
-      //   sensorInstance = new CMMC_BME280;
-      //   sensorInstance->setup();
-      // }
-      // else if (_sensorType == "BME680") {
-      //   sensorInstance = new CMMC_BME680;
-      //   sensorInstance->setup();
-      // }
-      // else if (_sensorType == "DHT11") {
-      //   sensorInstance = new CMMC_DHT;
-      //   sensorInstance->setup(12, 11);
-      // }
-      // else if (_sensorType == "DHT22") {
-      //   sensorInstance = new CMMC_DHT;
-      //   sensorInstance->setup(12, 22);
-      // }
-      // else {
-      //   Serial.println("No sensor selected.");
-      // }
-      // if (sensorInstance) {
-      //   sensorInstance->every(10L * 1000);
-      //   sensorInstance->onData(readSensorCb);
-      //   Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
-      // }
     }
 
     void init_user_config() {
