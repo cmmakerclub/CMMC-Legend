@@ -11,9 +11,14 @@
 #include "CMMC_System.hpp"
 
 CMMC_Sensor *sensorInstance; 
+
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
+
+#define CONFIG_WIFI 1
+#define CONFIG_MQTT 2
+#define CONFIG_SENSOR 3
 
 extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *); 
 
@@ -29,9 +34,6 @@ struct MQTT_Config_T {
 
 enum MODE {SETUP, RUN};
 
-CMMC_Config_Manager mqttConfigManager;
-CMMC_Config_Manager wifiConfigManager;
-CMMC_Config_Manager sensorsConfigManager;
 char sta_ssid[30] = "";
 char sta_pwd[30] = "";
 char ap_ssid[30] = "CMMC-Legend";
@@ -39,17 +41,19 @@ char ap_pwd[30] = "";
 MQTT_Config_T mqttConfig;
 char sensorType[15];
 MqttConnector *mqtt;
+
 uint32_t lastRecv;
 CMMC_Interval interval;
 CMMC_Blink *blinker;
 CMMC_SENSOR_DATA_T sensorData;
+
 void readSensorCb(void *d, size_t len)
 {
   memcpy(&sensorData, d, len);
   Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
 }; 
 
-std::map<String, CMMC_Config_Manager*> configMap;
+CMMC_Config_Manager* configManagersHub[10];
 
 class CMMC_Legend: public CMMC_System {
   MODE mode;
@@ -60,27 +64,26 @@ class CMMC_Legend: public CMMC_System {
     }
     void init_fs() {
       SPIFFS.begin();
-      Serial.println("--------------------------");
       Dir dir = SPIFFS.openDir("/");
+      Serial.println("--------------------------");
       while (dir.next()) {
         File f = dir.openFile("r");
-        // Serial.print(dir.fileName());
-        // Serial.println(f.size());
         Serial.printf("> %s \r\n", dir.fileName().c_str());
       }
+      /*******************************************
+       * Boot Mode Selection
+       *******************************************/
       Serial.println("--------------------------");
       if (!SPIFFS.exists("/enabled")) {
         mode = SETUP;
       }
       else {
         mode = RUN;
-      }
-      wifiConfigManager.init("/wifi.json");
-      mqttConfigManager.init("/mymqtt.json");
-      sensorsConfigManager.init("/sensors.json");
+      } 
     }
 
     void init_gpio() {
+      Serial.println("Initializing GPIO..");
       pinMode(0, INPUT_PULLUP);
       blinker = new CMMC_Blink;
       blinker->init();
@@ -93,7 +96,11 @@ class CMMC_Legend: public CMMC_System {
     }
 
     void init_user_sensor() { 
-      if (mode == SETUP) return;
+      Serial.printf("Initializing Sensor.. MODE=%s\r\n", mode==SETUP? "SETUP": "RUN");
+      if (mode == SETUP) {
+        return; 
+      } 
+      Serial.printf("SENSOR TYPE=%s\r\n", sensorType);
       String _sensorType = String(sensorType);
       if (_sensorType == "BME280") {
         sensorInstance = new CMMC_BME280;
@@ -119,13 +126,19 @@ class CMMC_Legend: public CMMC_System {
         sensorInstance->every(10L * 1000);
         sensorInstance->onData(readSensorCb);
         Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
-      }
-
-
+      } 
     }
 
-    void init_user_config() {
-      wifiConfigManager.load_config([](JsonObject * root, const char* content) {
+    void init_user_config() { 
+      Serial.println("Initializing ConfigManager files."); 
+      configManagersHub[0] = new CMMC_Config_Manager("wifi.json");
+      configManagersHub[1] = new CMMC_Config_Manager("mymqtt.json");
+      configManagersHub[2] = new CMMC_Config_Manager("sensors.json");
+      for (int i =0; i<= 2; i++) {
+          configManagersHub[i]->init();
+      }
+
+      configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
         if (root == NULL) {
           Serial.println("load wifi failed.");
           Serial.print(">");
@@ -145,7 +158,7 @@ class CMMC_Legend: public CMMC_System {
         strcpy(sta_pwd, sta_config[1]);
       });
 
-      mqttConfigManager.load_config([](JsonObject * root, const char* content) {
+      configManagersHub[1]->load_config([](JsonObject * root, const char* content) {
         if (root == NULL) {
           Serial.println("load mqtt failed.");
           Serial.print(">");
@@ -154,10 +167,8 @@ class CMMC_Legend: public CMMC_System {
         }
         Serial.println("[user] mqtt config json loaded.. ");
         const char* mqtt_configs[] = {(*root)["host"],
-                                      (*root)["username"],
-                                      (*root)["password"],
-                                      (*root)["clientId"],
-                                      (*root)["port"],
+                                      (*root)["username"], (*root)["password"],
+                                      (*root)["clientId"], (*root)["port"],
                                       (*root)["deviceName"],
                                       (*root)["prefix"], // [6]
                                       (*root)["lwt"],
@@ -197,7 +208,7 @@ class CMMC_Legend: public CMMC_System {
         }
       });
 
-      sensorsConfigManager.load_config([](JsonObject * root, const char* content) {
+      configManagersHub[2]->load_config([](JsonObject * root, const char* content) {
         Serial.println("[user] sensors config json loaded..");
         if (root == NULL) {
           Serial.println("load sensors config failed.");
@@ -225,13 +236,17 @@ class CMMC_Legend: public CMMC_System {
     }
 
     void init_network() {
+      Serial.println("Initializing network.");
       if (mode == SETUP) {
         _init_ap();
         setupWebServer(&server, &ws, &events);
         blinker->blink(50);
       }
       else if (mode == RUN) {
-        _init_sta();
+        _init_sta(); 
+        lastRecv = millis();
+        blinker->blink(4000);
+        mqtt = init_mqtt();
       }
     }
 
@@ -244,7 +259,12 @@ class CMMC_Legend: public CMMC_System {
             ESP.restart();
           }
         });
-        mqtt->loop();
+        if (mqtt) {
+          mqtt->loop(); 
+        }
+        else {
+          Serial.println("mqtt pointer is undefined.");
+        }
       }
       isLongPressed();
     }
@@ -317,26 +337,22 @@ class CMMC_Legend: public CMMC_System {
       Serial.println();
       Serial.print("AP IP address: ");
       Serial.println(myIP);
-    }
-
-    void select_bootmode() {
-      init_mqtt();
-      lastRecv = millis();
-      blinker->blink(4000);
-    }
+    } 
 
     void _init_sta() {
       WiFi.softAPdisconnect();
       WiFi.disconnect();
       delay(20);
       WiFi.mode(WIFI_STA);
+      delay(20);
       WiFi.hostname(ap_ssid);
+      delay(20);
       WiFi.begin(sta_ssid, sta_pwd);
-      digitalWrite(LED_BUILTIN, HIGH);
       while (WiFi.status() != WL_CONNECTED) {
         Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
         isLongPressed();
         delay(300);
       }
+      Serial.println("WiFi Connected.");
     }
 };

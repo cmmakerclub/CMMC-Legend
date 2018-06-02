@@ -67,9 +67,13 @@ MqttConnector* init_mqtt()
     // sub->add_topic(MQTT_PREFIX + "/" + MQTT_CLIENT_ID + "/$/+");
   });
 
+  if (mqtt == NULL) {
+    Serial.println("MQTT is undefined.");
+  }
   register_publish_hooks(mqtt);
   register_receive_hooks(mqtt);
 
+  Serial.println("connecting to mqtt.."); 
   mqtt->connect();
   return mqtt;
 }

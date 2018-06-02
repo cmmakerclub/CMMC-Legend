@@ -6,11 +6,10 @@
 const char* http_username = "admin";
 const char* http_password = "admin"; 
 
-extern CMMC_Config_Manager wifiConfigManager;
-extern CMMC_Config_Manager mqttConfigManager;
-extern CMMC_Config_Manager sensorsConfigManager;
 extern CMMC_Blink *blinker; 
 extern CMMC_Legend os;
+extern CMMC_Config_Manager* configManagersHub[10];
+
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
@@ -234,27 +233,27 @@ void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource
 
 
   server->on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = os.saveConfig(request, &wifiConfigManager);
+    String output = os.saveConfig(request, configManagersHub[0]); 
     request->send(200, "application/json", output);
   });
 
   // ===== END /API/WIFI/AP =====
   // ===== CREATE /API/WIFI/STA =====
   server->on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = os.saveConfig(request, &wifiConfigManager); 
+    String output = os.saveConfig(request, configManagersHub[0]); 
     request->send(200, "application/json", output);
   });
 
   server->on("/api/sensors/config", HTTP_POST, [](AsyncWebServerRequest * request) {
     Serial.println();
     Serial.println("PATH === /sensors/config");
-    String output = os.saveConfig(request, &sensorsConfigManager); 
+    String output = os.saveConfig(request, configManagersHub[1]); 
     request->send(200, "application/json", output);
   });
   // ===== END /API/WIFI/STA =====
 
   server->on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = os.saveConfig(request, &mqttConfigManager);
+    String output = os.saveConfig(request, configManagersHub[2]); 
     request->send(200, "application/json", output);
   });
 

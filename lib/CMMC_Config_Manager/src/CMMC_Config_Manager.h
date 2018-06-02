@@ -33,11 +33,10 @@ class CMMC_Config_Manager
 {
   public:
     // constructor
-    CMMC_Config_Manager();
+    CMMC_Config_Manager(const char* filename = "/config.json");
     ~CMMC_Config_Manager();
-    typedef std::map<String, String> Items;
-
-    void init(const char* filename = "/config.json");
+    typedef std::map<String, String> Items; 
+    void init(const char* filename = NULL);
     void commit();
     void load_config(cmmc_json_loaded_cb_t cb = NULL);
     void add_debug_listener(cmmc_debug_cb_t cb);

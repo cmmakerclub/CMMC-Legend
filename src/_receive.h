@@ -8,7 +8,6 @@ extern String MQTT_PREFIX;
 extern char myName[];
 extern uint32_t lastRecv; 
 extern CMMC_Gpio gpio;
-// extern int relayPinState;
 
 void register_receive_hooks(MqttConnector *mqtt) {
   mqtt->on_subscribe([&](MQTT::Subscribe *sub) -> void {
@@ -16,6 +15,7 @@ void register_receive_hooks(MqttConnector *mqtt) {
     sub->add_topic(MQTT_PREFIX + myName + String("/$/+"));
     sub->add_topic(MQTT_PREFIX + MQTT_CLIENT_ID + String("/$/+"));
     sub->add_topic(MQTT_PREFIX + myName + String("/status"));
+    Serial.println("done on_subscribe...");
   });
 
   mqtt->on_before_message_arrived_once([&](void) { });

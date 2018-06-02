@@ -1,7 +1,8 @@
 #include "CMMC_Config_Manager.h"
 #include "FS.h"
 
-CMMC_Config_Manager::CMMC_Config_Manager() {
+CMMC_Config_Manager::CMMC_Config_Manager(const char* filename) {
+  strcpy(this->filename_c, filename); 
   this->_user_debug_cb = [](const char* s) { };
 }
 CMMC_Config_Manager::~CMMC_Config_Manager() {
@@ -21,11 +22,17 @@ void CMMC_Config_Manager::_load_raw_content() {
 
   this->fileContent = new char[size + 1];
   strcpy(this->fileContent, buf.get());
+
+  Serial.print(">");
+  Serial.println(this->fileContent);
   this->configFile.close();
 }
 
 void CMMC_Config_Manager::init(const char* filename) {
-  strcpy(this->filename_c, filename);
+  if (filename != NULL) {
+    strcpy(this->filename_c, filename); 
+  }
+  Serial.printf("current file = %s\r\n", this->filename_c);
   if (SPIFFS.exists(this->filename_c)) {
     // _load_raw_content();
   }
@@ -42,7 +49,7 @@ void CMMC_Config_Manager::commit() {
 
   load_config([](JsonObject * root, const char* content) {
     Serial.println("------------");
-    Serial.printf("before commit DO: loading config... from [%x]\r\n", root);
+    Serial.printf("before commit DO: print config... from [%x]\r\n", root);
     Serial.println(content);
     Serial.println("------------");
     if (root != NULL) {
