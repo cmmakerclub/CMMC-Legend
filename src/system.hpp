@@ -9,6 +9,7 @@
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
 #include "CMMC_System.hpp"
+#include <vector>
 
 CMMC_Sensor *sensorInstance; 
 
@@ -33,6 +34,7 @@ struct MQTT_Config_T {
 }; 
 
 enum MODE {SETUP, RUN};
+std::vector<CMMC_Config_Manager*> configManagersHub;
 
 char sta_ssid[30] = "";
 char sta_pwd[30] = "";
@@ -53,7 +55,6 @@ void readSensorCb(void *d, size_t len)
   Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
 }; 
 
-CMMC_Config_Manager* configManagersHub[10];
 
 class CMMC_Legend: public CMMC_System {
   MODE mode;
@@ -131,9 +132,9 @@ class CMMC_Legend: public CMMC_System {
 
     void init_user_config() { 
       Serial.println("Initializing ConfigManager files."); 
-      configManagersHub[0] = new CMMC_Config_Manager("wifi.json");
-      configManagersHub[1] = new CMMC_Config_Manager("mymqtt.json");
-      configManagersHub[2] = new CMMC_Config_Manager("sensors.json");
+      configManagersHub.push_back(new CMMC_Config_Manager("wifi.json"));
+      configManagersHub.push_back(new CMMC_Config_Manager("mymqtt.json"));
+      configManagersHub.push_back(new CMMC_Config_Manager("sensors.json"));
       for (int i =0; i<= 2; i++) {
           configManagersHub[i]->init();
       }
