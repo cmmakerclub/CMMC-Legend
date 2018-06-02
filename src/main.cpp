@@ -10,8 +10,12 @@ char myName[40];
 bool flag_restart = false; 
 CMMC_Legend os;
 
+
+
+
 void setup()
 {
+  // os.addPlugin()
   os.setup(); 
   Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }

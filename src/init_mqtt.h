@@ -17,6 +17,9 @@ extern int MQTT_CONNECT_TIMEOUT;
 extern void register_publish_hooks(MqttConnector*);
 extern void register_receive_hooks(MqttConnector*);
 
+#include "_publish.h"
+#include "_receive.h"
+
 // MQTT INITIALIZER
 MqttConnector* init_mqtt()
 {

@@ -3,7 +3,7 @@
 #include <ESPAsyncTCP.h>
 #include <AsyncWebSocket.h>
 #include <ESPAsyncWebServer.h>
-#include <FS.h> 
+#include <FS.h>
 #include <CMMC_Blink.hpp>
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
@@ -12,23 +12,78 @@
 #include <vector>
 #include "gpio.hpp"
 #include <MqttConnector.h>
-#include "_config.h" 
-#include "_publish.h"
-#include "_receive.h"
+#include "_config.h"
 #include "init_mqtt.h"
 
-// CMMC_Sensor *sensorInstance; 
-CMMC_Gpio gpio; 
+// CMMC_Sensor *sensorInstance;
+CMMC_Gpio gpio;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 
+
+class CMMC_ConfigBundle_I {
+  protected:
+    char path[20];
+    CMMC_Config_Manager *_managerPtr;
+    AsyncWebServer *_serverPtr;
+  public:
+    virtual void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) = 0;
+    virtual void run() = 0;
+};
+
+class CMMC_ConfigBundle: public CMMC_ConfigBundle_I {
+  public:
+    ~CMMC_ConfigBundle() { }
+    CMMC_ConfigBundle (const char* path, CMMC_Config_Manager* manager, AsyncWebServer* server) {
+      strcpy(this->path, path);
+      _managerPtr = manager;
+      static CMMC_ConfigBundle *that = this;
+      server->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
+        String output = that->saveConfig(request, that->_managerPtr);
+        request->send(200, "application/json", output);
+      });
+    };
+    String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
+      int params = request->params();
+      String output = "{";
+      for (int i = 0; i < params; i++) {
+        AsyncWebParameter* p = request->getParam(i);
+        if (p->isPost()) {
+          const char* key = p->name().c_str();
+          const char* value = p->value().c_str();
+          // Serial.printf("POST[%s]->%s\n", key, value);
+          String v;
+          if (value == 0) {
+            Serial.println("value is null..");
+            v = String("");
+          }
+          else {
+            v = String(value);
+          }
+          output += "\"" + String(key) + "\"";
+          if (i == params - 1 ) {
+            output += ":\"" + v + "\"";
+          }
+          else {
+            output += ":\"" + v + "\",";
+          }
+          configManager->add_field(key, v.c_str());
+        }
+      }
+      output += "}";
+      configManager->commit();
+      return output;
+    }
+    void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) { }
+    void run() { };
+};
 #define CONFIG_WIFI 1
 #define CONFIG_MQTT 2
 #define CONFIG_SENSOR 3
 
 
-extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *); 
+extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *);
 
 struct MQTT_Config_T {
   char mqtt_host[40] = "";
@@ -38,7 +93,7 @@ struct MQTT_Config_T {
   char mqtt_prefix[40] = "";
   char mqtt_port[10] = "";
   char mqtt_device_name[15] = "";
-}; 
+};
 
 enum MODE {SETUP, RUN};
 std::vector<CMMC_Config_Manager*> configManagersHub;
@@ -60,11 +115,11 @@ void readSensorCb(void *d, size_t len)
 {
   memcpy(&sensorData, d, len);
   Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
-}; 
+};
 
 
 class CMMC_Legend: public CMMC_System {
-  MODE mode;
+    MODE mode;
 
   public:
     void setup() {
@@ -79,7 +134,7 @@ class CMMC_Legend: public CMMC_System {
         Serial.printf("> %s \r\n", dir.fileName().c_str());
       }
       /*******************************************
-       * Boot Mode Selection
+         Boot Mode Selection
        *******************************************/
       Serial.println("--------------------------");
       if (!SPIFFS.exists("/enabled")) {
@@ -87,7 +142,7 @@ class CMMC_Legend: public CMMC_System {
       }
       else {
         mode = RUN;
-      } 
+      }
     }
 
     void init_gpio() {
@@ -103,11 +158,11 @@ class CMMC_Legend: public CMMC_System {
       delay(10);
     }
 
-    void init_user_sensor() { 
-      Serial.printf("Initializing Sensor.. MODE=%s\r\n", mode==SETUP? "SETUP": "RUN");
+    void init_user_sensor() {
+      Serial.printf("Initializing Sensor.. MODE=%s\r\n", mode == SETUP ? "SETUP" : "RUN");
       if (mode == SETUP) {
-        return; 
-      } 
+        return;
+      }
       Serial.printf("SENSOR TYPE=%s\r\n", sensorType);
       String _sensorType = String(sensorType);
       // if (_sensorType == "BME280") {
@@ -128,21 +183,22 @@ class CMMC_Legend: public CMMC_System {
       // }
       // else {
       //   Serial.println("No sensor selected.");
-      // } 
+      // }
       // if (sensorInstance) {
       //   sensorInstance->every(10L * 1000);
       //   sensorInstance->onData(readSensorCb);
       //   Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
-      // } 
+      // }
     }
 
-    void init_user_config() { 
-      Serial.println("Initializing ConfigManager files."); 
+    void init_user_config() {
+      Serial.println("Initializing ConfigManager files.");
+      CMMC_ConfigBundle bundle1("/api/sensors/config", new CMMC_Config_Manager("wifi.json"), &server);
       configManagersHub.push_back(new CMMC_Config_Manager("wifi.json"));
       configManagersHub.push_back(new CMMC_Config_Manager("mymqtt.json"));
       configManagersHub.push_back(new CMMC_Config_Manager("sensors.json"));
-      for (int i =0; i<= 2; i++) {
-          configManagersHub[i]->init();
+      for (int i = 0; i <= 2; i++) {
+        configManagersHub[i]->init();
       }
 
       configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
@@ -250,7 +306,7 @@ class CMMC_Legend: public CMMC_System {
         blinker->blink(50);
       }
       else if (mode == RUN) {
-        _init_sta(); 
+        _init_sta();
         lastRecv = millis();
         blinker->blink(4000);
         mqtt = init_mqtt();
@@ -267,7 +323,7 @@ class CMMC_Legend: public CMMC_System {
           }
         });
         if (mqtt) {
-          mqtt->loop(); 
+          mqtt->loop();
         }
         else {
           Serial.println("mqtt pointer is undefined.");
@@ -303,7 +359,7 @@ class CMMC_Legend: public CMMC_System {
           configManager->add_field(key, v.c_str());
         }
       }
-      output += "}"; 
+      output += "}";
       configManager->commit();
       return output;
     };
@@ -337,14 +393,14 @@ class CMMC_Legend: public CMMC_System {
       IPAddress Ip(192, 168, 4, 1);
       IPAddress NMask(255, 255, 255, 0);
       WiFi.softAPConfig(Ip, Ip, NMask);
-      sprintf(&ap_ssid[5], "%08x", ESP.getChipId()); 
-      WiFi.softAP(ap_ssid, &ap_ssid[5]); 
+      sprintf(&ap_ssid[5], "%08x", ESP.getChipId());
+      WiFi.softAP(ap_ssid, &ap_ssid[5]);
       delay(20);
       IPAddress myIP = WiFi.softAPIP();
       Serial.println();
       Serial.print("AP IP address: ");
       Serial.println(myIP);
-    } 
+    }
 
     void _init_sta() {
       WiFi.softAPdisconnect();
