@@ -3,16 +3,22 @@
 #include <ESPAsyncTCP.h>
 #include <AsyncWebSocket.h>
 #include <ESPAsyncWebServer.h>
-#include <FS.h>
-
+#include <FS.h> 
 #include <CMMC_Blink.hpp>
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
 #include "CMMC_System.hpp"
+#include <CMMC_Sensor.hpp>
 #include <vector>
+#include "gpio.hpp"
+#include <MqttConnector.h>
+#include "_config.h" 
+#include "_publish.h"
+#include "_receive.h"
+#include "init_mqtt.h"
 
-CMMC_Sensor *sensorInstance; 
-
+// CMMC_Sensor *sensorInstance; 
+CMMC_Gpio gpio; 
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
@@ -20,6 +26,7 @@ AsyncEventSource events("/events");
 #define CONFIG_WIFI 1
 #define CONFIG_MQTT 2
 #define CONFIG_SENSOR 3
+
 
 extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *); 
 
@@ -103,31 +110,30 @@ class CMMC_Legend: public CMMC_System {
       } 
       Serial.printf("SENSOR TYPE=%s\r\n", sensorType);
       String _sensorType = String(sensorType);
-      if (_sensorType == "BME280") {
-        sensorInstance = new CMMC_BME280;
-        sensorInstance->setup();
-      }
-      else if (_sensorType == "BME680") {
-        sensorInstance = new CMMC_BME680;
-        sensorInstance->setup();
-      }
-      else if (_sensorType == "DHT11") {
-        sensorInstance = new CMMC_DHT;
-        sensorInstance->setup(12, 11);
-      }
-      else if (_sensorType == "DHT22") {
-        sensorInstance = new CMMC_DHT;
-        sensorInstance->setup(12, 22);
-      }
-      else {
-        Serial.println("No sensor selected.");
-      }
-
-      if (sensorInstance) {
-        sensorInstance->every(10L * 1000);
-        sensorInstance->onData(readSensorCb);
-        Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
-      } 
+      // if (_sensorType == "BME280") {
+      //   sensorInstance = new CMMC_BME280;
+      //   sensorInstance->setup();
+      // }
+      // else if (_sensorType == "BME680") {
+      //   sensorInstance = new CMMC_BME680;
+      //   sensorInstance->setup();
+      // }
+      // else if (_sensorType == "DHT11") {
+      //   sensorInstance = new CMMC_DHT;
+      //   sensorInstance->setup(12, 11);
+      // }
+      // else if (_sensorType == "DHT22") {
+      //   sensorInstance = new CMMC_DHT;
+      //   sensorInstance->setup(12, 22);
+      // }
+      // else {
+      //   Serial.println("No sensor selected.");
+      // } 
+      // if (sensorInstance) {
+      //   sensorInstance->every(10L * 1000);
+      //   sensorInstance->onData(readSensorCb);
+      //   Serial.printf("sensor tag = %s\r\n", sensorInstance->tag.c_str());
+      // } 
     }
 
     void init_user_config() { 
@@ -357,3 +363,5 @@ class CMMC_Legend: public CMMC_System {
       Serial.println("WiFi Connected.");
     }
 };
+
+#include "webserver.h"
