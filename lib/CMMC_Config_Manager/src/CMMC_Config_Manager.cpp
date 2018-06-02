@@ -82,8 +82,6 @@ void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   for (Items::iterator it = items.begin(); it != items.end(); ++it) {
     USER_DEBUG_PRINTF("> %s->%s\r\n", it->first.c_str(), it->second.c_str());
   }
-  // USER_DEBUG_PRINTF("millis() = %lu\r\n", millis());
-  // USER_DEBUG_PRINTF("END add field\r\n");
 }
 
 void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {

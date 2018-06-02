@@ -26,25 +26,6 @@ class CMMC_ConfigBundle_I {
     char path[20];
     CMMC_Config_Manager *_managerPtr;
     AsyncWebServer *_serverPtr;
-  public:
-    virtual void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) = 0;
-    virtual void run() = 0;
-};
-
-class CMMC_ConfigBundle: public CMMC_ConfigBundle_I {
-  public:
-    ~CMMC_ConfigBundle() { }
-    CMMC_ConfigBundle (const char* path, CMMC_Config_Manager* manager, AsyncWebServer* server) {
-      strcpy(this->path, path);
-      _managerPtr = manager;
-      static CMMC_ConfigBundle *that = this;
-      static CMMC_Config_Manager *m = manager;
-      server->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
-        String output = that->saveConfig(request, m);
-        request->send(200, "application/json", output);
-      });
-    };
-
     String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
       int params = request->params();
       String output = "{";
@@ -76,6 +57,24 @@ class CMMC_ConfigBundle: public CMMC_ConfigBundle_I {
       configManager->commit();
       return output;
     }
+  public:
+    virtual void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) = 0;
+    virtual void run() = 0;
+};
+
+class CMMC_ConfigBundle: public CMMC_ConfigBundle_I {
+  public:
+    ~CMMC_ConfigBundle() { }
+    CMMC_ConfigBundle (const char* path, CMMC_Config_Manager* manager, AsyncWebServer* server) {
+      strcpy(this->path, path);
+      _managerPtr = manager;
+      static CMMC_ConfigBundle *that = this;
+      static CMMC_Config_Manager *m = manager;
+      server->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
+        String output = that->saveConfig(request, m);
+        request->send(200, "application/json", output);
+      });
+    }; 
     void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) { }
     void run() { };
 };
@@ -224,57 +223,7 @@ class CMMC_Legend: public CMMC_System {
         };
         strcpy(sta_ssid, sta_config[0]);
         strcpy(sta_pwd, sta_config[1]);
-      });
-
-      configManagersHub[1]->load_config([](JsonObject * root, const char* content) {
-        if (root == NULL) {
-          Serial.println("load mqtt failed.");
-          Serial.print(">");
-          Serial.println(content);
-          return ;
-        }
-        Serial.println("[user] mqtt config json loaded.. ");
-        const char* mqtt_configs[] = {(*root)["host"],
-                                      (*root)["username"], (*root)["password"],
-                                      (*root)["clientId"], (*root)["port"],
-                                      (*root)["deviceName"],
-                                      (*root)["prefix"], // [6]
-                                      (*root)["lwt"],
-                                      (*root)["publishRateSecond"]
-                                     };
-
-        if (mqtt_configs[0] != NULL) {
-          strcpy(mqttConfig.mqtt_host, mqtt_configs[0]);
-          strcpy(mqttConfig.mqtt_user, mqtt_configs[1]);
-          strcpy(mqttConfig.mqtt_pass, mqtt_configs[2]);
-          strcpy(mqttConfig.mqtt_clientId, mqtt_configs[3]);
-          strcpy(mqttConfig.mqtt_port, mqtt_configs[4]);
-          strcpy(mqttConfig.mqtt_device_name, mqtt_configs[5]);
-          strcpy(mqttConfig.mqtt_prefix, mqtt_configs[6]);
-
-          bool lwt = String(mqtt_configs[7]).toInt();
-          uint32_t port = String(mqtt_configs[4]).toInt();
-          uint32_t pubEveryS = String(mqtt_configs[8]).toInt();
-
-          if (strcmp(mqttConfig.mqtt_device_name, "") == 0) {
-            sprintf(mqttConfig.mqtt_device_name, "%08x", ESP.getChipId());
-          }
-
-          if (strcmp(mqttConfig.mqtt_clientId, "") == 0) {
-            sprintf(mqttConfig.mqtt_clientId, "%08x", ESP.getChipId());
-          }
-
-          MQTT_HOST = String(mqttConfig.mqtt_host);
-          MQTT_USERNAME = String(mqttConfig.mqtt_user);
-          MQTT_PASSWORD = String(mqttConfig.mqtt_pass);
-          MQTT_CLIENT_ID = String(mqttConfig.mqtt_clientId);
-          MQTT_PORT = String(mqttConfig.mqtt_port).toInt();
-          MQTT_PREFIX = String(mqttConfig.mqtt_prefix);
-          PUBLISH_EVERY = pubEveryS * 1000L;
-          MQTT_LWT = lwt;
-          DEVICE_NAME = String(mqttConfig.mqtt_device_name);
-        }
-      });
+      }); 
 
       configManagersHub[2]->load_config([](JsonObject * root, const char* content) {
         Serial.println("[user] sensors config json loaded..");
