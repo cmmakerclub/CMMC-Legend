@@ -74,8 +74,8 @@ void CMMC_Config_Manager::commit() {
 void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   strcpy(this->_k, key);
   strcpy(this->_v, value);
-  static CMMC_Config_Manager *_this = this;
-  USER_DEBUG_PRINTF("START [add_field] %s ----> %s (with addr: %x)\r\n", key, value, this);
+  static CMMC_Config_Manager *that = this;
+  USER_DEBUG_PRINTF("START [add_field] %s ----> %s (with addr: %x)\r\n", key, value, that);
   items[_k] = _v;
   // show content:
   USER_DEBUG_PRINTF("Iterate through items object...\r\n");

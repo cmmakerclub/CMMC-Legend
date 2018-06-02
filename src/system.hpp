@@ -21,7 +21,6 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 
-
 class CMMC_ConfigBundle_I {
   protected:
     char path[20];
@@ -39,11 +38,13 @@ class CMMC_ConfigBundle: public CMMC_ConfigBundle_I {
       strcpy(this->path, path);
       _managerPtr = manager;
       static CMMC_ConfigBundle *that = this;
-      server->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
-        String output = that->saveConfig(request, that->_managerPtr);
+      static CMMC_Config_Manager *m = manager;
+      server->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
+        String output = that->saveConfig(request, m);
         request->send(200, "application/json", output);
       });
     };
+
     String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
       int params = request->params();
       String output = "{";
@@ -78,11 +79,10 @@ class CMMC_ConfigBundle: public CMMC_ConfigBundle_I {
     void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) { }
     void run() { };
 };
+
 #define CONFIG_WIFI 1
 #define CONFIG_MQTT 2
-#define CONFIG_SENSOR 3
-
-
+#define CONFIG_SENSOR 3 
 extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *);
 
 struct MQTT_Config_T {
@@ -193,13 +193,18 @@ class CMMC_Legend: public CMMC_System {
 
     void init_user_config() {
       Serial.println("Initializing ConfigManager files.");
-      CMMC_ConfigBundle bundle1("/api/sensors/config", new CMMC_Config_Manager("wifi.json"), &server);
       configManagersHub.push_back(new CMMC_Config_Manager("wifi.json"));
       configManagersHub.push_back(new CMMC_Config_Manager("mymqtt.json"));
-      configManagersHub.push_back(new CMMC_Config_Manager("sensors.json"));
+      configManagersHub.push_back(new CMMC_Config_Manager("sensors.json")); 
+
       for (int i = 0; i <= 2; i++) {
         configManagersHub[i]->init();
       }
+
+      CMMC_ConfigBundle bundle1("/api/wifi/ap", configManagersHub[0], &server);
+      CMMC_ConfigBundle bundle2("/api/wifi/sta", configManagersHub[0], &server); 
+      CMMC_ConfigBundle bundle3("/api/mqtt", configManagersHub[1], &server);
+      CMMC_ConfigBundle bundle4("/api/sensors/config", configManagersHub[2], &server);
 
       configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
         if (root == NULL) {
@@ -331,39 +336,6 @@ class CMMC_Legend: public CMMC_System {
       }
       isLongPressed();
     }
-
-    String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
-      int params = request->params();
-      String output = "{";
-      for (int i = 0; i < params; i++) {
-        AsyncWebParameter* p = request->getParam(i);
-        if (p->isPost()) {
-          const char* key = p->name().c_str();
-          const char* value = p->value().c_str();
-          // Serial.printf("POST[%s]->%s\n", key, value);
-          String v;
-          if (value == 0) {
-            Serial.println("value is null..");
-            v = String("");
-          }
-          else {
-            v = String(value);
-          }
-          output += "\"" + String(key) + "\"";
-          if (i == params - 1 ) {
-            output += ":\"" + v + "\"";
-          }
-          else {
-            output += ":\"" + v + "\",";
-          }
-          configManager->add_field(key, v.c_str());
-        }
-      }
-      output += "}";
-      configManager->commit();
-      return output;
-    };
-
 
     void isLongPressed() {
       uint32_t prev = millis();

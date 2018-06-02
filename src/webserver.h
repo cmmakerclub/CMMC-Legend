@@ -231,32 +231,6 @@ void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource
     }
   });
 
-
-  server->on("/api/wifi/ap", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = os.saveConfig(request, configManagersHub[0]); 
-    request->send(200, "application/json", output);
-  });
-
-  // ===== END /API/WIFI/AP =====
-  // ===== CREATE /API/WIFI/STA =====
-  server->on("/api/wifi/sta", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = os.saveConfig(request, configManagersHub[0]); 
-    request->send(200, "application/json", output);
-  });
-
-  server->on("/api/sensors/config", HTTP_POST, [](AsyncWebServerRequest * request) {
-    Serial.println();
-    Serial.println("PATH === /sensors/config");
-    String output = os.saveConfig(request, configManagersHub[1]); 
-    request->send(200, "application/json", output);
-  });
-  // ===== END /API/WIFI/STA =====
-
-  server->on("/api/mqtt", HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = os.saveConfig(request, configManagersHub[2]); 
-    request->send(200, "application/json", output);
-  });
-
   server->onNotFound([](AsyncWebServerRequest * request) {
     Serial.printf("NOT_FOUND: ");
     if (request->method() == HTTP_GET)
