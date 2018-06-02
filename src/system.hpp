@@ -207,8 +207,7 @@ class CMMC_Legend: public CMMC_System {
 
       configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
         if (root == NULL) {
-          Serial.println("load wifi failed.");
-          Serial.print(">");
+          Serial.print("wifi.json failed. >");
           Serial.println(content);
           return ;
         }
@@ -224,32 +223,6 @@ class CMMC_Legend: public CMMC_System {
         strcpy(sta_ssid, sta_config[0]);
         strcpy(sta_pwd, sta_config[1]);
       }); 
-
-      configManagersHub[2]->load_config([](JsonObject * root, const char* content) {
-        Serial.println("[user] sensors config json loaded..");
-        if (root == NULL) {
-          Serial.println("load sensors config failed.");
-          Serial.print(">");
-          Serial.println(content);
-          return ;
-        }
-        const char* sensor_configs[] = {
-          (*root)["sensorType"],
-          (*root)["dht_pin"],
-          (*root)["bme_pin"],
-        };
-
-        if (sensor_configs[0] != NULL) {
-          strcpy(sensorType, sensor_configs[0]);
-          String _s = String(sensorType);
-        }
-        else if (sensor_configs[1] != NULL) {
-          //   dhtPin = String(sensor_configs[1]).toInt();
-        }
-        else if (sensor_configs[2] != NULL) {
-          //   dhtPin = String(sensor_configs[1]).toInt();
-        }
-      });
     }
 
     void init_network() {
@@ -263,7 +236,7 @@ class CMMC_Legend: public CMMC_System {
         _init_sta();
         lastRecv = millis();
         blinker->blink(4000);
-        mqtt = init_mqtt();
+        // mqtt = init_mqtt();
       }
     }
 

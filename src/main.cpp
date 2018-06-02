@@ -11,8 +11,6 @@ bool flag_restart = false;
 CMMC_Legend os;
 
 
-
-
 void setup()
 {
   // os.addPlugin()
