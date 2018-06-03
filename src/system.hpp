@@ -119,9 +119,10 @@ class CMMC_Legend: public CMMC_System {
         Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv) / 1000));
       });
       int size = _modules.size();
+      // Serial.println("start loop();");
       for (int i = 0 ; i < size; i++) {
-        Serial.printf("call once idx = %d\r\n", i);
-        _modules[i]->once();
+        // Serial.printf("call loop idx = %d\r\n", i);
+        _modules[i]->loop();
       }
       isLongPressed();
       yield();

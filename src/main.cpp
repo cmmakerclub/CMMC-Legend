@@ -4,13 +4,14 @@
 #include "version.h"
 #include "system.hpp"
 #include "CMMC_Module.hpp"
+#include "ESPNowModule.hpp"
 
-bool flag_restart = false;
 CMMC_Legend os;
 
 void setup()
 {
   // os.addModule(new WiFiModule());
+  os.addModule(new ESPNowModule());
   os.setup();
   Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
