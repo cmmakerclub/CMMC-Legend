@@ -123,6 +123,12 @@ class ESPNowModule: public CMMC_Module {
       }
     }
 
+    void goSleep(uint32_t deepSleepM) {
+      Serial.printf("\r\nGo sleep for .. %lu min. \r\n", deepSleepM);
+      ESP.deepSleep(deepSleepM * 60e6);
+    }
+
+
     void _init_espnow() {
       Serial.print("Slave Mac Address: ");
       CMMC::printMacAddress(self_mac, true); 
@@ -142,6 +148,7 @@ class ESPNowModule: public CMMC_Module {
         });
         u8 t = 1;
         espNow.send(master_mac, &t, 1, []() { }, 200);
+        goSleep(1);
         delay(2000);
     }
 }; 
