@@ -49,7 +49,7 @@ spiffs:
 build-spiffs: 
 	./rebuild-spiffs.sh
 build:
-	pio run -t build -e latte_v2
+	pio run -t build e latte_v2
 	pio run -t build -e espresso_lite_v2
 	cp .pioenvs/latte_v2/firmware.bin binaries/latte.bin
 	cp .pioenvs/espresso_lite_v2/firmware.bin binaries/espressolite.bin

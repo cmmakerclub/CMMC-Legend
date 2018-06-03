@@ -26,5 +26,6 @@ rsync --delete -av cmmcAdmin/dist/ data --progress
 rsync -av wifi.json data/
 rsync -av mymqtt.json data/
 rsync -av sensors.json data/
+rsync -av espnow.json data/
 
 # pio run -t uploadfs 

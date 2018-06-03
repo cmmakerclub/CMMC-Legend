@@ -11,20 +11,20 @@
             {{ server_response }}
           </div>
           <p class="control has-icon">
-            <input class="input" type="text" v-model="macAddress">
+            <input class="input" type="text" v-model="mac">
             <i class="fa fa-address-card-o"></i>
           </p>
-          <label class="label">Mode</label>
-          <div class="control">
-            <label class="radio">
-              <input type="radio" name="answer" v-model="mode" value="master">
-              Master
-            </label>
-            <label class="radio">
-              <input type="radio" name="answer" v-model="mode" value="slave">
-              Slave
-            </label>
-          </div>
+          <!--<label class="label">Mode</label>-->
+          <!--<div class="control">-->
+          <!--<label class="radio">-->
+          <!--<input type="radio" name="answer" v-model="mode" value="master">-->
+          <!--Master-->
+          <!--</label>-->
+          <!--<label class="radio">-->
+          <!--<input type="radio" name="answer" v-model="mode" value="slave">-->
+          <!--Slave-->
+          <!--</label>-->
+          <!--</div>-->
           <p class="control">
             <button class="button is-primary" v-on:click="onSubmit">Submit</button>
             <button class="button is-link">Cancel</button>
@@ -36,40 +36,45 @@
 </template>
 
 <script>
-  import { saveESPNowConfig, getESPNowConfig } from '../../api'
-
   export default {
     components: {},
 
     props: {},
-
     mounted () {
-      getESPNowConfig(this).then((json) => {
-        this.macAddress = json.esp_now_mac_address
-        this.mode = json.esp_now_mode
-      })
-        .catch((err) => {
-          console.log('error:', err)
-        })
+      this.loadSensor()
     },
     methods: {
-      onSubmit () {
-        let context = this
-
-        saveESPNowConfig(context, context.macAddress, context.mode)
-          .then((resp) => {
-            this.server_response = resp
+      loadSensor () {
+        const context = this
+        context.$http.get('/espnow.json')
+          .then((response) => response.json())
+          .then((json) => {
+            context.mac = json.mac
+            // context.server_response = JSON.stringify(json)
           })
           .catch((err) => {
-            console.log('error', err)
+            console.log(err)
+          })
+      },
+      onSubmit () {
+        let context = this
+        let formData = new window.FormData()
+        formData.append('mac', context.mac)
+        context.$http.post('/api/espnow', formData)
+          .then((response) => response.json())
+          .then((json) => {
+            context.server_response = 'Saved'
+            context.loadSensor()
+          })
+          .catch((err) => {
+            console.log(err)
           })
       }
     },
     data () {
       return {
         server_response: null,
-        macAddress: '',
-        mode: ''
+        mac: '',
       }
     }
   }

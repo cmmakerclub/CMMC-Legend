@@ -64,7 +64,7 @@ class CMMC_Legend: public CMMC_System {
 
     void init_gpio() {
       Serial.println("Initializing GPIO..");
-      pinMode(0, INPUT_PULLUP);
+      pinMode(13, INPUT_PULLUP);
       blinker = new CMMC_Blink;
       blinker->init();
       blinker->setPin(2);
@@ -101,16 +101,25 @@ class CMMC_Legend: public CMMC_System {
         _init_ap();
         setupWebServer(&server, &ws, &events);
         blinker->blink(50);
+        while(1) {
+          for (int i = 0 ; i < _modules.size(); i++) {
+            _modules[i]->setup();
+          }
+          yield();
+        }
       }
       else if (mode == RUN) {
         lastRecv = millis();
         blinker->blink(4000);
-        int size = _modules.size();
-        for (int i = 0 ; i < size; i++) {
+        for (int i = 0 ; i < _modules.size(); i++) {
           Serial.printf("call once idx = %d\r\n", i);
           _modules[i]->once();
         }
       }
+    }
+
+    CMMC_Blink *getBlinker() {
+      return blinker;
     }
 
     void run() {
@@ -126,12 +135,12 @@ class CMMC_Legend: public CMMC_System {
 
     void isLongPressed() {
       uint32_t prev = millis();
-      while (digitalRead(0) == LOW) {
+      while (digitalRead(13) == LOW) {
         delay(50);
         if ( (millis() - prev) > 5L * 1000L) {
           Serial.println("LONG PRESSED.");
           blinker->blink(50);
-          while (digitalRead(0) == LOW) {
+          while (digitalRead(13) == LOW) {
             delay(10);
           }
           SPIFFS.remove("/enabled");
