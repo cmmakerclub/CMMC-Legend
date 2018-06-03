@@ -12,6 +12,7 @@ bool flag_restart = false;
 CMMC_Legend os;
 
 class WiFiModule: public CMMC_Module {
+  public:
   void config(CMMC_System *os, AsyncWebServer* server) { 
     strcpy(this->path, "/api/wifi/sta");
     this->_serverPtr = server;
@@ -24,29 +25,32 @@ class WiFiModule: public CMMC_Module {
   } 
 
   void once() { 
-    _init_sta();
+    // _init_sta();
   }
 
   void loop() { 
   }
 
-  private:
-  void _init_sta() {
-    WiFi.softAPdisconnect();
-    WiFi.disconnect();
-    delay(20);
-    WiFi.mode(WIFI_STA);
-    delay(20);
-    WiFi.hostname(ap_ssid);
-    delay(20);
-    WiFi.begin(sta_ssid, sta_pwd);
-    while (WiFi.status() != WL_CONNECTED) {
-      Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
-      // os->isLongPressed();
-      delay(300);
-    }
-    Serial.println("WiFi Connected.");
-  } 
+  private: 
+    char sta_ssid[30] = "";
+    char sta_pwd[30] = "";
+    char ap_pwd[30] = "";
+    void _init_sta() {
+      WiFi.softAPdisconnect();
+      WiFi.disconnect();
+      delay(20);
+      WiFi.mode(WIFI_STA);
+      delay(20);
+      // WiFi.hostname(ap_ssid);
+      delay(20);
+      WiFi.begin(sta_ssid, sta_pwd);
+      while (WiFi.status() != WL_CONNECTED) {
+        Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
+        // os->isLongPressed();
+        delay(300);
+      }
+      Serial.println("WiFi Connected.");
+    } 
 
 };
 

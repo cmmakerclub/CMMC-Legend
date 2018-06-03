@@ -46,10 +46,6 @@ enum MODE {SETUP, RUN};
 std::vector<CMMC_Config_Manager*> configManagersHub;
 std::vector<CMMC_Module*> _modules;
 
-char sta_ssid[30] = "";
-char sta_pwd[30] = "";
-char ap_ssid[30] = "CMMC-Legend";
-char ap_pwd[30] = "";
 char sensorType[15];
 
 uint32_t lastRecv;
@@ -205,6 +201,7 @@ class CMMC_Legend: public CMMC_System {
     }
 
   private:
+    char ap_ssid[30] = "CMMC-Legend";
     void _init_ap() {
       WiFi.disconnect();
       WiFi.softAPdisconnect();
@@ -214,7 +211,7 @@ class CMMC_Legend: public CMMC_System {
       IPAddress Ip(192, 168, 4, 1);
       IPAddress NMask(255, 255, 255, 0);
       WiFi.softAPConfig(Ip, Ip, NMask);
-      sprintf(&ap_ssid[5], "%08x", ESP.getChipId());
+      sprintf(&this->ap_ssid[5], "%08x", ESP.getChipId());
       WiFi.softAP(ap_ssid, &ap_ssid[5]);
       delay(20);
       IPAddress myIP = WiFi.softAPIP();
