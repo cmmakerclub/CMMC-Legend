@@ -31,14 +31,14 @@ AsyncEventSource events("/events");
 //         String output = that->saveConfig(request, m);
 //         request->send(200, "application/json", output);
 //       });
-//     }; 
+//     };
 //     void config(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) { }
 //     void once() { };
 //     void loop() { };
 // };
 
 #define CONFIG_WIFI 1
-#define CONFIG_SENSOR 3 
+#define CONFIG_SENSOR 3
 extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *);
 
 enum MODE {SETUP, RUN};
@@ -105,34 +105,22 @@ class CMMC_Legend: public CMMC_System {
       if (mode == SETUP) {
         return;
       }
-      Serial.printf("SENSOR TYPE=%s\r\n", sensorType);
     }
 
-    void addModule(CMMC_Module* module) { 
-      _modules.push_back(module); 
-      Serial.printf("adModule.. size = %d\r\n", _modules.size());
+    void addModule(CMMC_Module* module) {
+      _modules.push_back(module);
+      Serial.printf("addModule.. size = %d\r\n", _modules.size());
     }
 
     void init_user_config() {
       Serial.println("Initializing ConfigManager files.");
-      // configManagersHub.push_back(new CMMC_Config_Manager("wifi.json"));
-      // configManagersHub.push_back(new CMMC_Config_Manager("sensors.json")); 
-
-      // for (int i = 0; i <= 2; i++) {
-      //   configManagersHub[i]->init();
-      // }
-
-      // CMMC_ConfigBundle bundle1("/api/wifi/ap", configManagersHub[0], &server);
-      // CMMC_ConfigBundle bundle2("/api/wifi/sta", configManagersHub[0], &server); 
-      // CMMC_ConfigBundle bundle4("/api/sensors/config", configManagersHub[2], &server);
-
     }
 
     void init_network() {
       Serial.println("Initializing network.");
-      for(int i =0 ;i < _modules.size(); i++) { 
-          Serial.printf("call config idx = %d\r\n", i);
-          _modules[i]->config(this, &server); 
+      for (int i = 0 ; i < _modules.size(); i++) {
+        Serial.printf("call config idx = %d\r\n", i);
+        _modules[i]->config(this, &server);
       }
       if (mode == SETUP) {
         _init_ap();
@@ -140,28 +128,28 @@ class CMMC_Legend: public CMMC_System {
         blinker->blink(50);
       }
       else if (mode == RUN) {
-        // _init_sta();
         lastRecv = millis();
         blinker->blink(4000);
         int size = _modules.size();
-        for(int i =0 ;i <size; i++) { 
+        for (int i = 0 ; i < size; i++) {
           Serial.printf("call once idx = %d\r\n", i);
-          _modules[i]->once(); 
+          _modules[i]->once();
         }
       }
     }
 
     void run() {
-      if (mode == RUN) {
-        static CMMC_Legend *that = this;
-        interval.every_ms(10L * 1000, []() {
-          Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv) / 1000));
-          // if ( (millis() - lastRecv) > (PUBLISH_EVERY * 3) ) {
-          //   ESP.restart();
-          // }
-        });
+      static CMMC_Legend *that = this;
+      interval.every_ms(10L * 1000, []() {
+        Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv) / 1000));
+      });
+      int size = _modules.size();
+      for (int i = 0 ; i < size; i++) {
+        Serial.printf("call once idx = %d\r\n", i);
+        _modules[i]->once();
       }
       isLongPressed();
+      yield();
     }
 
     void isLongPressed() {
@@ -200,7 +188,7 @@ class CMMC_Legend: public CMMC_System {
       Serial.println();
       Serial.print("AP IP address: ");
       Serial.println(myIP);
-    } 
+    }
 };
 
 #include "webserver.h"
