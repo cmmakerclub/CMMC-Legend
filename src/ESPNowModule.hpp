@@ -2,16 +2,33 @@
 #include <CMMC_ESPNow.h>
 #include <CMMC_Utils.h>
 #include <CMMC_SimplePair.h>
+#include <CMMC_Sensor.hpp>
+#include <CMMC_BME680.hpp>
 
 #ifndef CMMC_ESPNOW_MODULE_H
 #define CMMC_ESPNOW_MODULE_H
 
+#define BUTTON_PIN  0
+
+static CMMC_SENSOR_DATA_T data;
+static CMMC_SENSOR_DATA_T data2;
+
 class ESPNowModule: public CMMC_Module {
+  CMMC_Sensor *sensor1;
   public:
     void config(CMMC_System *os, AsyncWebServer* server) {
       uint8_t* slave_addr = CMMC::getESPNowSlaveMacAddress();
       memcpy(self_mac, slave_addr, 6);
       strcpy(this->path, "/api/espnow");
+      sensor1 = new CMMC_BME680(); 
+      sensor1->every(10);
+      sensor1->onData([](void *d, size_t len) { 
+          memcpy(&data, d, len);
+          Serial.printf("ON SENSOR DATA.. at %lums\r\n", millis());
+      });
+
+      sensor1->setup(); 
+
       static ESPNowModule *that = this;
       this->os = os;
       this->_serverPtr = server;
@@ -45,19 +62,19 @@ class ESPNowModule: public CMMC_Module {
     }
 
     void once() {
-      _init_espnow();
-
+      _init_espnow(); 
     }
 
     void loop() {
       u8 t = 1;
-      espNow.send(master_mac, &t, 1, []() { }, 200);
+      sensor1->read();
+      espNow.send(master_mac, (u8*)&data, sizeof(data), []() { }, 200);
       delay(10);
     }
 
     void setup() {
-      pinMode(0, INPUT_PULLUP);
-      if (digitalRead(0) == 0) {
+      pinMode(BUTTON_PIN, INPUT_PULLUP);
+      if (digitalRead(BUTTON_PIN) == 0) {
         init_simple_pair();
         delay(1000);
       } else {
@@ -73,6 +90,41 @@ class ESPNowModule: public CMMC_Module {
     uint8_t self_mac[6];
     uint8_t master_mac[6];
     bool sp_flag_done = false;
+
+    void readSensor() {
+      uint32_t moitureValue, phValue, batteryValue;
+      /* battery */ 
+      Serial.println("Reading Battery..");
+      digitalWrite(14, LOW);
+      digitalWrite(15, LOW);
+      delay(1000);
+      batteryValue = analogRead(A0) * 0.0051724137931034f * 100;
+
+      /* pH */ 
+      Serial.println("Reading Ph..");
+      digitalWrite(14, HIGH);
+      digitalWrite(15, LOW);
+      delay(10); 
+      phValue = map(analogRead(A0), 0, 200, 800, 300); 
+      delay(10);
+      digitalWrite(14, LOW);
+      digitalWrite(15, LOW);
+
+      /* Moisture */ 
+      Serial.println("Reading Moisture..");
+      digitalWrite(14, HIGH);
+      digitalWrite(15, HIGH);
+      delay(10); 
+      int a0Val = analogRead(A0);
+      Serial.printf("a0Val = %d\r\n", a0Val);
+      moitureValue = ((a0Val * 0.035f) + 1) * 100;
+
+      //turn off
+      delay(10);
+      digitalWrite(14, LOW);
+      digitalWrite(15, LOW);
+    }
+
     void init_simple_pair() {
       ((CMMC_Legend*) os)->getBlinker()->blink(250);
       simplePair.debug([](const char* msg) {
@@ -119,7 +171,7 @@ class ESPNowModule: public CMMC_Module {
       }
       else {
         Serial.println("do simple pair device not found.");
-      ((CMMC_Legend*) os)->getBlinker()->blink(50);
+        ((CMMC_Legend*) os)->getBlinker()->blink(50);
       }
     }
 
@@ -136,7 +188,7 @@ class ESPNowModule: public CMMC_Module {
       espNow.on_message_sent([](uint8_t *macaddr, u8 status) {
         // led.toggle();
         // Serial.println(millis());
-        // Serial.printf("sent status %lu\r\n", status);
+        Serial.printf("sent status %lu\r\n", status);
       });
 
       espNow.on_message_recv([](uint8_t * macaddr, uint8_t * data, uint8_t len) {
@@ -147,6 +199,9 @@ class ESPNowModule: public CMMC_Module {
         // goSleep(data[0]);
         });
         u8 t = 1;
+        sensor1->read();
+        delay(2);
+        Serial.printf("sending at %lums\r\n", millis());
         espNow.send(master_mac, &t, 1, []() { }, 200);
         goSleep(1);
         delay(2000);
