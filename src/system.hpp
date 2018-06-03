@@ -11,9 +11,6 @@
 #include <CMMC_Sensor.hpp>
 #include <vector>
 #include "gpio.hpp"
-#include <MqttConnector.h>
-#include "_config.h"
-#include "init_mqtt.h"
 #include "CMMC_Module.hpp"
 
 // CMMC_Sensor *sensorInstance;
@@ -41,19 +38,8 @@ AsyncEventSource events("/events");
 // };
 
 #define CONFIG_WIFI 1
-#define CONFIG_MQTT 2
 #define CONFIG_SENSOR 3 
 extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *);
-
-struct MQTT_Config_T {
-  char mqtt_host[40] = "";
-  char mqtt_user[40] = "";
-  char mqtt_pass[40] = "";
-  char mqtt_clientId[40] = "";
-  char mqtt_prefix[40] = "";
-  char mqtt_port[10] = "";
-  char mqtt_device_name[15] = "";
-};
 
 enum MODE {SETUP, RUN};
 
@@ -64,9 +50,7 @@ char sta_ssid[30] = "";
 char sta_pwd[30] = "";
 char ap_ssid[30] = "CMMC-Legend";
 char ap_pwd[30] = "";
-MQTT_Config_T mqttConfig;
 char sensorType[15];
-MqttConnector *mqtt;
 
 uint32_t lastRecv;
 CMMC_Interval interval;
@@ -136,7 +120,6 @@ class CMMC_Legend: public CMMC_System {
     void init_user_config() {
       Serial.println("Initializing ConfigManager files.");
       // configManagersHub.push_back(new CMMC_Config_Manager("wifi.json"));
-      // configManagersHub.push_back(new CMMC_Config_Manager("mymqtt.json"));
       // configManagersHub.push_back(new CMMC_Config_Manager("sensors.json")); 
 
       // for (int i = 0; i <= 2; i++) {
@@ -145,7 +128,6 @@ class CMMC_Legend: public CMMC_System {
 
       // CMMC_ConfigBundle bundle1("/api/wifi/ap", configManagersHub[0], &server);
       // CMMC_ConfigBundle bundle2("/api/wifi/sta", configManagersHub[0], &server); 
-      // CMMC_ConfigBundle bundle3("/api/mqtt", configManagersHub[1], &server);
       // CMMC_ConfigBundle bundle4("/api/sensors/config", configManagersHub[2], &server);
 
       // configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
@@ -183,7 +165,6 @@ class CMMC_Legend: public CMMC_System {
         // _init_sta();
         lastRecv = millis();
         blinker->blink(4000);
-        // mqtt = init_mqtt();
         int size = _modules.size();
         for(int i =0 ;i <size; i++) { 
           Serial.printf("call once idx = %d\r\n", i);
@@ -197,16 +178,10 @@ class CMMC_Legend: public CMMC_System {
         static CMMC_Legend *that = this;
         interval.every_ms(10L * 1000, []() {
           Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv) / 1000));
-          if ( (millis() - lastRecv) > (PUBLISH_EVERY * 3) ) {
-            ESP.restart();
-          }
+          // if ( (millis() - lastRecv) > (PUBLISH_EVERY * 3) ) {
+          //   ESP.restart();
+          // }
         });
-        // if (mqtt) {
-        //   mqtt->loop();
-        // }
-        // else {
-        //   Serial.println("mqtt pointer is undefined.");
-        // }
       }
       isLongPressed();
     }
