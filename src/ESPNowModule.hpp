@@ -9,6 +9,8 @@
 class ESPNowModule: public CMMC_Module {
   public:
     void config(CMMC_System *os, AsyncWebServer* server) {
+      uint8_t* slave_addr = CMMC::getESPNowSlaveMacAddress();
+      memcpy(self_mac, slave_addr, 6);
       strcpy(this->path, "/api/espnow");
       static ESPNowModule *that = this;
       this->os = os;
@@ -77,14 +79,18 @@ class ESPNowModule: public CMMC_Module {
         Serial.println("evt_callback.");
         if (status == 0) {
           char buf[13];
+          char self_buf[13];
           Serial.printf("[CSP_EVENT_SUCCESS] STATUS: %d\r\n", status);
           Serial.printf("WITH KEY: ");
           CMMC::dump(data, 16);
           Serial.printf("WITH MAC: ");
           CMMC::dump(sa, 6);
           CMMC::macByteToString(data, buf);
+          CMMC::macByteToString(module->self_mac, self_buf);
           CMMC::printMacAddress((uint8_t*)buf);
+          CMMC::printMacAddress((uint8_t*)self_buf);
           module->_managerPtr->add_field("mac", buf);
+          module->_managerPtr->add_field("self_mac", self_buf);
           module->_managerPtr->commit();
           Serial.println("DONE...");
           *flag = true;
@@ -113,8 +119,6 @@ class ESPNowModule: public CMMC_Module {
     }
 
     void _init_espnow() {
-      uint8_t* slave_addr = CMMC::getESPNowSlaveMacAddress();
-      memcpy(self_mac, slave_addr, 6);
       Serial.print("Slave Mac Address: ");
       CMMC::printMacAddress(self_mac, true); 
       espNow.init(NOW_MODE_SLAVE);
