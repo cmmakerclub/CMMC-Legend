@@ -8,8 +8,6 @@ const char* http_password = "admin";
 
 extern CMMC_Blink *blinker; 
 extern CMMC_Legend os;
-extern  std::vector<CMMC_Config_Manager*> configManagersHub;
-
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
   if (type == WS_EVT_CONNECT) {
