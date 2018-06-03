@@ -17,6 +17,7 @@ class ESPNowModule: public CMMC_Module {
       this->_serverPtr = server;
       this->_managerPtr = new CMMC_Config_Manager("/espnow.json");
       this->_managerPtr->init();
+
       this->_managerPtr->load_config([](JsonObject * root, const char* content) {
         if (root == NULL) {
           Serial.print("espnow.json failed. >");
@@ -29,9 +30,11 @@ class ESPNowModule: public CMMC_Module {
           if (root->containsKey("mac")) {
             String macStr = String((*root)["mac"].as<const char*>());
             Serial.printf("Loaded mac %s\r\n", macStr.c_str());
-            // CMMC::convertMacStringToUint8(macStr.c_str(), master_mac);
-            // CMMC::printMacAddress(master_mac);
-            Serial.println();
+            uint8_t mac[6];
+            CMMC::convertMacStringToUint8(macStr.c_str(), mac);
+            // CMMC::printMacAddress(mac);
+            // Serial.println();
+            memcpy(that->master_mac, mac, 6);
           }
           else {
             Serial.println("no mac field.");
@@ -43,12 +46,13 @@ class ESPNowModule: public CMMC_Module {
 
     void once() {
       _init_espnow();
+
     }
 
     void loop() {
-      if (millis() % 10000 == 0) {
-        Serial.println("IN ESPNOW LOOP..");
-      }
+      u8 t = 1;
+      espNow.send(master_mac, &t, 1, []() { }, 200);
+      delay(10);
     }
 
     void setup() {
@@ -67,6 +71,7 @@ class ESPNowModule: public CMMC_Module {
     CMMC_ESPNow espNow;
     CMMC_SimplePair simplePair;
     uint8_t self_mac[6];
+    uint8_t master_mac[6];
     bool sp_flag_done = false;
     void init_simple_pair() {
       ((CMMC_Legend*) os)->getBlinker()->blink(250);
@@ -124,8 +129,8 @@ class ESPNowModule: public CMMC_Module {
       espNow.init(NOW_MODE_SLAVE);
       espNow.on_message_sent([](uint8_t *macaddr, u8 status) {
         // led.toggle();
-        Serial.println(millis());
-        Serial.printf("sent status %lu\r\n", status);
+        // Serial.println(millis());
+        // Serial.printf("sent status %lu\r\n", status);
       });
 
       espNow.on_message_recv([](uint8_t * macaddr, uint8_t * data, uint8_t len) {
@@ -134,7 +139,10 @@ class ESPNowModule: public CMMC_Module {
         // if (data[0] == 0)
         //   data[0] = DEFAULT_DEEP_SLEEP_M;
         // goSleep(data[0]);
-      });
+        });
+        u8 t = 1;
+        espNow.send(master_mac, &t, 1, []() { }, 200);
+        delay(2000);
     }
 }; 
 #endif
