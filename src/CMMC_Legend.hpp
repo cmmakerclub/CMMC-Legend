@@ -132,8 +132,7 @@ class CMMC_Legend: public CMMC_System {
   private: 
     MODE mode;
     std::vector<CMMC_Module*> _modules; 
-
-    char ap_ssid[30] = "CMMC-Legend";
+    char ap_ssid[30] = "CMMC-Legend"; 
     void _init_ap() {
       WiFi.disconnect();
       WiFi.softAPdisconnect();

@@ -1,7 +1,7 @@
 #define CMMC_USE_ALIAS 
 #include <Arduino.h>
 #include "version.h"
-#include "system.hpp"
+#include "CMMC_Legend.hpp"
 #include "ESPNowModule.hpp"
 
 CMMC_Legend os;
