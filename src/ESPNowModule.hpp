@@ -10,7 +10,7 @@
 
 #define BUTTON_PIN  0
 
-static CMMC_SENSOR_DATA_T data;
+static CMMC_SENSOR_DATA_T data1;
 static CMMC_SENSOR_DATA_T data2;
 
 class ESPNowModule: public CMMC_Module {
@@ -23,7 +23,7 @@ class ESPNowModule: public CMMC_Module {
       sensor1 = new CMMC_BME680(); 
       sensor1->every(10);
       sensor1->onData([](void *d, size_t len) { 
-          memcpy(&data, d, len);
+          memcpy(&data1, d, len);
           Serial.printf("ON SENSOR DATA.. at %lums\r\n", millis());
       });
 
@@ -68,7 +68,7 @@ class ESPNowModule: public CMMC_Module {
     void loop() {
       u8 t = 1;
       sensor1->read();
-      espNow.send(master_mac, (u8*)&data, sizeof(data), []() { }, 200);
+      espNow.send(master_mac, (u8*)&data2, sizeof(data2), []() { }, 200);
       delay(10);
     }
 
@@ -92,7 +92,7 @@ class ESPNowModule: public CMMC_Module {
     bool sp_flag_done = false;
 
     void readSensor() {
-      uint32_t moitureValue, phValue, batteryValue;
+      uint32_t moistureValue, phValue, batteryValue;
       /* battery */ 
       Serial.println("Reading Battery..");
       digitalWrite(14, LOW);
@@ -117,12 +117,25 @@ class ESPNowModule: public CMMC_Module {
       delay(10); 
       int a0Val = analogRead(A0);
       Serial.printf("a0Val = %d\r\n", a0Val);
-      moitureValue = ((a0Val * 0.035f) + 1) * 100;
+      moistureValue = ((a0Val * 0.035f) + 1) * 100;
 
       //turn off
       delay(10);
       digitalWrite(14, LOW);
       digitalWrite(15, LOW);
+      data2.battery = batteryValue;
+
+      data2.field1 = data1.field1; /* temp */
+      data2.field2 = data1.field2; /* humid */
+      data2.field3 = phValue;
+      data2.field4 =  moistureValue;
+      data2.field5 = data1.field3; /* pressure */
+      data2.ms = millis();
+      data2.sum = CMMC::checksum((uint8_t*) &data2, sizeof(data2) - sizeof(data2.sum));
+
+      strcpy(data2.sensorName, data1.sensorName);
+      data2.nameLen = strlen(data2.sensorName);
+
     }
 
     void init_simple_pair() {
