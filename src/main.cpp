@@ -1,3 +1,5 @@
+#define CMMC_USE_ALIAS
+
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>

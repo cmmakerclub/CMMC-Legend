@@ -14,7 +14,6 @@ class CMMC_Module {
     AsyncWebServer *_serverPtr;
     void configWebServer() {
         // strcpy(this->path, path);
-        Serial.println("init server");
         static CMMC_Module *that = this;
         static CMMC_Config_Manager *m = this->_managerPtr;
         _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
