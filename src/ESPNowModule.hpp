@@ -55,7 +55,9 @@ class ESPNowModule: public CMMC_Module {
       simplePair.debug([](const char* msg) {
         Serial.println(msg);
       });
-      simplePair.begin(SLAVE_MODE, [](u8 status, u8 * sa, const u8 * data) {
+      static ESPNowModule *module = this;
+      static bool *flag = &sp_flag_done;
+      simplePair.begin(SLAVE_MODE, [](u8 status, u8 * sa, const u8 * data) { 
         Serial.println("evt_callback.");
         if (status == 0) {
           char buf[13];
@@ -66,10 +68,10 @@ class ESPNowModule: public CMMC_Module {
           CMMC::dump(sa, 6);
           CMMC::macByteToString(data, buf);
           CMMC::printMacAddress((uint8_t*)buf);
-          // configManager.add_field("mac", buf);
-          // configManager.commit();
+          module->_managerPtr->add_field("mac", buf);
+          module->_managerPtr->commit();
           Serial.println("DONE...");
-          // sp_flag_done = true;
+          *flag = true;
         }
         else {
           Serial.printf("[CSP_EVENT_ERROR] %d: %s\r\n", status, (const char*)data);
@@ -87,7 +89,7 @@ class ESPNowModule: public CMMC_Module {
         Serial.println("pair done.");
       }
       else {
-        Serial.println("do simple pair device found.");
+        Serial.println("do simple pair device not found.");
       }
     }
 
