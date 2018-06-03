@@ -18,35 +18,10 @@ CMMC_Gpio gpio;
 AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
-
-// class CMMC_ConfigBundle: public CMMC_Module {
-//   public:
-//     ~CMMC_ConfigBundle() { }
-//     CMMC_ConfigBundle (const char* path, CMMC_Config_Manager* manager, AsyncWebServer* server) {
-//       strcpy(this->path, path);
-//       _managerPtr = manager;
-//       static CMMC_ConfigBundle *that = this;
-//       static CMMC_Config_Manager *m = manager;
-//       server->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
-//         String output = that->saveConfig(request, m);
-//         request->send(200, "application/json", output);
-//       });
-//     };
-//     void config(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) { }
-//     void once() { };
-//     void loop() { };
-// };
-
-#define CONFIG_WIFI 1
-#define CONFIG_SENSOR 3
-extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *);
-
+extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *); 
 enum MODE {SETUP, RUN};
 
-std::vector<CMMC_Config_Manager*> configManagersHub;
-std::vector<CMMC_Module*> _modules;
-
-char sensorType[15];
+std::vector<CMMC_Module*> _modules; 
 
 uint32_t lastRecv;
 CMMC_Interval interval;
