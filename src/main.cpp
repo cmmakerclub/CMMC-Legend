@@ -15,17 +15,33 @@ class WiFiModule: public CMMC_Module {
   public:
   void config(CMMC_System *os, AsyncWebServer* server) { 
     strcpy(this->path, "/api/wifi/sta");
+    static WiFiModule *that = this;
     this->_serverPtr = server;
     this->_managerPtr = new CMMC_Config_Manager("wifi.json");
-    this->_managerPtr->init();
-    this->_managerPtr->load_config([](JsonObject* json, const char* content) {
-      Serial.println(content); 
-    });
+    this->_managerPtr->init(); 
+    this->_managerPtr->load_config([](JsonObject * root, const char* content) {
+      if (root == NULL) {
+        Serial.print("wifi.json failed. >");
+        Serial.println(content);
+        return ;
+      }
+      Serial.println("[user] wifi config json loaded..");
+      const char* sta_config[2];
+      sta_config[0] = (*root)["sta_ssid"];
+      sta_config[1] = (*root)["sta_password"];
+      if ((sta_config[0] == NULL) || (sta_config[1] == NULL)) {
+        Serial.println("NULL..");
+        SPIFFS.remove("/enabled");
+        return;
+      };
+      strcpy(that->sta_ssid, sta_config[0]);
+      strcpy(that->sta_pwd, sta_config[1]);
+    }); 
     this->configWebServer();
   } 
 
   void once() { 
-    // _init_sta();
+    _init_sta();
   }
 
   void loop() { 

@@ -126,24 +126,6 @@ class CMMC_Legend: public CMMC_System {
       // CMMC_ConfigBundle bundle2("/api/wifi/sta", configManagersHub[0], &server); 
       // CMMC_ConfigBundle bundle4("/api/sensors/config", configManagersHub[2], &server);
 
-      // configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
-      //   if (root == NULL) {
-      //     Serial.print("wifi.json failed. >");
-      //     Serial.println(content);
-      //     return ;
-      //   }
-      //   Serial.println("[user] wifi config json loaded..");
-      //   const char* sta_config[2];
-      //   sta_config[0] = (*root)["sta_ssid"];
-      //   sta_config[1] = (*root)["sta_password"];
-      //   if ((sta_config[0] == NULL) || (sta_config[1] == NULL)) {
-      //     Serial.println("NULL..");
-      //     SPIFFS.remove("/enabled");
-      //     return;
-      //   };
-      //   strcpy(sta_ssid, sta_config[0]);
-      //   strcpy(sta_pwd, sta_config[1]);
-      // }); 
     }
 
     void init_network() {
