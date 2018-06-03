@@ -8,36 +8,18 @@
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
 #include "CMMC_System.hpp"
-#include <CMMC_Sensor.hpp>
 #include <vector>
-#include "gpio.hpp"
 #include "CMMC_Module.hpp"
 
-// CMMC_Sensor *sensorInstance;
-CMMC_Gpio gpio;
-AsyncWebServer server(80);
-AsyncWebSocket ws("/ws");
-AsyncEventSource events("/events");
+static AsyncWebServer server(80);
+static AsyncWebSocket ws("/ws");
+static AsyncEventSource events("/events"); 
+static CMMC_Blink *blinker;
+
+enum MODE {SETUP, RUN}; 
 extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *); 
-enum MODE {SETUP, RUN};
-
-std::vector<CMMC_Module*> _modules; 
-
-uint32_t lastRecv;
-CMMC_Interval interval;
-CMMC_Blink *blinker;
-CMMC_SENSOR_DATA_T sensorData;
-
-void readSensorCb(void *d, size_t len)
-{
-  memcpy(&sensorData, d, len);
-  Serial.printf("field1 %lu, field2 %lu \r\n", sensorData.field1, sensorData.field2);
-};
-
 
 class CMMC_Legend: public CMMC_System {
-    MODE mode;
-
   public:
     void setup() {
       CMMC_System::setup();
@@ -63,12 +45,10 @@ class CMMC_Legend: public CMMC_System {
     }
 
     void init_gpio() {
-      Serial.println("Initializing GPIO..");
       pinMode(13, INPUT_PULLUP);
       blinker = new CMMC_Blink;
       blinker->init();
       blinker->setPin(2);
-      gpio.setup();
       Serial.begin(57600);
       Serial.println();
       blinker->blink(500);
@@ -109,7 +89,6 @@ class CMMC_Legend: public CMMC_System {
         }
       }
       else if (mode == RUN) {
-        lastRecv = millis();
         blinker->blink(4000);
         for (int i = 0 ; i < _modules.size(); i++) {
           Serial.printf("call once idx = %d\r\n", i);
@@ -124,7 +103,6 @@ class CMMC_Legend: public CMMC_System {
 
     void run() {
       static CMMC_Legend *that = this;
-      // interval.every_ms(10L * 1000, []() { Serial.printf("Last Recv %lus ago.\r\n", ((millis() - lastRecv) / 1000)); });
       int size = _modules.size();
       for (int i = 0 ; i < size; i++) {
         _modules[i]->loop();
@@ -151,7 +129,10 @@ class CMMC_Legend: public CMMC_System {
       }
     }
 
-  private:
+  private: 
+    MODE mode;
+    std::vector<CMMC_Module*> _modules; 
+
     char ap_ssid[30] = "CMMC-Legend";
     void _init_ap() {
       WiFi.disconnect();
