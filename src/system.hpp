@@ -14,6 +14,7 @@
 #include <MqttConnector.h>
 #include "_config.h"
 #include "init_mqtt.h"
+#include "CMMC_Module.hpp"
 
 // CMMC_Sensor *sensorInstance;
 CMMC_Gpio gpio;
@@ -21,63 +22,23 @@ AsyncWebServer server(80);
 AsyncWebSocket ws("/ws");
 AsyncEventSource events("/events");
 
-class CMMC_ConfigBundle_I {
-  protected:
-    char path[20];
-    CMMC_Config_Manager *_managerPtr;
-    AsyncWebServer *_serverPtr;
-    String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
-      int params = request->params();
-      String output = "{";
-      for (int i = 0; i < params; i++) {
-        AsyncWebParameter* p = request->getParam(i);
-        if (p->isPost()) {
-          const char* key = p->name().c_str();
-          const char* value = p->value().c_str();
-          // Serial.printf("POST[%s]->%s\n", key, value);
-          String v;
-          if (value == 0) {
-            Serial.println("value is null..");
-            v = String("");
-          }
-          else {
-            v = String(value);
-          }
-          output += "\"" + String(key) + "\"";
-          if (i == params - 1 ) {
-            output += ":\"" + v + "\"";
-          }
-          else {
-            output += ":\"" + v + "\",";
-          }
-          configManager->add_field(key, v.c_str());
-        }
-      }
-      output += "}";
-      configManager->commit();
-      return output;
-    }
-  public:
-    virtual void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) = 0;
-    virtual void run() = 0;
-};
-
-class CMMC_ConfigBundle: public CMMC_ConfigBundle_I {
-  public:
-    ~CMMC_ConfigBundle() { }
-    CMMC_ConfigBundle (const char* path, CMMC_Config_Manager* manager, AsyncWebServer* server) {
-      strcpy(this->path, path);
-      _managerPtr = manager;
-      static CMMC_ConfigBundle *that = this;
-      static CMMC_Config_Manager *m = manager;
-      server->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
-        String output = that->saveConfig(request, m);
-        request->send(200, "application/json", output);
-      });
-    }; 
-    void setup(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) { }
-    void run() { };
-};
+// class CMMC_ConfigBundle: public CMMC_Module {
+//   public:
+//     ~CMMC_ConfigBundle() { }
+//     CMMC_ConfigBundle (const char* path, CMMC_Config_Manager* manager, AsyncWebServer* server) {
+//       strcpy(this->path, path);
+//       _managerPtr = manager;
+//       static CMMC_ConfigBundle *that = this;
+//       static CMMC_Config_Manager *m = manager;
+//       server->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
+//         String output = that->saveConfig(request, m);
+//         request->send(200, "application/json", output);
+//       });
+//     }; 
+//     void config(const char* path, CMMC_Config_Manager* manager, const AsyncWebServer* server) { }
+//     void once() { };
+//     void loop() { };
+// };
 
 #define CONFIG_WIFI 1
 #define CONFIG_MQTT 2
@@ -95,7 +56,9 @@ struct MQTT_Config_T {
 };
 
 enum MODE {SETUP, RUN};
+
 std::vector<CMMC_Config_Manager*> configManagersHub;
+std::vector<CMMC_Module*> _modules;
 
 char sta_ssid[30] = "";
 char sta_pwd[30] = "";
@@ -165,53 +128,67 @@ class CMMC_Legend: public CMMC_System {
       Serial.printf("SENSOR TYPE=%s\r\n", sensorType);
     }
 
+    void addModule(CMMC_Module* module) { 
+      _modules.push_back(module); 
+      Serial.printf("adModule.. size = %d\r\n", _modules.size());
+    }
+
     void init_user_config() {
       Serial.println("Initializing ConfigManager files.");
-      configManagersHub.push_back(new CMMC_Config_Manager("wifi.json"));
-      configManagersHub.push_back(new CMMC_Config_Manager("mymqtt.json"));
-      configManagersHub.push_back(new CMMC_Config_Manager("sensors.json")); 
+      // configManagersHub.push_back(new CMMC_Config_Manager("wifi.json"));
+      // configManagersHub.push_back(new CMMC_Config_Manager("mymqtt.json"));
+      // configManagersHub.push_back(new CMMC_Config_Manager("sensors.json")); 
 
-      for (int i = 0; i <= 2; i++) {
-        configManagersHub[i]->init();
-      }
+      // for (int i = 0; i <= 2; i++) {
+      //   configManagersHub[i]->init();
+      // }
 
-      CMMC_ConfigBundle bundle1("/api/wifi/ap", configManagersHub[0], &server);
-      CMMC_ConfigBundle bundle2("/api/wifi/sta", configManagersHub[0], &server); 
-      CMMC_ConfigBundle bundle3("/api/mqtt", configManagersHub[1], &server);
-      CMMC_ConfigBundle bundle4("/api/sensors/config", configManagersHub[2], &server);
+      // CMMC_ConfigBundle bundle1("/api/wifi/ap", configManagersHub[0], &server);
+      // CMMC_ConfigBundle bundle2("/api/wifi/sta", configManagersHub[0], &server); 
+      // CMMC_ConfigBundle bundle3("/api/mqtt", configManagersHub[1], &server);
+      // CMMC_ConfigBundle bundle4("/api/sensors/config", configManagersHub[2], &server);
 
-      configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
-        if (root == NULL) {
-          Serial.print("wifi.json failed. >");
-          Serial.println(content);
-          return ;
-        }
-        Serial.println("[user] wifi config json loaded..");
-        const char* sta_config[2];
-        sta_config[0] = (*root)["sta_ssid"];
-        sta_config[1] = (*root)["sta_password"];
-        if ((sta_config[0] == NULL) || (sta_config[1] == NULL)) {
-          Serial.println("NULL..");
-          SPIFFS.remove("/enabled");
-          return;
-        };
-        strcpy(sta_ssid, sta_config[0]);
-        strcpy(sta_pwd, sta_config[1]);
-      }); 
+      // configManagersHub[0]->load_config([](JsonObject * root, const char* content) {
+      //   if (root == NULL) {
+      //     Serial.print("wifi.json failed. >");
+      //     Serial.println(content);
+      //     return ;
+      //   }
+      //   Serial.println("[user] wifi config json loaded..");
+      //   const char* sta_config[2];
+      //   sta_config[0] = (*root)["sta_ssid"];
+      //   sta_config[1] = (*root)["sta_password"];
+      //   if ((sta_config[0] == NULL) || (sta_config[1] == NULL)) {
+      //     Serial.println("NULL..");
+      //     SPIFFS.remove("/enabled");
+      //     return;
+      //   };
+      //   strcpy(sta_ssid, sta_config[0]);
+      //   strcpy(sta_pwd, sta_config[1]);
+      // }); 
     }
 
     void init_network() {
       Serial.println("Initializing network.");
+      for(int i =0 ;i < _modules.size(); i++) { 
+          Serial.printf("call config idx = %d\r\n", i);
+          _modules[i]->config(this, &server); 
+      }
       if (mode == SETUP) {
         _init_ap();
         setupWebServer(&server, &ws, &events);
         blinker->blink(50);
       }
       else if (mode == RUN) {
-        _init_sta();
+        // _init_sta();
         lastRecv = millis();
         blinker->blink(4000);
         // mqtt = init_mqtt();
+        int size = _modules.size();
+        for(int i =0 ;i <size; i++) { 
+          Serial.printf("call once idx = %d\r\n", i);
+          _modules[i]->once(); 
+        }
       }
     }
 
@@ -224,12 +201,12 @@ class CMMC_Legend: public CMMC_System {
             ESP.restart();
           }
         });
-        if (mqtt) {
-          mqtt->loop();
-        }
-        else {
-          Serial.println("mqtt pointer is undefined.");
-        }
+        // if (mqtt) {
+        //   mqtt->loop();
+        // }
+        // else {
+        //   Serial.println("mqtt pointer is undefined.");
+        // }
       }
       isLongPressed();
     }
@@ -269,24 +246,7 @@ class CMMC_Legend: public CMMC_System {
       Serial.println();
       Serial.print("AP IP address: ");
       Serial.println(myIP);
-    }
-
-    void _init_sta() {
-      WiFi.softAPdisconnect();
-      WiFi.disconnect();
-      delay(20);
-      WiFi.mode(WIFI_STA);
-      delay(20);
-      WiFi.hostname(ap_ssid);
-      delay(20);
-      WiFi.begin(sta_ssid, sta_pwd);
-      while (WiFi.status() != WL_CONNECTED) {
-        Serial.printf ("Connecting to %s:%s\r\n", sta_ssid, sta_pwd);
-        isLongPressed();
-        delay(300);
-      }
-      Serial.println("WiFi Connected.");
-    }
+    } 
 };
 
 #include "webserver.h"

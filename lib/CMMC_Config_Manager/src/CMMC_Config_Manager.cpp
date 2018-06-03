@@ -5,6 +5,7 @@ CMMC_Config_Manager::CMMC_Config_Manager(const char* filename) {
   strcpy(this->filename_c, filename); 
   this->_user_debug_cb = [](const char* s) { };
 }
+
 CMMC_Config_Manager::~CMMC_Config_Manager() {
   configFile.close();
 }
