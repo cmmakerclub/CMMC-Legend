@@ -13,9 +13,10 @@ class CMMC_Module {
     CMMC_Config_Manager *_managerPtr;
     AsyncWebServer *_serverPtr;
     void configWebServer() {
-        strcpy(this->path, path);
+        // strcpy(this->path, path);
+        Serial.println("init server");
         static CMMC_Module *that = this;
-        static CMMC_Config_Manager *m = _managerPtr;
+        static CMMC_Config_Manager *m = this->_managerPtr;
         _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
           String output = that->saveConfig(request, m);
           request->send(200, "application/json", output);
@@ -52,7 +53,7 @@ class CMMC_Module {
       return output;
     }
   public:
-    virtual void config(CMMC_System *os, const AsyncWebServer* server) = 0; 
+    virtual void config(CMMC_System *os, AsyncWebServer* server) = 0; 
     virtual void once() = 0;
     virtual void loop() = 0;
 };

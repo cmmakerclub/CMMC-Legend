@@ -12,13 +12,15 @@ bool flag_restart = false;
 CMMC_Legend os;
 
 class WiFiModule: public CMMC_Module {
-  void config(CMMC_System *os, const AsyncWebServer* server) { 
-    const char* _path = "/api/wifi/config"; 
+  void config(CMMC_System *os, AsyncWebServer* server) { 
+    strcpy(this->path, "/api/wifi/sta");
+    this->_serverPtr = server;
     this->_managerPtr = new CMMC_Config_Manager("wifi.json");
     this->_managerPtr->init();
     this->_managerPtr->load_config([](JsonObject* json, const char* content) {
       Serial.println(content); 
     });
+    this->configWebServer();
   } 
 
   void once() { 
