@@ -1,9 +1,9 @@
-#ifndef CMMCBlink_h
-#define CMMCBlink_h
+#ifndef CMMC_LED_H
+#define CMMC_LED_H
 #include <Arduino.h>
 #include <Ticker.h>
 
-class CMMC_Blink
+class CMMC_LED
 {
 	public:
 
@@ -16,7 +16,7 @@ class CMMC_Blink
     static const blink_t TYPE_INTERVAL = BLINK_TYPE_INTERVAL;
 
 
-    CMMC_Blink init(blink_t type = BLINK_TYPE_TICKER) {
+    CMMC_LED init(blink_t type = BLINK_TYPE_TICKER) {
       if (type == BLINK_TYPE_TICKER) {
         this->_ticker = new Ticker;
         this->_ticker2 = new Ticker;
@@ -31,11 +31,11 @@ class CMMC_Blink
       digitalWrite(_ledPin, LOW);
     }
 
-    CMMC_Blink(blink_t type = BLINK_TYPE_TICKER) {
+    CMMC_LED(blink_t type = BLINK_TYPE_TICKER) {
       _type = type;
     };
 
-    CMMC_Blink(Ticker *ticker) {
+    CMMC_LED(Ticker *ticker) {
       _initialized = true;
       this->_ticker = ticker;
     };
@@ -59,7 +59,7 @@ class CMMC_Blink
         delete this->_ticker2; 
         this->_ticker = new Ticker;
         this->_ticker2 = new Ticker; 
-        static CMMC_Blink *_that = this;
+        static CMMC_LED *_that = this;
         static auto lambda = []() {
             _that->state = !_that->state;
             if (_that->state == LOW) {

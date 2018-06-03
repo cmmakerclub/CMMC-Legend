@@ -4,17 +4,18 @@
 #include <AsyncWebSocket.h>
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
-#include <CMMC_Blink.hpp>
+#include <CMMC_LED.hpp>
 #include <CMMC_Interval.hpp>
 #include <CMMC_Config_Manager.h>
 #include "CMMC_System.hpp"
 #include <vector>
 #include "CMMC_Module.hpp"
+#include "version.h"
 
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/ws");
 static AsyncEventSource events("/events"); 
-static CMMC_Blink *blinker;
+static CMMC_LED *blinker;
 
 enum MODE {SETUP, RUN}; 
 extern void setupWebServer(AsyncWebServer *, AsyncWebSocket *, AsyncEventSource *); 
@@ -46,7 +47,7 @@ class CMMC_Legend: public CMMC_System {
 
     void init_gpio() {
       pinMode(13, INPUT_PULLUP);
-      blinker = new CMMC_Blink;
+      blinker = new CMMC_LED;
       blinker->init();
       blinker->setPin(2);
       Serial.begin(57600);
@@ -97,7 +98,7 @@ class CMMC_Legend: public CMMC_System {
       }
     }
 
-    CMMC_Blink *getBlinker() {
+    CMMC_LED *getBlinker() {
       return blinker;
     }
 

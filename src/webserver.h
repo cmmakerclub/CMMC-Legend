@@ -2,11 +2,11 @@
 #include <ESPAsyncWebServer.h>
 #include <CMMC_Config_Manager.h>
 #include <SPIFFSEditor.h>
-#include <CMMC_Blink.hpp>
+#include <CMMC_LED.hpp>
 const char* http_username = "admin";
 const char* http_password = "admin"; 
 
-extern CMMC_Blink *blinker; 
+extern CMMC_LED *blinker; 
 extern CMMC_Legend os;
 
 void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len) {
