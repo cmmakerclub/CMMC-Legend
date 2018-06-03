@@ -1,8 +1,8 @@
 #include <CMMC_Module.hpp>
+#include <CMMC_ESPNow.h>
 
 #ifndef CMMC_ESPNOW_MODULE_H
-#define CMMC_ESPNOW_MODULE_H
-
+#define CMMC_ESPNOW_MODULE_H 
 
 class ESPNowModule: public CMMC_Module {
   public:
@@ -45,10 +45,10 @@ class ESPNowModule: public CMMC_Module {
     }
 
   private:
-    void _init_espnow() {
-
-    }
-
+    CMMC_ESPNow espNow;
+    void _init_espnow() { 
+      espNow.enable_retries(true);
+    } 
 };
 
 #endif
