@@ -140,7 +140,7 @@ void ESPNowModule::_init_simple_pair() {
       CMMC::printMacAddress((uint8_t*)self_buf);
       module->_managerPtr->add_field("mac", buf);
       module->_managerPtr->add_field("self_mac", self_buf);
-      module->_managerPtr->commit();
+      module->_managerPtr->commit("/espnow.json");
       Serial.println("DONE...");
       *flag = true;
     }

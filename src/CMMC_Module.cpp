@@ -1,16 +1,7 @@
 #include "CMMC_Module.h"
 
-void CMMC_Module::configWebServer() {
-  // strcpy(this->path, path);
-  static CMMC_Module *that = this;
-  static CMMC_ConfigManager *m = this->_managerPtr;
-  _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = that->saveConfig(request, m);
-    request->send(200, "application/json", output);
-  });
-}
-
-String CMMC_Module::saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManager* configManager) {
+String CMMC_Module::saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManager* configManager, const char* config_file) {
+  strcpy(this->config_file, config_file);
   int params = request->params();
   String output = "{";
   for (int i = 0; i < params; i++) {
@@ -37,7 +28,7 @@ String CMMC_Module::saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManage
     }
   }
   output += "}";
-  configManager->commit();
+  configManager->commit(config_file);
   return output;
 } 
 

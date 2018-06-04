@@ -21,9 +21,9 @@ class ESPNowModule: public CMMC_Module {
   CMMC_Sensor *sensor1;
   public:
     void config(CMMC_System *os, AsyncWebServer* server); 
-    void loop(); 
     void configLoop(); 
     void setup(); 
+    void loop(); 
   private:
     CMMC_System *os;
     CMMC_ESPNow espNow;
