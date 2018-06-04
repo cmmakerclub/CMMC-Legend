@@ -6,7 +6,7 @@
 class WiFiModule: public CMMC_Module {
   public:
     void config(CMMC_System *os, AsyncWebServer* server); 
-    void once();
+    void setup();
     void loop(); 
   private:
     char sta_ssid[30] = "";

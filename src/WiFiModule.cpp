@@ -27,7 +27,7 @@ void WiFiModule::config(CMMC_System *os, AsyncWebServer* server) {
   this->configWebServer();
 }
 
-void WiFiModule::once() {
+void WiFiModule::setup() {
   _init_sta();
 }
 

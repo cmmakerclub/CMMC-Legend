@@ -105,7 +105,7 @@ void CMMC_Legend::init_network() {
     blinker->blink(4000);
     for (int i = 0 ; i < _modules.size(); i++) {
       Serial.printf("call once idx = %d\r\n", i);
-      _modules[i]->once();
+      _modules[i]->setup();
     }
   }
 }

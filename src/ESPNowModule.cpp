@@ -45,11 +45,7 @@ void ESPNowModule::config(CMMC_System *os, AsyncWebServer* server) {
     }
   });
   this->configWebServer();
-}
-
-void ESPNowModule::once() {
-  _init_espnow();
-}
+} 
 
 void ESPNowModule::loop() {
   Serial.printf("looping at %lums\r\n", millis());
@@ -69,9 +65,8 @@ void ESPNowModule::setup() {
     _init_simple_pair();
     delay(1000);
   } else {
-
-  }
-
+    _init_espnow(); 
+  } 
 }
 
 void ESPNowModule::_read_sensor() {

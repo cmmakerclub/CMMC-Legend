@@ -39,7 +39,4 @@ String CMMC_Module::saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManage
   output += "}";
   configManager->commit();
   return output;
-}
-void CMMC_Module::setup() {
-
-}
+} 

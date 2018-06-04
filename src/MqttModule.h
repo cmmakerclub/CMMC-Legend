@@ -5,7 +5,7 @@
 class MqttModule: public CMMC_Module {
   public:
     void config(CMMC_System *os, AsyncWebServer* server); 
-    void once();
+    void setup();
     void loop(); 
   private: 
 };
