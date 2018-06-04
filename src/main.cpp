@@ -10,6 +10,7 @@ void setup()
 {
   os.addModule(new WiFiModule());
   os.addModule(new MqttModule);;
+  // os.addModule(new ESPNowModule());
   os.setup();
   Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }

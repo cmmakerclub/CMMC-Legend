@@ -5,10 +5,8 @@
 static CMMC_ConfigManager *mmm = new CMMC_ConfigManager(MQTT_CONFIG_FILE);
 
 void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
-  Serial.println("MqttModule::config"); 
   strcpy(this->path, "/api/mqtt");
   strcpy(this->config_file, MQTT_CONFIG_FILE);
-  // static MqttModule *that = this;
   this->_serverPtr = server;
   this->_managerPtr = mmm;
   this->_managerPtr->init();
@@ -34,7 +32,7 @@ void MqttModule::configWebServer() {
 }
 
 void MqttModule::setup() {
-  Serial.println("MqttModule::once"); 
+  Serial.println("MqttModule::setup"); 
 };
 
 void MqttModule::loop() {

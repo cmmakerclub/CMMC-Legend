@@ -43,9 +43,7 @@ void WiFiModule::setup() {
   _init_sta();
 }
 
-void WiFiModule::loop() {
-
-}
+void WiFiModule::loop() { }
 void WiFiModule::_init_sta() {
   WiFi.softAPdisconnect();
   WiFi.disconnect();
