@@ -1,8 +1,7 @@
-#ifndef CMMC_Config_Manager_H
-#define CMMC_Config_Manager_H
+#ifndef CMMC_ConfigManager_H
+#define CMMC_ConfigManager_H
 
-#include <ArduinoJson.h>
-
+#include <ArduinoJson.h> 
 
 #ifdef ESP8266
 extern "C" {
@@ -15,7 +14,7 @@ extern "C" {
 #endif
 
 #ifndef CMMC_NO_ALIAS
-#define CMMC_Config_Manager ConfigManager
+#define CMMC_ConfigManager ConfigManager
 #endif
 
 
@@ -29,12 +28,12 @@ typedef void (*cmmc_json_loaded_cb_t)(JsonObject* root, const char* content);
     Serial.printf(fmt, ## args); \
   }
 
-class CMMC_Config_Manager
+class CMMC_ConfigManager
 {
   public:
     // constructor
-    CMMC_Config_Manager(const char* filename = "/config.json");
-    ~CMMC_Config_Manager();
+    CMMC_ConfigManager(const char* filename = "/config.json");
+    ~CMMC_ConfigManager();
     typedef std::map<String, String> Items; 
     void init(const char* filename = NULL);
     void commit();
@@ -56,4 +55,4 @@ class CMMC_Config_Manager
     void _load_raw_content();
 };
 
-#endif //CMMC_Config_Manager_H
+#endif //CMMC_ConfigManager_H

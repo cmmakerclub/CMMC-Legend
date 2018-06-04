@@ -6,13 +6,15 @@
 #include <FS.h>
 #include <CMMC_LED.hpp>
 #include <CMMC_Interval.hpp>
-#include <CMMC_Config_Manager.h>
+#include <CMMC_ConfigManager.h>
 #include "CMMC_System.hpp"
 #include <vector>
 #include "CMMC_Module.hpp"
 #include "version.h"
 #include <SPIFFSEditor.h>
 
+#ifndef CMMC_LEGEND_H
+#define CMMC_LEGEND_H
 
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/ws");
@@ -25,12 +27,62 @@ enum MODE {SETUP, RUN};
 
 class CMMC_Legend: public CMMC_System {
   public:
+    void addModule(CMMC_Module* module) {
+      _modules.push_back(module);
+      Serial.printf("addModule.. size = %d\r\n", _modules.size());
+    }
+
+    void run() {
+      static CMMC_Legend *that = this;
+      int size = _modules.size();
+      Serial.printf("module size = %d\r\n", size);
+      for (int i = 0 ; i < size; i++) {
+        _modules[i]->loop();
+      }
+      isLongPressed();
+      yield();
+    }
+
+    void isLongPressed() {
+      uint32_t prev = millis();
+      while (digitalRead(13) == LOW) {
+        delay(50);
+        if ( (millis() - prev) > 5L * 1000L) {
+          Serial.println("LONG PRESSED.");
+          blinker->blink(50);
+          while (digitalRead(13) == LOW) {
+            delay(10);
+          }
+          SPIFFS.remove("/enabled");
+          Serial.println("being restarted.");
+          delay(1000);
+          ESP.restart();
+        }
+      }
+    }
     void setup() {
       CMMC_System::setup();
     }
+
+  protected:
+
+    void init_gpio() {
+      Serial.begin(57600);
+      Serial.println("OS::Init GPIO..");
+      pinMode(13, INPUT_PULLUP);
+      blinker = new CMMC_LED;
+      blinker->init();
+      blinker->setPin(2);
+      Serial.println();
+      blinker->blink(500);
+      delay(10);
+    }
+
     void init_fs() {
+      Serial.println("OS::Init FS..");
       SPIFFS.begin();
       Dir dir = SPIFFS.openDir("/");
+      isLongPressed();
       Serial.println("--------------------------");
       while (dir.next()) {
         File f = dir.openFile("r");
@@ -48,28 +100,11 @@ class CMMC_Legend: public CMMC_System {
       }
     }
 
-    void init_gpio() {
-      pinMode(13, INPUT_PULLUP);
-      blinker = new CMMC_LED;
-      blinker->init();
-      blinker->setPin(2);
-      Serial.begin(57600);
-      Serial.println();
-      blinker->blink(500);
-      delay(10);
-      isLongPressed();
-    }
-
     void init_user_sensor() {
       Serial.printf("Initializing Sensor.. MODE=%s\r\n", mode == SETUP ? "SETUP" : "RUN");
       if (mode == SETUP) {
         return;
       }
-    }
-
-    void addModule(CMMC_Module* module) {
-      _modules.push_back(module);
-      Serial.printf("addModule.. size = %d\r\n", _modules.size());
     }
 
     void init_user_config() {
@@ -104,35 +139,6 @@ class CMMC_Legend: public CMMC_System {
 
     CMMC_LED *getBlinker() {
       return blinker;
-    }
-
-    void run() {
-      static CMMC_Legend *that = this;
-      int size = _modules.size();
-      Serial.printf("module size = %d\r\n", size);
-      for (int i = 0 ; i < size; i++) {
-        _modules[i]->loop();
-      }
-      isLongPressed();
-      yield();
-    }
-
-    void isLongPressed() {
-      uint32_t prev = millis();
-      while (digitalRead(13) == LOW) {
-        delay(50);
-        if ( (millis() - prev) > 5L * 1000L) {
-          Serial.println("LONG PRESSED.");
-          blinker->blink(50);
-          while (digitalRead(13) == LOW) {
-            delay(10);
-          }
-          SPIFFS.remove("/enabled");
-          Serial.println("being restarted.");
-          delay(1000);
-          ESP.restart();
-        }
-      }
     }
 
   private:
@@ -430,3 +436,5 @@ class CMMC_Legend: public CMMC_System {
     }
 
 };
+
+#endif

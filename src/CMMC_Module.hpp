@@ -3,25 +3,25 @@
 
 #include <Arduino.h>
 #include "CMMC_System.hpp"
-#include <CMMC_Config_Manager.h>
+#include <CMMC_ConfigManager.h>
 #include <AsyncWebSocket.h>
 #include <ESPAsyncWebServer.h>
 
 class CMMC_Module {
   protected:
     char path[20];
-    CMMC_Config_Manager *_managerPtr;
+    CMMC_ConfigManager *_managerPtr;
     AsyncWebServer *_serverPtr;
     void configWebServer() {
         // strcpy(this->path, path);
         static CMMC_Module *that = this;
-        static CMMC_Config_Manager *m = this->_managerPtr;
+        static CMMC_ConfigManager *m = this->_managerPtr;
         _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest *request) {
           String output = that->saveConfig(request, m);
           request->send(200, "application/json", output);
         }); 
     }
-    String saveConfig(AsyncWebServerRequest *request, CMMC_Config_Manager* configManager) {
+    String saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManager* configManager) {
       int params = request->params();
       String output = "{";
       for (int i = 0; i < params; i++) {

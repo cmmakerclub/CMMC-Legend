@@ -10,7 +10,7 @@ class WiFiModule: public CMMC_Module {
       strcpy(this->path, "/api/wifi/sta");
       static WiFiModule *that = this;
       this->_serverPtr = server;
-      this->_managerPtr = new CMMC_Config_Manager("/wifi.json");
+      this->_managerPtr = new CMMC_ConfigManager("/wifi.json");
       this->_managerPtr->init();
       this->_managerPtr->load_config([](JsonObject * root, const char* content) {
         if (root == NULL) {

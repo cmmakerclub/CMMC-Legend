@@ -1,17 +1,9 @@
-#define CMMC_USE_ALIAS 
 #include "ESPNowModule.h"
-#include <CMMC_Module.hpp>
-#include <CMMC_ESPNow.h>
-#include <CMMC_Utils.h>
-#include <CMMC_SimplePair.h>
-#include <CMMC_Sensor.hpp>
-#include <CMMC_BME680.hpp>
-#include <CMMC_LED.hpp>
-#include <CMMC_LEGEND.hpp>
 
 void ESPNowModule::config(CMMC_System *os, AsyncWebServer* server) {
   uint8_t* slave_addr = CMMC::getESPNowSlaveMacAddress();
   memcpy(self_mac, slave_addr, 6);
+  // this->led = ((CMMC_Legend*) os)->getBlinker();;
   strcpy(this->path, "/api/espnow");
   sensor1 = new CMMC_BME680();
   sensor1->every(10);
@@ -25,7 +17,7 @@ void ESPNowModule::config(CMMC_System *os, AsyncWebServer* server) {
   static ESPNowModule *that = this;
   this->os = os;
   this->_serverPtr = server;
-  this->_managerPtr = new CMMC_Config_Manager("/espnow.json");
+  this->_managerPtr = new CMMC_ConfigManager("/espnow.json");
   this->_managerPtr->init();
 
   this->_managerPtr->load_config([](JsonObject * root, const char* content) {
@@ -81,7 +73,7 @@ void ESPNowModule::setup() {
 
 }
 
-void ESPNowModule::readSensor() {
+void ESPNowModule::_read_sensor() {
   uint32_t moistureValue, phValue, batteryValue;
   /* battery */
   Serial.println("Reading Battery..");
@@ -129,7 +121,8 @@ void ESPNowModule::readSensor() {
 }
 
 void ESPNowModule::_init_simple_pair() {
-  ((CMMC_Legend*) os)->getBlinker()->blink(250);
+  Serial.println("calling simple pair.");
+  // this->led->blink(250);
   simplePair.debug([](const char* msg) {
     Serial.println(msg);
   });
@@ -167,18 +160,18 @@ void ESPNowModule::_init_simple_pair() {
     delay(1000L + (250 * sp_flag_done));
   }
   if (sp_flag_done) {
-    ((CMMC_Legend*) os)->getBlinker()->blink(1000);
+    // ((CMMC_Legend*) os)->getBlinker()->blink(1000);
     delay(5000);
     ESP.restart();
     Serial.println("pair done.");
   }
   else {
     Serial.println("do simple pair device not found.");
-    ((CMMC_Legend*) os)->getBlinker()->blink(50);
+    // ((CMMC_Legend*) os)->getBlinker()->blink(50);
   }
 }
 
-void ESPNowModule::goSleep(uint32_t deepSleepM) {
+void ESPNowModule::_go_sleep(uint32_t deepSleepM) {
   Serial.printf("\r\nGo sleep for .. %lu min. \r\n", deepSleepM);
   ESP.deepSleep(deepSleepM * 60e6);
 }
@@ -192,10 +185,10 @@ void ESPNowModule::_init_espnow() {
   // espNow.debug([](const char* msg) {
   //   Serial.println(msg);
   // });
-  static CMMC_LED *led = ((CMMC_Legend*) os)->getBlinker();
-  led->detach();
+  // static CMMC_LED *led = ((CMMC_Legend*) os)->getBlinker();
+  // led->detach();
   espNow.on_message_sent([](uint8_t *macaddr, u8 status) {
-    led->toggle();
+    // led->toggle();
     Serial.printf("sent status %lu\r\n", status);
   });
 
@@ -204,6 +197,6 @@ void ESPNowModule::_init_espnow() {
     Serial.printf("GOT sleepTime = %lu at(%lu ms)\r\n", data[0], millis());
     // if (data[0] == 0)
     //   data[0] = DEFAULT_DEEP_SLEEP_M;
-    // goSleep(data[0]);
+    // _go_sleep(data[0]);
   });
 }

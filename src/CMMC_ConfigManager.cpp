@@ -1,16 +1,16 @@
-#include "CMMC_Config_Manager.h"
+#include "CMMC_ConfigManager.h"
 #include "FS.h"
 
-CMMC_Config_Manager::CMMC_Config_Manager(const char* filename) {
+CMMC_ConfigManager::CMMC_ConfigManager(const char* filename) {
   strcpy(this->filename_c, filename); 
   this->_user_debug_cb = [](const char* s) { };
 }
 
-CMMC_Config_Manager::~CMMC_Config_Manager() {
+CMMC_ConfigManager::~CMMC_ConfigManager() {
   configFile.close();
 }
 
-void CMMC_Config_Manager::_load_raw_content() {
+void CMMC_ConfigManager::_load_raw_content() {
   this->configFile = SPIFFS.open(this->filename_c, "r");
   // USER_DEBUG_PRINTF("> %s (%luB)\r\n", this->filename_c, configFile.size());
   size_t size = configFile.size() + 1;
@@ -29,7 +29,7 @@ void CMMC_Config_Manager::_load_raw_content() {
   this->configFile.close();
 }
 
-void CMMC_Config_Manager::init(const char* filename) {
+void CMMC_ConfigManager::init(const char* filename) {
   if (filename != NULL) {
     strcpy(this->filename_c, filename); 
   }
@@ -44,8 +44,8 @@ void CMMC_Config_Manager::init(const char* filename) {
   }
 }
 
-void CMMC_Config_Manager::commit() {
-  static CMMC_Config_Manager *_this = this;
+void CMMC_ConfigManager::commit() {
+  static CMMC_ConfigManager *_this = this;
   USER_DEBUG_PRINTF("Commit FS..... from [%x]\r\n", _this);
 
   load_config([](JsonObject * root, const char* content) {
@@ -72,10 +72,10 @@ void CMMC_Config_Manager::commit() {
   });
 }
 
-void CMMC_Config_Manager::add_field(const char* key, const char* value) {
+void CMMC_ConfigManager::add_field(const char* key, const char* value) {
   strcpy(this->_k, key);
   strcpy(this->_v, value);
-  static CMMC_Config_Manager *that = this;
+  static CMMC_ConfigManager *that = this;
   USER_DEBUG_PRINTF("START [add_field] %s ----> %s (with addr: %x)\r\n", key, value, that);
   items[_k] = _v;
   // show content:
@@ -85,7 +85,7 @@ void CMMC_Config_Manager::add_field(const char* key, const char* value) {
   }
 }
 
-void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
+void CMMC_ConfigManager::load_config(cmmc_json_loaded_cb_t cb) {
   _load_raw_content();
   jsonBuffer.clear(); 
   const char *b =  this->fileContent;
@@ -105,7 +105,7 @@ void CMMC_Config_Manager::load_config(cmmc_json_loaded_cb_t cb) {
   }
 }
 
-File CMMC_Config_Manager::_init_json_file() {
+File CMMC_ConfigManager::_init_json_file() {
   USER_DEBUG_PRINTF("[_init_json_file]\r\n");
   this->configFile = SPIFFS.open(this->filename_c, "w");
   jsonBuffer.clear();
@@ -114,13 +114,13 @@ File CMMC_Config_Manager::_init_json_file() {
   this->configFile.close();
 }
 
-void CMMC_Config_Manager::add_debug_listener(cmmc_debug_cb_t cb) {
+void CMMC_ConfigManager::add_debug_listener(cmmc_debug_cb_t cb) {
   if (cb != NULL) {
     this->_user_debug_cb = cb;
   }
 }
 
-void CMMC_Config_Manager::dump_json_object(cmmc_dump_cb_t printer) {
+void CMMC_ConfigManager::dump_json_object(cmmc_dump_cb_t printer) {
   // this->load_config();
   // if (this->currentJsonObject == NULL) {
   //   return;
