@@ -11,6 +11,7 @@ class SensorModule: public CMMC_Module {
   protected:
     void configWebServer();
   private:
+    char sensorName[20];
 };
 
 #endif

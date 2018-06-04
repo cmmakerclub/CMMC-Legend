@@ -78,7 +78,7 @@ void CMMC_Legend::init_user_sensor() {
 }
 
 void CMMC_Legend::init_user_config() {
-  Serial.println("Initializing ConfigManager files.");
+  Serial.println("init_user_config");
 }
 
 void CMMC_Legend::init_network() {

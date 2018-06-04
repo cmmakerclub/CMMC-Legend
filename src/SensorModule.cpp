@@ -10,7 +10,7 @@ void SensorModule::config(CMMC_System *os, AsyncWebServer* server) {
   this->_serverPtr = server;
   this->_managerPtr = m2;
   this->_managerPtr->init();
-  this->_managerPtr->load_config([](JsonObject * root, const char* content) {
+  this->_managerPtr->load_config([&](JsonObject * root, const char* content) {
     if (root == NULL) {
       Serial.print("sensor.json failed. >");
       Serial.println(content);
@@ -18,8 +18,9 @@ void SensorModule::config(CMMC_System *os, AsyncWebServer* server) {
     }
     Serial.println("[user] sensor config json loaded..");
     const char* config[2];
-    config[0] = (*root)["sensorName"];
-    config[1] = (*root)["sensorId"];
+    config[0] = (*root)["sensorType"];
+    // config[1] = (*root)["sensorId"];
+    strcpy(sensorName, String(config[0]).c_str());
   });
   this->configWebServer();
 }

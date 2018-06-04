@@ -21,8 +21,9 @@ extern "C" {
 typedef void (*cmmc_err_status_t)(u8 status, const char* cause);
 typedef void (*cmmc_succ_status_t)(u8 status);
 typedef void (*cmmc_debug_cb_t)(const char* cause);
-typedef void (*cmmc_dump_cb_t)(const char* msg, const char* k, const char* v);
-typedef void (*cmmc_json_loaded_cb_t)(JsonObject* root, const char* content);
+typedef std::function<void(const char* msg, const char* k, const char* v)> cmmc_dump_cb_t; 
+typedef std::function<void(JsonObject* root, const char* content)> cmmc_json_loaded_cb_t;
+
 
 #define USER_DEBUG_PRINTF(fmt, args...) { \
     Serial.printf(fmt, ## args); \

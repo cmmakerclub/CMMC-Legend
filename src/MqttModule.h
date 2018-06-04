@@ -24,10 +24,8 @@ class MqttModule: public CMMC_Module {
     String DEVICE_NAME;
     int MQTT_PORT;
     int PUBLISH_EVERY;
-    int MQTT_CONNECT_TIMEOUT;
-
+    int MQTT_CONNECT_TIMEOUT; 
     bool MQTT_LWT;
-    char myName[15]; 
 };
 
 #endif

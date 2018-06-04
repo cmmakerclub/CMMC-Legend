@@ -1,1 +1,1 @@
-{"sensorType": "BME680", "dht_pin":"12", "bme_pin":"", "bme_addr": "0x77"} 
+{"sensorType": "NO_SENSOR", "dht_pin":"12", "bme_pin":"", "bme_addr": "0x77"} 
