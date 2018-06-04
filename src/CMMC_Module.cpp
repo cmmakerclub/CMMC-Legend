@@ -40,3 +40,8 @@ String CMMC_Module::saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManage
   configManager->commit();
   return output;
 } 
+
+
+void CMMC_Module::configLoop() {
+  yield(); 
+}

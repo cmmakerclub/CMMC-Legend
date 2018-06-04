@@ -19,6 +19,7 @@ class CMMC_Module {
     virtual void config(CMMC_System *os, AsyncWebServer* server) = 0; 
     virtual void setup() = 0;
     virtual void loop() = 0;
+    virtual void configLoop();
 };
 
 #endif

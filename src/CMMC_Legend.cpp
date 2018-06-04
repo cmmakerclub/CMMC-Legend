@@ -96,7 +96,7 @@ void CMMC_Legend::init_network() {
     blinker->blink(50);
     while (1) {
       for (int i = 0 ; i < _modules.size(); i++) {
-        _modules[i]->setup();
+        _modules[i]->configLoop();
       }
       yield();
     }

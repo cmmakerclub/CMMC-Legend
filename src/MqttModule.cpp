@@ -6,9 +6,8 @@ void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
 
 void MqttModule::setup() {
   Serial.println("MqttModule::once"); 
-
 };
 
 void MqttModule::loop() {
-  Serial.println("MqttModule::loop"); 
+  yield();
 } ;  

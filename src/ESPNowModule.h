@@ -22,6 +22,7 @@ class ESPNowModule: public CMMC_Module {
   public:
     void config(CMMC_System *os, AsyncWebServer* server); 
     void loop(); 
+    void configLoop(); 
     void setup(); 
   private:
     CMMC_System *os;

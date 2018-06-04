@@ -2,6 +2,7 @@
 #include <CMMC_Legend.h>
 
 void ESPNowModule::config(CMMC_System *os, AsyncWebServer* server) {
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   uint8_t* slave_addr = CMMC::getESPNowSlaveMacAddress();
   memcpy(self_mac, slave_addr, 6);
   this->led = ((CMMC_Legend*) os)->getBlinker();;
@@ -59,14 +60,14 @@ void ESPNowModule::loop() {
   delay(1000);
 }
 
-void ESPNowModule::setup() {
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
+void ESPNowModule::configLoop() {
   if (digitalRead(BUTTON_PIN) == 0) {
     _init_simple_pair();
     delay(1000);
-  } else {
-    _init_espnow(); 
-  } 
+  }
+}
+void ESPNowModule::setup() { 
+  _init_espnow(); 
 }
 
 void ESPNowModule::_read_sensor() {
@@ -112,8 +113,7 @@ void ESPNowModule::_read_sensor() {
   data2.sum = CMMC::checksum((uint8_t*) &data2, sizeof(data2) - sizeof(data2.sum));
 
   strcpy(data2.sensorName, data1.sensorName);
-  data2.nameLen = strlen(data2.sensorName);
-
+  data2.nameLen = strlen(data2.sensorName); 
 }
 
 void ESPNowModule::_init_simple_pair() {
