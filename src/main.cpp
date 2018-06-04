@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include "CMMC_Legend.h"
 #include "ESPNowModule.h" 
-#include "WiFiModule.hpp" 
+#include "WiFiModule.h" 
 CMMC_Legend os;
 
 void setup()
