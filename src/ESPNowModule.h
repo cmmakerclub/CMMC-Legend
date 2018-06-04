@@ -2,14 +2,14 @@
 #ifndef CMMC_ESPNOW_MODULE_H
 #define CMMC_ESPNOW_MODULE_H
 #define CMMC_USE_ALIAS 
+
 #include <CMMC_Utils.h>
-#include <CMMC_Module.hpp>
+#include <CMMC_Module.h>
 #include <CMMC_ESPNow.h>
 #include <CMMC_SimplePair.h>
 #include <CMMC_Sensor.hpp>
 #include <CMMC_LED.h>
 #include <CMMC_BME680.hpp>
-
 
 
 #define BUTTON_PIN  0
@@ -21,8 +21,8 @@ class ESPNowModule: public CMMC_Module {
   CMMC_Sensor *sensor1;
   public:
     void config(CMMC_System *os, AsyncWebServer* server); 
-    void once(); 
     void loop(); 
+    void configLoop(); 
     void setup(); 
   private:
     CMMC_System *os;
