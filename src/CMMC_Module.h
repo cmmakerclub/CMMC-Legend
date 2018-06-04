@@ -9,9 +9,10 @@
 
 class CMMC_Module {
   protected:
-    char path[20];
     CMMC_ConfigManager *_managerPtr;
     AsyncWebServer *_serverPtr;
+    char path[20];
+
     void configWebServer();
     String saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManager* configManager);
   public:
