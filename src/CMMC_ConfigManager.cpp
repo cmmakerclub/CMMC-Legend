@@ -32,10 +32,10 @@ void CMMC_ConfigManager::_load_raw_content() {
 void CMMC_ConfigManager::init(const char* filename) {
   if (filename != NULL) {
     strcpy(this->filename_c, filename); 
-    Serial.println("ConfigManager init with new filename");
+    // Serial.println("ConfigManager init with new filename");
   }
   else {
-    Serial.println("ConfigManager init()"); 
+    // Serial.println("ConfigManager init()"); 
   }
 
   Serial.printf("current file = %s\r\n", this->filename_c);

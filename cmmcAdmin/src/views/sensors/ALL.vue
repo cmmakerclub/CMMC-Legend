@@ -23,6 +23,9 @@
             <input type="radio" id="DHT22" value="DHT22" v-model="sensorType">
             <label for="DHT22">DHT 22</label>
             <br>
+            <input type="radio" id="NO_SENSOR" value="NO_SENSOR" v-model="sensorType">
+            <label for="DHT22">No Sensor</label>
+            <br>
           </div>
 
           <div class="control">

@@ -6,10 +6,13 @@
 #include "ESPNowModule.h" 
 #include "WiFiModule.h" 
 #include "MqttModule.h" 
+#include "SensorModule.h" 
+
 CMMC_Legend os;
 
 void setup()
 {
+  os.addModule(new SensorModule());
   os.addModule(new WiFiModule());
   os.addModule(new MqttModule);;
   // os.addModule(new ESPNowModule());
