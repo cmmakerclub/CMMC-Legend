@@ -8,7 +8,7 @@
 #include <SPI.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <CMMC_Interval.hpp>
+#include <CMMC_Interval.h>
   typedef struct __attribute((__packed__)) {
     uint8_t from[6];
     uint8_t to[6];
