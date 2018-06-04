@@ -12,6 +12,8 @@ class MqttModule: public CMMC_Module {
   protected:
     void configWebServer();
     MqttConnector* init_mqtt();
+    void register_receive_hooks(MqttConnector *mqtt);
+    void register_publish_hooks(MqttConnector* mqtt); 
   private: 
     MqttConnector* mqtt; 
     String MQTT_HOST;

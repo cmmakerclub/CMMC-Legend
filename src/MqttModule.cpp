@@ -1,4 +1,6 @@
 #include "MqttModule.h"
+#include "version.h"
+
 
 
 #define MQTT_CONFIG_FILE "/mymqtt.json"
@@ -152,10 +154,106 @@ MqttConnector* MqttModule::init_mqtt()
     Serial.println("MQTT is undefined.");
   }
 
-  // register_publish_hooks(mqtt);
-  // register_receive_hooks(mqtt);
+  register_publish_hooks(mqtt);
+  register_receive_hooks(mqtt);
 
   Serial.println("connecting to mqtt..");
   mqtt->connect();
   return mqtt;
+}
+
+void MqttModule::register_receive_hooks(MqttConnector *mqtt) {
+  mqtt->on_subscribe([&](MQTT::Subscribe *sub) -> void {
+    Serial.printf("onSubScribe myName = %s \r\n", DEVICE_NAME.c_str());
+    sub->add_topic(MQTT_PREFIX + DEVICE_NAME + String("/$/+"));
+    sub->add_topic(MQTT_PREFIX + MQTT_CLIENT_ID + String("/$/+"));
+    sub->add_topic(MQTT_PREFIX + DEVICE_NAME + String("/status"));
+    Serial.println("done on_subscribe...");
+    Serial.printf("publish every %lu s\r\n", PUBLISH_EVERY);
+  });
+
+  mqtt->on_before_message_arrived_once([&](void) { });
+
+  mqtt->on_message([&](const MQTT::Publish & pub) { });
+
+  mqtt->on_after_message_arrived([&](String topic, String cmd, String payload) {
+    // Serial.printf("recv topic: %s\r\n", topic.c_str());
+    // Serial.printf("recv cmd: %s\r\n", cmd.c_str()); 
+    // Serial.printf("payload: %s\r\n", payload.c_str());
+    if (cmd == "$/command") {
+      if (payload == "ON") {
+        Serial.println("ON");
+        // gpio.on();
+        // relayPinState = 1;
+      }
+      else if (payload == "OFF") {
+        // relayPinState = 0;
+        // gpio.off();
+        Serial.println("OFF");
+      }
+      else if (payload == "FORCE_CONFIG") {
+        SPIFFS.remove("/enabled"); 
+        ESP.restart();
+      }
+    }
+    else if (cmd == "$/reboot") {
+      ESP.restart();
+    }
+    else if (cmd == "status") {
+      // Serial.println("sent & recv.");
+    }
+    else {
+      Serial.println("Another message arrived.");
+      // another message.
+    }
+    // lastRecv = millis();
+  });
+}
+
+void MqttModule::register_publish_hooks(MqttConnector* mqtt) {
+  // strcpy(myName, DEVICE_NAME.c_str());
+  mqtt->on_prepare_data_once([&](void) {
+    Serial.println("initializing sensor...");
+  });
+
+  mqtt->on_before_prepare_data([&](void) {
+  });
+
+  mqtt->on_prepare_data([&](JsonObject *root) {
+    JsonObject& data = (*root)["d"];
+    JsonObject& info = (*root)["info"];
+    data["appVersion"] = LEGEND_APP_VERSION;
+    data["myName"] = DEVICE_NAME;
+    data["millis"] = millis(); 
+    // data["relayPinState"] = relayPinState;
+    // data["sensorType"] = sensorType;
+    data["updateInterval"] = PUBLISH_EVERY;
+    // Serial.printf("field1 = %lu \r\n", sensorData.field1);
+    // Serial.printf("field2 = %lu \r\n", sensorData.field2);
+    // Serial.printf("field3 = %lu \r\n", sensorData.field3);
+    // Serial.printf("field4 = %lu \r\n", sensorData.field4);
+    // Serial.printf("field5 = %lu \r\n", sensorData.field5);
+    // Serial.printf("field6 = %lu \r\n", sensorData.field6);
+
+    // if (sensorData.field1) { data["field1"] = sensorData.field1; }
+    // if (sensorData.field2) { data["field2"] = sensorData.field2; }
+    // if (sensorData.field3) { data["field3"] = sensorData.field3; }
+    // if (sensorData.field4) { data["field4"] = sensorData.field4; }
+    // if (sensorData.field5) { data["field5"] = sensorData.field5; }
+    // if (sensorData.field6) { data["field6"] = sensorData.field6; }
+    // if (sensorData.field7) { data["field7"] = sensorData.field7; } 
+    // if (sensorData.field8) { data["field8"] = sensorData.field8; }
+    // if (sensorData.ms) { data["ms"] = sensorData.ms; }
+    // if (sensorData.battery) { data["battery"] = sensorData.battery; }
+    Serial.println("PUBLISHED!");
+
+  }, PUBLISH_EVERY);
+
+  mqtt->on_after_prepare_data([&](JsonObject * root) {
+    /**************
+      JsonObject& data = (*root)["d"];
+      data.remove("version");
+      data.remove("subscription");
+    **************/
+  });
 }

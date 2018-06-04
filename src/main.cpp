@@ -1,5 +1,7 @@
 #define CMMC_USE_ALIAS 
 #include <Arduino.h>
+
+#include "version.h"
 #include "CMMC_Legend.h"
 #include "ESPNowModule.h" 
 #include "WiFiModule.h" 
