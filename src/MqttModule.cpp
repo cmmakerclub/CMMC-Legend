@@ -1,8 +1,6 @@
 #include "MqttModule.h"
 #include "version.h"
 
-
-
 #define MQTT_CONFIG_FILE "/mymqtt.json"
 static CMMC_ConfigManager *mmm = new CMMC_ConfigManager(MQTT_CONFIG_FILE);
 
@@ -62,11 +60,10 @@ void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
 
       if (strcmp(mqtt_clientId, "") == 0) {
         sprintf(mqtt_clientId, "%08x", ESP.getChipId());
-      }
-
-    }
-
+      } 
+    } 
   });
+
   MQTT_HOST = String(mqtt_host);
   MQTT_USERNAME = String(mqtt_user);
   MQTT_PASSWORD = String(mqtt_pass);
@@ -76,6 +73,7 @@ void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
   PUBLISH_EVERY = pubEveryS * 1000L;
   MQTT_LWT = lwt;
   DEVICE_NAME = String(mqtt_device_name);
+
   this->configWebServer();
 };
 
@@ -95,7 +93,6 @@ void MqttModule::setup() {
 };
 
 void MqttModule::loop() {
-  yield();
   mqtt->loop();
 };
 
@@ -211,7 +208,6 @@ void MqttModule::register_receive_hooks(MqttConnector *mqtt) {
 }
 
 void MqttModule::register_publish_hooks(MqttConnector* mqtt) {
-  // strcpy(myName, DEVICE_NAME.c_str());
   mqtt->on_prepare_data_once([&](void) {
     Serial.println("initializing sensor...");
   });
