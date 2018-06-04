@@ -35,11 +35,10 @@ void WiFiModule::configWebServer() {
   static WiFiModule *that = this;
   strcpy(that->_managerPtr->filename_c, config_file);; 
   _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = that->saveConfig(request, m2, WIFI_CONFIG_FILE);
+    String output = that->saveConfig(request, m2);
     request->send(200, "application/json", output);
   }); 
 }
-
 void WiFiModule::setup() {
   _init_sta();
 }

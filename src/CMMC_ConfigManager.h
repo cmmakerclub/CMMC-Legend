@@ -36,7 +36,7 @@ class CMMC_ConfigManager
     ~CMMC_ConfigManager();
     typedef std::map<String, String> Items; 
     void init(const char* filename = NULL);
-    void commit(const char* filename);
+    void commit();
     void load_config(cmmc_json_loaded_cb_t cb = NULL);
     void add_debug_listener(cmmc_debug_cb_t cb);
     void add_field(const char* key, const char* value);

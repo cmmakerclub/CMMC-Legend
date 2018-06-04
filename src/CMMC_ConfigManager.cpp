@@ -50,11 +50,9 @@ void CMMC_ConfigManager::init(const char* filename) {
   }
 }
 
-void CMMC_ConfigManager::commit(const char* filename) {
+void CMMC_ConfigManager::commit() {
   static CMMC_ConfigManager *that;
   that = this;
-  Serial.printf("IN COMMING... with %s, LOCAL=%s\r\n", filename, filename_c); 
-  strcpy(that->filename_c, filename);
   USER_DEBUG_PRINTF("Commit FS..... from [%x]\r\n", that); 
   Serial.printf("> [BEFORE INNER CLOSURE] writing file %s\r\n", filename_c);
   load_config([](JsonObject * root, const char* content) {

@@ -28,7 +28,7 @@ void MqttModule::configWebServer() {
   Serial.printf("configManager addr %x \r\n", mmm);
   strcpy(that->_managerPtr->filename_c, config_file);; 
   _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = that->saveConfig(request, mmm, MQTT_CONFIG_FILE);
+    String output = that->saveConfig(request, mmm);
     request->send(200, "application/json", output);
   }); 
 }

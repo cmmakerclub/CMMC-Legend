@@ -14,13 +14,13 @@ class CMMC_Module {
     char path[20];
     char config_file[20];
 
-    String saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManager* configManager, const char* config_file);
-    virtual void configWebServer() = 0; 
+    String saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManager* configManager);
   public:
     virtual void config(CMMC_System *os, AsyncWebServer* server) = 0; 
     virtual void setup() = 0;
     virtual void loop() = 0;
     virtual void configLoop();
+    void configWebServer(); 
 };
 
 #endif
