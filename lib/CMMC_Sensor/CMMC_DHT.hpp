@@ -8,9 +8,14 @@ class CMMC_DHT : public CMMC_Sensor
 {
 public:
   DHT *dht;
+  int pin;
+  int type;
 
-  CMMC_DHT() {
+  CMMC_DHT(int type = 0, int pin = 0) {
     this->data.type = 0x03;
+    this->pin = pin;
+    this->type = type;
+    dht = new DHT(pin, type); 
   }
 
   ~CMMC_DHT() {
@@ -21,11 +26,7 @@ public:
   {
     Serial.printf("DHT BEGIN... pin=%d, type=%d\r\n", pin, type);
     this->tag = String("DHT")+type;
-    dht = new DHT(pin, type); 
     dht->begin();
-    data.field1 = dht->readTemperature() * 100;
-    data.field2 = dht->readHumidity() * 100;
-    Serial.printf("temp %lu, hudmid %lu \r\n", data.field1, data.field2);
   };
 
   void read()

@@ -1,4 +1,5 @@
 #include <CMMC_Module.h>
+#include <CMMC_Sensor.hpp>
 
 #ifndef CMMC_SENSOR_MODULE_H
 #define CMMC_SENSOR_MODULE_H 
@@ -12,6 +13,7 @@ class SensorModule: public CMMC_Module {
     void configWebServer();
   private:
     char sensorName[20];
+    CMMC_Sensor *sensor;
 };
 
 #endif

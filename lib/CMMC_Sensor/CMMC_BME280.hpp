@@ -10,13 +10,14 @@ private:
   Adafruit_BME280 *bme; // I2C
 public:
 
-  ~CMMC_BME280() {
+  CMMC_BME280() {
+    Serial.println("Initializing Adafruit BME280.");
     bme = new Adafruit_BME280;
     this->tag = "BME280"; 
     this->data.type = 0x01;
   }
 
-  CMMC_BME280() {
+  ~CMMC_BME280() {
     delete bme; 
   }
   void setup(int a=0, int b=0 )
