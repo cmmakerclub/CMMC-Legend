@@ -4,6 +4,18 @@
 #define MQTT_CONFIG_FILE "/mymqtt.json"
 static CMMC_ConfigManager *mmm = new CMMC_ConfigManager(MQTT_CONFIG_FILE);
 
+char mqtt_host[40] = "";
+char mqtt_user[40] = "";
+char mqtt_pass[40] = "";
+char mqtt_clientId[40] = "";
+char mqtt_prefix[40] = "";
+char mqtt_port[10] = "";
+char mqtt_device_name[20] = "";
+bool     lwt;
+uint32_t port;
+uint32_t pubEveryS;
+
+
 void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
   strcpy(this->path, "/api/mqtt");
   strcpy(this->config_file, MQTT_CONFIG_FILE);
@@ -16,25 +28,134 @@ void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
       Serial.println(content);
       return ;
     }
+    Serial.println(content);
     Serial.println("[user] mqtt config json loaded..");
+    const char* mqtt_configs[] = {(*root)["host"],
+                                  (*root)["username"], (*root)["password"],
+                                  (*root)["clientId"], (*root)["port"],
+                                  (*root)["deviceName"],
+                                  (*root)["prefix"], // [6]
+                                  (*root)["lwt"],
+                                  (*root)["publishRateSecond"]};
+
+    if (mqtt_configs[0] != NULL) {
+      strcpy(mqtt_host, mqtt_configs[0]);
+      strcpy(mqtt_user, mqtt_configs[1]);
+      strcpy(mqtt_pass, mqtt_configs[2]);
+      strcpy(mqtt_clientId, mqtt_configs[3]);
+      strcpy(mqtt_port, mqtt_configs[4]);
+      strcpy(mqtt_device_name, mqtt_configs[5]);
+      strcpy(mqtt_prefix, mqtt_configs[6]);
+
+      port = String(mqtt_configs[4]).toInt();
+      lwt = String(mqtt_configs[7]).toInt();
+      pubEveryS = String(mqtt_configs[8]).toInt();
+
+      if (strcmp(mqtt_device_name, "") == 0) {
+        sprintf(mqtt_device_name, "%08x", ESP.getChipId());
+      }
+      else {
+        Serial.printf("DEVICE NAME = %s\r\n", mqtt_device_name);
+      }
+
+      if (strcmp(mqtt_clientId, "") == 0) {
+        sprintf(mqtt_clientId, "%08x", ESP.getChipId());
+      }
+
+    }
+
   });
-    this->configWebServer();
-}; 
+  MQTT_HOST = String(mqtt_host);
+  MQTT_USERNAME = String(mqtt_user);
+  MQTT_PASSWORD = String(mqtt_pass);
+  MQTT_CLIENT_ID = String(mqtt_clientId);
+  MQTT_PORT = String(mqtt_port).toInt();
+  MQTT_PREFIX = String(mqtt_prefix);
+  PUBLISH_EVERY = pubEveryS * 1000L;
+  MQTT_LWT = lwt;
+  DEVICE_NAME = String(mqtt_device_name);
+  this->configWebServer();
+};
 
 void MqttModule::configWebServer() {
   static MqttModule *that = this;
   Serial.printf("configManager addr %x \r\n", mmm);
-  strcpy(that->_managerPtr->filename_c, config_file);; 
+  strcpy(that->_managerPtr->filename_c, config_file);;
   _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
     String output = that->saveConfig(request, mmm);
     request->send(200, "application/json", output);
-  }); 
+  });
 }
 
 void MqttModule::setup() {
-  Serial.println("MqttModule::setup"); 
+  Serial.println("MqttModule::setup");
+  init_mqtt();
 };
 
 void MqttModule::loop() {
   yield();
-};  
+  mqtt->loop();
+};
+
+// MQTT INITIALIZER
+
+MqttConnector* MqttModule::init_mqtt()
+{
+  this->mqtt = new MqttConnector(this->MQTT_HOST.c_str(), this->MQTT_PORT);
+
+  mqtt->on_connecting([&](int counter, bool * flag) {
+    Serial.printf("[%lu] MQTT CONNECTING.. \r\n", counter);
+    if (counter >= MQTT_CONNECT_TIMEOUT) {
+      ESP.reset();
+    }
+    delay(1000);
+  });
+
+  mqtt->on_prepare_configuration([&](MqttConnector::Config * config) -> void {
+    Serial.printf("lwt = %lu\r\n", MQTT_LWT);
+    config->clientId  = MQTT_CLIENT_ID;
+    config->channelPrefix = MQTT_PREFIX;
+    config->enableLastWill = MQTT_LWT;
+    config->retainPublishMessage = false;
+    /*
+        config->mode
+        ===================
+        | MODE_BOTH       |
+        | MODE_PUB_ONLY   |
+        | MODE_SUB_ONLY   |
+        ===================
+    */
+    config->mode = MODE_BOTH;
+    config->firstCapChannel = false;
+
+    config->username = String(MQTT_USERNAME);
+    config->password = String(MQTT_PASSWORD);
+
+    // FORMAT
+    // d:quickstart:<type-id>:<device-id>
+    //config->clientId  = String("d:quickstart:esp8266meetup:") + macAddr;
+    config->topicPub  = MQTT_PREFIX + String(DEVICE_NAME) + String("/status");
+  });
+
+  mqtt->on_after_prepare_configuration([&](MqttConnector::Config config) -> void {
+    String humanTopic = MQTT_PREFIX + DEVICE_NAME + String("/$/+");
+    Serial.printf("[USER] HOST = %s\r\n", config.mqttHost.c_str());
+    Serial.printf("[USER] PORT = %d\r\n", config.mqttPort);
+    Serial.printf("[USER] PUB  = %s\r\n", config.topicPub.c_str());
+    Serial.printf("[USER] SUB  = %s\r\n", config.topicSub.c_str());
+    Serial.printf("[USER] SUB  = %s\r\n", humanTopic.c_str());
+    // sub->add_topic(MQTT_PREFIX + String("/") + String(myName) + String("#"));
+    // sub->add_topic(MQTT_PREFIX + "/" + MQTT_CLIENT_ID + "/$/+");
+  });
+
+  if (mqtt == NULL) {
+    Serial.println("MQTT is undefined.");
+  }
+
+  // register_publish_hooks(mqtt);
+  // register_receive_hooks(mqtt);
+
+  Serial.println("connecting to mqtt..");
+  mqtt->connect();
+  return mqtt;
+}

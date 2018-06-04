@@ -58,6 +58,6 @@ void WiFiModule::_init_sta() {
     // os->isLongPressed();
     delay(300);
   }
-  Serial.println("WiFi Connected.");
+  Serial.println("WiFi Connected."); 
 }
 
