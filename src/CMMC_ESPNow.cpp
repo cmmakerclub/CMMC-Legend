@@ -78,41 +78,46 @@ void CMMC_ESPNow::send(uint8_t *mac, u8* data, int len, void_cb_t cb, uint32_t w
   this->_waiting_message_has_arrived = false;
   CMMC_SENSOR_T *packet;
   packet = (CMMC_SENSOR_T *)data;
-  uint32_t MAX_RETRIES   = 15;
-  uint32_t RETRIES_DELAY = 20;
-  int retries = 0;
+  uint16_t MAX_RETRIES   = 10;
+  uint16_t RETRIES_DELAY = 10;
+  uint16_t retries = 0;
 
   esp_now_send(mac, data, len);
   delay(RETRIES_DELAY*(retries+1));
 
   if (this->_enable_retries) {
     while(this->_message_sent_status != 0) {
-      USER_DEBUG_PRINTF("try to send over espnow...");
-
+      USER_DEBUG_PRINTF("try to send over espnow..."); 
       esp_now_send(mac, data, len);
       delay(RETRIES_DELAY*(retries+1));
-      Serial.println("retries");
+      Serial.printf("retrying %d/%d (at %lums)\r\n", retries, MAX_RETRIES, millis());
       if (++retries > MAX_RETRIES) {
+        Serial.printf("reach max retries.\r\n");
         break;
       }
       packet->field6= retries;
-      packet->sum= CMMC::checksum((uint8_t*)data,
-                                    sizeof(*packet) - sizeof(packet->sum));
+      // packet->sum= CMMC::checksum((uint8_t*)packet, sizeof(*packet) - sizeof(packet->sum));
     }
   }
 
   if (cb != NULL) {
     uint32_t timeout_at_ms = millis() + wait_time;
-    USER_DEBUG_PRINTF("timeout at %lu", timeout_at_ms);
-    USER_DEBUG_PRINTF("millis = %lu", millis());
+    USER_DEBUG_PRINTF("timeout at %lu/%lu", millis(), timeout_at_ms);
     while (millis() < timeout_at_ms) {
       USER_DEBUG_PRINTF("Waiting a command message...");
       delay(100);
     }
+
     if (this->_waiting_message_has_arrived==false) {
-      USER_DEBUG_PRINTF("Timeout... %d", _waiting_message_has_arrived);
+      USER_DEBUG_PRINTF("MESSAGE LOST!, Waiting a message Timeout...\r\n");
       cb();
     }
+    else {
+      USER_DEBUG_PRINTF("GOT a message from controller\r\n"); 
+    }
+  }
+  else {
+    Serial.println("cb is null");
   }
 }
 

@@ -65,17 +65,22 @@ class ESPNowModule: public CMMC_Module {
       _init_espnow(); 
     }
 
-    void loop() {
+    void loop() { 
+      Serial.printf("looping at %lums\r\n", millis());
       u8 t = 1;
       sensor1->read();
-      espNow.send(master_mac, (u8*)&data2, sizeof(data2), []() { }, 200);
-      delay(10);
+      delay(2);
+      Serial.printf("sending at %lums\r\n", millis());
+      espNow.send(master_mac, &t, 1, []() { 
+        Serial.println("espnow sending timeout.");
+      }, 200);
+      delay(1000);
     }
 
     void setup() {
       pinMode(BUTTON_PIN, INPUT_PULLUP);
       if (digitalRead(BUTTON_PIN) == 0) {
-        init_simple_pair();
+        _init_simple_pair();
         delay(1000);
       } else {
 
@@ -138,7 +143,7 @@ class ESPNowModule: public CMMC_Module {
 
     }
 
-    void init_simple_pair() {
+    void _init_simple_pair() {
       ((CMMC_Legend*) os)->getBlinker()->blink(250);
       simplePair.debug([](const char* msg) {
         Serial.println(msg);
@@ -198,26 +203,24 @@ class ESPNowModule: public CMMC_Module {
       Serial.print("Slave Mac Address: ");
       CMMC::printMacAddress(self_mac, true); 
       espNow.init(NOW_MODE_SLAVE);
+      espNow.enable_retries(true);
+      // espNow.debug([](const char* msg) {
+      //   Serial.println(msg); 
+      // });
+      static CMMC_LED *led = ((CMMC_Legend*) os)->getBlinker();
+      led->detach();
       espNow.on_message_sent([](uint8_t *macaddr, u8 status) {
-        // led.toggle();
-        // Serial.println(millis());
+        led->toggle();
         Serial.printf("sent status %lu\r\n", status);
       });
 
       espNow.on_message_recv([](uint8_t * macaddr, uint8_t * data, uint8_t len) {
         // led.toggle();
-        Serial.printf("GOT sleepTime = %lu\r\n", data[0]);
+        Serial.printf("GOT sleepTime = %lu at(%lu ms)\r\n", data[0], millis());
         // if (data[0] == 0)
         //   data[0] = DEFAULT_DEEP_SLEEP_M;
         // goSleep(data[0]);
-        });
-        u8 t = 1;
-        sensor1->read();
-        delay(2);
-        Serial.printf("sending at %lums\r\n", millis());
-        espNow.send(master_mac, &t, 1, []() { }, 200);
-        goSleep(1);
-        delay(2000);
+        }); 
     }
 }; 
 #endif

@@ -40,6 +40,11 @@ class CMMC_LED
       this->_ticker = ticker;
     };
 
+    void toggle() {
+      this->state = !this->state;
+      digitalWrite(this->_ledPin, this->state);
+    }
+
     void blink(uint32_t ms, uint8_t pin) {
       this->setPin(pin);
       this->blink(ms);

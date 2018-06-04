@@ -105,6 +105,7 @@ class CMMC_Legend: public CMMC_System {
     void run() {
       static CMMC_Legend *that = this;
       int size = _modules.size();
+      Serial.printf("module size = %d\r\n", size);
       for (int i = 0 ; i < size; i++) {
         _modules[i]->loop();
       }
