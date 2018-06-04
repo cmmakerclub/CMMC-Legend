@@ -1,8 +1,7 @@
 #include <CMMC_Module.h>
 
 #ifndef CMMC_WIFI_MODULE_H
-#define CMMC_WIFI_MODULE_H
-
+#define CMMC_WIFI_MODULE_H 
 
 class WiFiModule: public CMMC_Module {
   public:
