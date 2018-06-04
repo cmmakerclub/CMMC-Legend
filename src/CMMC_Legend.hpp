@@ -9,7 +9,7 @@
 #include <CMMC_ConfigManager.h>
 #include "CMMC_System.hpp"
 #include <vector>
-#include "CMMC_Module.hpp"
+#include "CMMC_Module.h"
 #include "version.h"
 #include <SPIFFSEditor.h>
 

@@ -1,4 +1,4 @@
-#include <CMMC_Module.hpp>
+#include <CMMC_Module.h>
 
 #ifndef CMMC_WIFI_MODULE_H
 #define CMMC_WIFI_MODULE_H
