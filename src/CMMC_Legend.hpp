@@ -57,6 +57,7 @@ class CMMC_Legend: public CMMC_System {
       Serial.println();
       blinker->blink(500);
       delay(10);
+      isLongPressed();
     }
 
     void init_user_sensor() {
