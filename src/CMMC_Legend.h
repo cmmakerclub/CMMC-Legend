@@ -20,6 +20,7 @@ static AsyncWebServer server(80);
 static AsyncWebSocket ws("/ws");
 static AsyncEventSource events("/events");
 static CMMC_LED *blinker;
+
 static const char* http_username = "admin";
 static const char* http_password = "admin";
 
@@ -31,13 +32,13 @@ class CMMC_Legend: public CMMC_System {
     void run(); 
     void isLongPressed();
     void setup(); 
+    CMMC_LED *getBlinker();
   protected: 
     void init_gpio(); 
     void init_fs();
     void init_user_sensor(); 
     void init_user_config(); 
     void init_network(); 
-    CMMC_LED *getBlinker();
 
   private:
     MODE mode;

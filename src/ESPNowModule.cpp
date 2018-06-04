@@ -1,9 +1,10 @@
 #include "ESPNowModule.h"
+#include <CMMC_Legend.h>
 
 void ESPNowModule::config(CMMC_System *os, AsyncWebServer* server) {
   uint8_t* slave_addr = CMMC::getESPNowSlaveMacAddress();
   memcpy(self_mac, slave_addr, 6);
-  // this->led = ((CMMC_Legend*) os)->getBlinker();;
+  this->led = ((CMMC_Legend*) os)->getBlinker();;
   strcpy(this->path, "/api/espnow");
   sensor1 = new CMMC_BME680();
   sensor1->every(10);
@@ -122,7 +123,7 @@ void ESPNowModule::_read_sensor() {
 
 void ESPNowModule::_init_simple_pair() {
   Serial.println("calling simple pair.");
-  // this->led->blink(250);
+  this->led->blink(250);
   simplePair.debug([](const char* msg) {
     Serial.println(msg);
   });
@@ -160,14 +161,14 @@ void ESPNowModule::_init_simple_pair() {
     delay(1000L + (250 * sp_flag_done));
   }
   if (sp_flag_done) {
-    // ((CMMC_Legend*) os)->getBlinker()->blink(1000);
+    module->led->blink(1000); 
     delay(5000);
     ESP.restart();
     Serial.println("pair done.");
   }
   else {
     Serial.println("do simple pair device not found.");
-    // ((CMMC_Legend*) os)->getBlinker()->blink(50);
+    module->led->blink(50);
   }
 }
 
