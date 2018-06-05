@@ -12,7 +12,6 @@ class CMMC_Module {
     CMMC_ConfigManager *_managerPtr;
     AsyncWebServer *_serverPtr;
     char path[20];
-    char config_file[20];
 
     String saveConfig(AsyncWebServerRequest *request, CMMC_ConfigManager* configManager);
   public:

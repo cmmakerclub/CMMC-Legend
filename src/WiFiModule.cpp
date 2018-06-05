@@ -1,14 +1,12 @@
 #include "WiFiModule.h"
 
 #define WIFI_CONFIG_FILE "/wifi.json"
-static CMMC_ConfigManager *m2 = new CMMC_ConfigManager(WIFI_CONFIG_FILE);
 
 void WiFiModule::config(CMMC_System *os, AsyncWebServer* server) {
   strcpy(this->path, "/api/wifi/sta");
-  strcpy(this->config_file, WIFI_CONFIG_FILE);
   static WiFiModule *that = this;
   this->_serverPtr = server;
-  this->_managerPtr = m2;
+  this->_managerPtr = new CMMC_ConfigManager(WIFI_CONFIG_FILE);
   this->_managerPtr->init();
   this->_managerPtr->load_config([](JsonObject * root, const char* content) {
     if (root == NULL) {
@@ -33,9 +31,8 @@ void WiFiModule::config(CMMC_System *os, AsyncWebServer* server) {
 
 void WiFiModule::configWebServer() {
   static WiFiModule *that = this;
-  strcpy(that->_managerPtr->filename_c, config_file);; 
-  _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = that->saveConfig(request, m2);
+  _serverPtr->on(this->path, HTTP_POST, [&](AsyncWebServerRequest * request) {
+    String output = that->saveConfig(request, this->_managerPtr);
     request->send(200, "application/json", output);
   }); 
 }

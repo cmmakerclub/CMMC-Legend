@@ -2,27 +2,12 @@
 #include "version.h"
 
 #define MQTT_CONFIG_FILE "/mymqtt.json"
-static CMMC_ConfigManager *mmm = new CMMC_ConfigManager(MQTT_CONFIG_FILE);
-
-char mqtt_host[40] = "";
-char mqtt_user[40] = "";
-char mqtt_pass[40] = "";
-char mqtt_clientId[40] = "";
-char mqtt_prefix[40] = "";
-char mqtt_port[10] = "";
-char mqtt_device_name[20] = "";
-bool     lwt;
-uint32_t port;
-uint32_t pubEveryS;
-
-
 void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
   strcpy(this->path, "/api/mqtt");
-  strcpy(this->config_file, MQTT_CONFIG_FILE);
   this->_serverPtr = server;
-  this->_managerPtr = mmm;
+  this->_managerPtr = new CMMC_ConfigManager(MQTT_CONFIG_FILE);
   this->_managerPtr->init();
-  this->_managerPtr->load_config([](JsonObject * root, const char* content) {
+  this->_managerPtr->load_config([&](JsonObject * root, const char* content) {
     if (root == NULL) {
       Serial.print("mqtt.json failed. >");
       Serial.println(content);
@@ -30,13 +15,23 @@ void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
     }
     Serial.println(content);
     Serial.println("[user] mqtt config json loaded..");
+    char mqtt_host[40] = "";
+    char mqtt_user[40] = "";
+    char mqtt_pass[40] = "";
+    char mqtt_clientId[40] = "";
+    char mqtt_prefix[40] = "";
+    char mqtt_port[10] = "";
+    char mqtt_device_name[20] = "";
+    bool     lwt;
+    uint32_t pubEveryS;
     const char* mqtt_configs[] = {(*root)["host"],
                                   (*root)["username"], (*root)["password"],
                                   (*root)["clientId"], (*root)["port"],
                                   (*root)["deviceName"],
                                   (*root)["prefix"], // [6]
                                   (*root)["lwt"],
-                                  (*root)["publishRateSecond"]};
+                                  (*root)["publishRateSecond"]
+                                 };
 
     if (mqtt_configs[0] != NULL) {
       strcpy(mqtt_host, mqtt_configs[0]);
@@ -47,7 +42,6 @@ void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
       strcpy(mqtt_device_name, mqtt_configs[5]);
       strcpy(mqtt_prefix, mqtt_configs[6]);
 
-      port = String(mqtt_configs[4]).toInt();
       lwt = String(mqtt_configs[7]).toInt();
       pubEveryS = String(mqtt_configs[8]).toInt();
 
@@ -60,29 +54,27 @@ void MqttModule::config(CMMC_System *os, AsyncWebServer* server) {
 
       if (strcmp(mqtt_clientId, "") == 0) {
         sprintf(mqtt_clientId, "%08x", ESP.getChipId());
-      } 
-    } 
+      }
+    }
+    MQTT_HOST = String(mqtt_host);
+    MQTT_USERNAME = String(mqtt_user);
+    MQTT_PASSWORD = String(mqtt_pass);
+    MQTT_CLIENT_ID = String(mqtt_clientId);
+    MQTT_PORT = String(mqtt_port).toInt();
+    MQTT_PREFIX = String(mqtt_prefix);
+    PUBLISH_EVERY = pubEveryS * 1000L;
+    MQTT_LWT = lwt;
+    DEVICE_NAME = String(mqtt_device_name);
   });
 
-  MQTT_HOST = String(mqtt_host);
-  MQTT_USERNAME = String(mqtt_user);
-  MQTT_PASSWORD = String(mqtt_pass);
-  MQTT_CLIENT_ID = String(mqtt_clientId);
-  MQTT_PORT = String(mqtt_port).toInt();
-  MQTT_PREFIX = String(mqtt_prefix);
-  PUBLISH_EVERY = pubEveryS * 1000L;
-  MQTT_LWT = lwt;
-  DEVICE_NAME = String(mqtt_device_name);
 
   this->configWebServer();
 };
 
 void MqttModule::configWebServer() {
   static MqttModule *that = this;
-  Serial.printf("configManager addr %x \r\n", mmm);
-  strcpy(that->_managerPtr->filename_c, config_file);;
-  _serverPtr->on(this->path, HTTP_POST, [](AsyncWebServerRequest * request) {
-    String output = that->saveConfig(request, mmm);
+  _serverPtr->on(this->path, HTTP_POST, [&](AsyncWebServerRequest * request) {
+    String output = that->saveConfig(request, this->_managerPtr);
     request->send(200, "application/json", output);
   });
 }
@@ -160,7 +152,7 @@ MqttConnector* MqttModule::init_mqtt()
 }
 
 void MqttModule::register_receive_hooks(MqttConnector *mqtt) {
-  mqtt->on_subscribe([&](MQTT::Subscribe *sub) -> void {
+  mqtt->on_subscribe([&](MQTT::Subscribe * sub) -> void {
     Serial.printf("onSubScribe myName = %s \r\n", DEVICE_NAME.c_str());
     sub->add_topic(MQTT_PREFIX + DEVICE_NAME + String("/$/+"));
     sub->add_topic(MQTT_PREFIX + MQTT_CLIENT_ID + String("/$/+"));
@@ -175,7 +167,7 @@ void MqttModule::register_receive_hooks(MqttConnector *mqtt) {
 
   mqtt->on_after_message_arrived([&](String topic, String cmd, String payload) {
     // Serial.printf("recv topic: %s\r\n", topic.c_str());
-    // Serial.printf("recv cmd: %s\r\n", cmd.c_str()); 
+    // Serial.printf("recv cmd: %s\r\n", cmd.c_str());
     // Serial.printf("payload: %s\r\n", payload.c_str());
     if (cmd == "$/command") {
       if (payload == "ON") {
@@ -189,7 +181,7 @@ void MqttModule::register_receive_hooks(MqttConnector *mqtt) {
         Serial.println("OFF");
       }
       else if (payload == "FORCE_CONFIG") {
-        SPIFFS.remove("/enabled"); 
+        SPIFFS.remove("/enabled");
         ESP.restart();
       }
     }
@@ -215,12 +207,12 @@ void MqttModule::register_publish_hooks(MqttConnector* mqtt) {
   mqtt->on_before_prepare_data([&](void) {
   });
 
-  mqtt->on_prepare_data([&](JsonObject *root) {
+  mqtt->on_prepare_data([&](JsonObject * root) {
     JsonObject& data = (*root)["d"];
     JsonObject& info = (*root)["info"];
     data["appVersion"] = LEGEND_APP_VERSION;
     data["myName"] = DEVICE_NAME;
-    data["millis"] = millis(); 
+    data["millis"] = millis();
     // data["relayPinState"] = relayPinState;
     // data["sensorType"] = sensorType;
     data["updateInterval"] = PUBLISH_EVERY;
@@ -237,7 +229,7 @@ void MqttModule::register_publish_hooks(MqttConnector* mqtt) {
     // if (sensorData.field4) { data["field4"] = sensorData.field4; }
     // if (sensorData.field5) { data["field5"] = sensorData.field5; }
     // if (sensorData.field6) { data["field6"] = sensorData.field6; }
-    // if (sensorData.field7) { data["field7"] = sensorData.field7; } 
+    // if (sensorData.field7) { data["field7"] = sensorData.field7; }
     // if (sensorData.field8) { data["field8"] = sensorData.field8; }
     // if (sensorData.ms) { data["ms"] = sensorData.ms; }
     // if (sensorData.battery) { data["battery"] = sensorData.battery; }
