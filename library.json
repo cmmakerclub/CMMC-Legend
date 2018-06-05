@@ -1,7 +1,7 @@
 {
     "name": "CMMC Legend",
     "keywords": "esp8266, mqtt, connectivity, iot",
-    "description": "CMMC ESP8266 MQTT Config Manager library.",
+    "description": "CMMC ESP8266 IoT Configurations Manager library.",
     "authors": [
         {
             "name": "Nat Weerawan",

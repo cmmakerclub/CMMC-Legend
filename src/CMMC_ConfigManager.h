@@ -43,8 +43,8 @@ class CMMC_ConfigManager
     void add_field(const char* key, const char* value);
     void dump_json_object(cmmc_dump_cb_t printer);
     char* fileContent = 0;
-    char filename_c[60];
   private:
+    char filename_c[60];
     bool _busy = false;
     File _init_json_file();
     Items items;
