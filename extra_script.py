@@ -19,6 +19,12 @@ print defines
 # ARGUMENTS.Replace(PIOVERBOSE=1)
 # print platform
 # print ARGUMENTS
+if not os.path.exists("lib-dev/CMMC_Legend"):
+    os.makedirs("lib-dev/CMMC_Legend")
+
+for file in glob.iglob('src/*.*'):
+    print 'Copied file %s' % (file)
+    shutil.copy2(file, "lib-dev/CMMC_Legend")
 
 def before_upload(source, target, env):
     print "before_upload"
@@ -36,11 +42,7 @@ def upload_fs(source, target, env):
     print target
     # print env.Dump()
 
-# if not os.path.exists("lib-dev/CMMC_Utils"):
-#     os.makedirs("lib-dev/CMMC_Utils")
-# for file in glob.iglob('src/*.*'):
-#     print 'Copied file %s' % (file)
-#     shutil.copy2(file, "lib-dev/CMMC_Utils/")
+
 
 print "Current build targets", map(str, BUILD_TARGETS)
 
