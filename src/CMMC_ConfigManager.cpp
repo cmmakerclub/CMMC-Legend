@@ -1,9 +1,8 @@
 #include "CMMC_ConfigManager.h"
 #include "FS.h"
 
-CMMC_ConfigManager::CMMC_ConfigManager(const char* filename) { 
-  strcpy(this->filename_c, filename); 
-  Serial.printf("CONSTRUCTOR FILE NAME: %s\r\n", filename);
+CMMC_ConfigManager::CMMC_ConfigManager(const char* filename) {
+  strcpy(this->filename_c, filename);
   this->_user_debug_cb = [](const char* s) { };
 }
 
@@ -24,21 +23,19 @@ void CMMC_ConfigManager::_load_raw_content() {
   this->fileContent = new char[size + 1];
   strcpy(this->fileContent, buf.get());
 
-  Serial.print(">");
-  Serial.println(this->fileContent);
   this->configFile.close();
 }
 
 void CMMC_ConfigManager::init(const char* filename) {
   if (filename != NULL) {
-    strcpy(this->filename_c, filename); 
+    strcpy(this->filename_c, filename);
     // Serial.println("ConfigManager init with new filename");
   }
   else {
-    // Serial.println("ConfigManager init()"); 
+    // Serial.println("ConfigManager init()");
   }
 
-  Serial.printf("current file = %s\r\n", this->filename_c);
+  Serial.printf("[configManager] current file = %s\r\n", this->filename_c);
   if (SPIFFS.exists(this->filename_c)) {
     // _load_raw_content();
   }
@@ -52,7 +49,7 @@ void CMMC_ConfigManager::init(const char* filename) {
 void CMMC_ConfigManager::commit() {
   static CMMC_ConfigManager *that;
   that = this;
-  USER_DEBUG_PRINTF("Commit FS..... from [%x]\r\n", that); 
+  USER_DEBUG_PRINTF("Commit FS..... from [%x]\r\n", that);
   Serial.printf("> [BEFORE INNER CLOSURE] writing file %s\r\n", filename_c);
   load_config([](JsonObject * root, const char* content) {
     Serial.println("------------");
@@ -70,7 +67,7 @@ void CMMC_ConfigManager::commit() {
       }
       size_t configSize = root->printTo(that->configFile);
       root->printTo(Serial);
-      Serial.printf(" has be written %d bytes to file.\r\n", that->configFile.size());
+      Serial.printf(" has be written %d bytes to file.\r\n", configSize);
       that->configFile.close();
     }
     else {
@@ -96,7 +93,7 @@ void CMMC_ConfigManager::add_field(const char* key, const char* value) {
 
 void CMMC_ConfigManager::load_config(cmmc_json_loaded_cb_t cb) {
   _load_raw_content();
-  jsonBuffer.clear(); 
+  jsonBuffer.clear();
   const char *b =  this->fileContent;
   JsonObject& json = jsonBuffer.parseObject(b);
   if (cb) {

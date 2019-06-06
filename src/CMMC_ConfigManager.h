@@ -1,27 +1,25 @@
 #ifndef CMMC_ConfigManager_H
 #define CMMC_ConfigManager_H
 
-#include <ArduinoJson.h> 
-
-#ifdef ESP8266
-extern "C" {
-#include "user_interface.h"
-}
-#include "ESP8266WiFi.h"
+#include <ArduinoJson.h>
+//
+// extern "C" {
+// #include "user_interface.h"
+// }
+#include <SPIFFS.h>
+#include "WiFi.h"
 #include <functional>
 #include <map>
 #include "FS.h"
-#endif
 
-#ifndef CMMC_NO_ALIAS
+// #ifdef
+
 #define CMMC_ConfigManager ConfigManager
-#endif
 
-
-typedef void (*cmmc_err_status_t)(u8 status, const char* cause);
-typedef void (*cmmc_succ_status_t)(u8 status);
+typedef void (*cmmc_err_status_t)(uint8_t status, const char* cause);
+typedef void (*cmmc_succ_status_t)(uint8_t status);
 typedef void (*cmmc_debug_cb_t)(const char* cause);
-typedef std::function<void(const char* msg, const char* k, const char* v)> cmmc_dump_cb_t; 
+typedef std::function<void(const char* msg, const char* k, const char* v)> cmmc_dump_cb_t;
 typedef std::function<void(JsonObject* root, const char* content)> cmmc_json_loaded_cb_t;
 
 
@@ -35,7 +33,7 @@ class CMMC_ConfigManager
     // constructor
     CMMC_ConfigManager(const char* filename = "/config.json");
     ~CMMC_ConfigManager();
-    typedef std::map<String, String> Items; 
+    typedef std::map<String, String> Items;
     void init(const char* filename = NULL);
     void commit();
     void load_config(cmmc_json_loaded_cb_t cb = NULL);
@@ -55,5 +53,4 @@ class CMMC_ConfigManager
     char _v[60] = {0};
     void _load_raw_content();
 };
-
 #endif //CMMC_ConfigManager_H
