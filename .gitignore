@@ -6,3 +6,5 @@
 .vscode
 .idea
 cmmcAdmin/dist/**
+.pio
+lib-dev

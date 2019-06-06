@@ -3,19 +3,33 @@
 
 #include <Arduino.h>
 #include "version.h"
-#include <WiFi.h>
-#include <ESPmDNS.h>
+
+#ifdef ESP8266
+  extern "C" {
+  #include "user_interface.h"
+  }
+  #include <ESP8266WiFi.h>
+  #include <ESP8266mDNS.h>
+  #include <ESPAsyncTCP.h>
+#else
+  #include <WiFi.h>
+ #include <esp_wifi.h>
+ #include <ESPmDNS.h>
+#include <AsyncTCP.h>
+#endif
+
+
 #include <ArduinoOTA.h>
 #include <HardwareSerial.h>
 #include <WiFiClient.h>
-#include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 #include <FS.h>
 #include <xCMMC_LED.h>
 #include <CMMC_ConfigManager.h>
 #include "CMMC_System.hpp"
-#include <vector>
 #include "CMMC_Module.h"
+#include <vector>
+#include <functional>
 
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/ws");
@@ -43,17 +57,15 @@ typedef struct
     std::function<void(void)> hook_config_loaded;
 } os_config_t;
 
-
-class CMMC_Legend: public CMMC_System {
+class CMMC_Legend: public CMMC_System{
   public:
-    CMMC_Legend(HardwareSerial *);
+    CMMC_Legend(Stream *s = NULL);
     void addModule(CMMC_Module* module);
     void isLongPressed();
     void run();
     void setup(os_config_t *);
     void configSetup(os_config_t *);
     void runSetup(os_config_t *);
-
   xCMMC_LED *getBlinker();
   protected:
     void init_gpio();
@@ -74,14 +86,15 @@ class CMMC_Legend: public CMMC_System {
     uint8_t button_gpio;
     bool SWITCH_PRESSED_LOGIC;
     uint8_t SWITCH_PIN_MODE;
+
     std::function<void(char*, IPAddress&)> _hook_init_ap;
     std::function<void(void)> _hook_button_pressed;
     std::function<void(void)> _hook_button_long_pressed;
     std::function<void(void)> _hook_button_released;
     std::function<void(void)> _hook_ready;
     std::function<void(void)> _hook_config_loaded;
-    HardwareSerial *_serial = NULL;
-    HardwareSerial *_serial_legend = NULL;
+    Stream *_serial;
+    Stream *_serial_legend;
 };
 
 #endif

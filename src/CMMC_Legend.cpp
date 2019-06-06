@@ -1,8 +1,9 @@
+#include <Arduino.h>
 #include "CMMC_Legend.h"
 
-CMMC_Legend::CMMC_Legend(HardwareSerial *s) {
+CMMC_Legend::CMMC_Legend(Stream *s) {
   this->_serial_legend = s;
-};
+}
 
 void CMMC_Legend::addModule(CMMC_Module* module) {
   _modules.push_back(module);
@@ -303,13 +304,15 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       blinker->detach();
       that->_serial_legend->println("upload start...");
       that->_serial_legend->printf("UploadStart: %s\n", filename.c_str());
-      that->_serial_legend->setDebugOutput(true);
+      // that->_serial_legend->setDebugOutput(true);
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
       bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
-      if (!Update.begin(maxSketchSpace, U_SPIFFS)) { //start with max available size
-        Update.printError(Serial);
-      }
+
+      // if (!Update.begin(maxSketchSpace, U_SPIFFS)) { //start with max available size
+      //   Update.printError(Serial);
+      // }
+
       //TODO: ESP32
       // Update.runAsync(true); // tell the updaterClass to run in async mode
     }
@@ -326,7 +329,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       } else {
         Update.printError(Serial);
       }
-      that->_serial_legend->setDebugOutput(false);
+      // that->_serial_legend->setDebugOutput(false);
     }
   });
 
@@ -341,7 +344,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
     //Upload handler chunks in data
     if(!index){ // if index == 0 then this is the first frame of data
       that->_serial_legend->printf("UploadStart: %s\n", filename.c_str());
-      that->_serial_legend->setDebugOutput(true);
+      // that->_serial_legend->setDebugOutput(true);
 
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
@@ -365,7 +368,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
         } else {
           Update.printError(Serial);
         }
-        that->_serial_legend->setDebugOutput(false);
+        // that->_serial_legend->setDebugOutput(false);
     }
   });
 
@@ -390,7 +393,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       blinker->detach();
       that->_serial_legend->println("upload start...");
       that->_serial_legend->printf("UploadStart: %s\n", filename.c_str());
-      that->_serial_legend->setDebugOutput(true);
+      // that->_serial_legend->setDebugOutput(true);
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
       bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
@@ -415,7 +418,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       } else {
         Update.printError(Serial);
       }
-      that->_serial_legend->setDebugOutput(false);
+      // that->_serial_legend->setDebugOutput(false);
     }
   });
 

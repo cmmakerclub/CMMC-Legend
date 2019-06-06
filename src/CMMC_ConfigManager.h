@@ -2,17 +2,25 @@
 #define CMMC_ConfigManager_H
 
 #include <ArduinoJson.h>
-//
-// extern "C" {
-// #include "user_interface.h"
-// }
-#include <SPIFFS.h>
-#include "WiFi.h"
+#ifdef ESP8266
+  extern "C" {
+  #include "user_interface.h"
+  }
+  #include <ESP8266WiFi.h>
+  #include <ESP8266mDNS.h>
+  #include <ESPAsyncTCP.h>
+#else
+  #include <WiFi.h>
+ #include <esp_wifi.h>
+ #include <ESPmDNS.h>
+ #include <AsyncTCP.h>
 #include <functional>
 #include <map>
+#include <SPIFFS.h>
+#endif
+
 #include "FS.h"
 
-// #ifdef
 
 #define CMMC_ConfigManager ConfigManager
 
