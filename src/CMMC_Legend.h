@@ -26,8 +26,9 @@
 #include <FS.h>
 #include <xCMMC_LED.h>
 #include <CMMC_ConfigManager.h>
-#include "CMMC_System.hpp"
-#include "CMMC_Module.h"
+#include <CMMC_System.hpp>``
+#include <CMMC_Module.h>
+
 #include <vector>
 #include <functional>
 
@@ -35,9 +36,6 @@ static AsyncWebServer server(80);
 static AsyncWebSocket ws("/ws");
 static AsyncEventSource events("/events");
 static xCMMC_LED *blinker;
-
-static const char* http_username = "admin";
-static const char* http_password = "admin";
 
 enum MODE {CONFIG, RUN};
 
@@ -80,7 +78,7 @@ class CMMC_Legend: public CMMC_System{
     std::vector<CMMC_Module*> _modules;
     void _init_ap();
     void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource *events);
-    char ap_ssid[30] = "CMMC-Legend";
+    char ap_ssid[30];
     bool stopFlag = false;
     uint8_t BLINKER_PIN;
     uint8_t button_gpio;

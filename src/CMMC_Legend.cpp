@@ -1,8 +1,12 @@
 #include <Arduino.h>
 #include "CMMC_Legend.h"
 
+static const char* http_username = "admin";
+static const char* http_password = "admin";
+
 CMMC_Legend::CMMC_Legend(Stream *s) {
   this->_serial_legend = s;
+  strcpy(ap_ssid, "CMMC-Legend");
 }
 
 void CMMC_Legend::addModule(CMMC_Module* module) {
