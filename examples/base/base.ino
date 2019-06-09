@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <CMMC_Legend.h>
+#include "WiFiModule.h"
 
 CMMC_Legend *os;
 extern HardwareSerial Serial;
@@ -34,8 +35,8 @@ void setup()
 {
   Serial.begin(115200);
   static os_config_t config = {
-    .BLINKER_PIN = 21,
-    .BUTTON_MODE_PIN = 0,
+    .BLINKER_PIN = 2,
+    .BUTTON_MODE_PIN = 13,
     .SWITCH_PIN_MODE = INPUT_PULLUP,
     .SWITCH_PRESSED_LOGIC = LOW,
     .delay_after_init_ms = 200,
@@ -48,8 +49,9 @@ void setup()
   };
 
 
-  // os = new CMMC_Legend(&Serial);
-  // os->setup(&config);
+  os = new CMMC_Legend(&Serial);
+  os->addModule(new WiFiModule());
+  os->setup(&config);
   // Serial.printf("APP VERSION: %s\r\n", LEGEND_APP_VERSION);
 }
 

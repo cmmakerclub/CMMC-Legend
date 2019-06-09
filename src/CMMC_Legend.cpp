@@ -24,7 +24,6 @@ void CMMC_Legend::run() {
     _modules[i]->loop();
   }
   yield();
-  // vTaskDelay(10)
 }
 
 bool CMMC_Legend::enable_run_mode(bool status) {
@@ -160,14 +159,12 @@ void CMMC_Legend::init_network() {
     _serial_legend->println("------ configSetup --------");
     for (int i = 0 ; i < _modules.size(); i++) {
     _serial_legend->printf("calling %s.configSetup()\r\n", _modules[i]->name());
-      _modules[i]->configSetup();
-    }
+      _modules[i]->configSetup(); }
 
-    _serial_legend->println("---------------------------");
+    _serial_legend->println("intializing ap..");
     _init_ap();
-
+    _serial_legend->println("ap initialized.");
     setupWebServer(&server, &ws, &events);
-
     _serial_legend->printf("after setupWebserver\r\n");
     if (blinker) {
       blinker->blink(50);
@@ -178,6 +175,7 @@ void CMMC_Legend::init_network() {
 
     uint32_t startConfigLoopAtMs = millis();
     while (1 && !stopFlag) {
+      // _serial_legend->println("looping");
       if (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
           blinker->blink(1000);
           _serial_legend->println("=== button setuped to enabled.");
@@ -197,9 +195,8 @@ void CMMC_Legend::init_network() {
           delay(100);
           ESP.restart();
       }
+      yield();
     }
-
-
     File f = SPIFFS.open("/enabled", "a+");
     blinker->blink(50);
     ESP.restart();
@@ -220,22 +217,31 @@ xCMMC_LED *CMMC_Legend::getBlinker() {
 }
 
 void CMMC_Legend::_init_ap() {
+  this->_serial_legend->println("disconneting..");
   WiFi.disconnect();
   WiFi.softAPdisconnect();
-  delay(10);
-  WiFi.mode(WIFI_AP_STA);
-  delay(10);
+  delay(20);
+  WiFi.mode(WIFI_AP);
+  delay(30);
   IPAddress Ip(192, 168, 4, 1);
   IPAddress NMask(255, 255, 255, 0);
+  this->_serial_legend->println("setting softAPConfig..");
   WiFi.softAPConfig(Ip, Ip, NMask);
-  sprintf(&this->ap_ssid[5], "%08x", "ffffff");
-  WiFi.softAP(ap_ssid, &ap_ssid[5]);
+  #ifdef ESP8266
+    ESP.wdtDisable();
+    sprintf(&this->ap_ssid[5], "%08x", ESP.getChipId());
+  #else
+    sprintf(&this->ap_ssid[5], "%08x", "ffffff");
+  #endif
+  this->_serial_legend->println(this->ap_ssid);
+  this->_serial_legend->println("setting softap..");
+  WiFi.softAP(ap_ssid, ap_ssid+strlen("CMMC-"));
+  Serial.println("WiFi.softAP called.");
   delay(20);
   IPAddress myIP = WiFi.softAPIP();
   this->_serial_legend->println();
   this->_serial_legend->print("AP IP address: ");
   this->_serial_legend->println(myIP);
-  delay(100);
   if (_hook_init_ap != NULL) {
     _hook_init_ap(ap_ssid, myIP);
   }

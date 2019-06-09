@@ -26,7 +26,7 @@
 #include <FS.h>
 #include <xCMMC_LED.h>
 #include <CMMC_ConfigManager.h>
-#include <CMMC_System.hpp>``
+#include <CMMC_System.hpp>
 #include <CMMC_Module.h>
 
 #include <vector>
@@ -78,7 +78,7 @@ class CMMC_Legend: public CMMC_System{
     std::vector<CMMC_Module*> _modules;
     void _init_ap();
     void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource *events);
-    char ap_ssid[30];
+    char ap_ssid[40];
     bool stopFlag = false;
     uint8_t BLINKER_PIN;
     uint8_t button_gpio;
