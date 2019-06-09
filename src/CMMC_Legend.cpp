@@ -83,9 +83,7 @@ void CMMC_Legend::setup(os_config_t *config) {
     this->_serial_legend->println();
 
     init_fs();
-
     init_user_config();
-
     init_user_sensor();
     init_network();
 
@@ -93,10 +91,11 @@ void CMMC_Legend::setup(os_config_t *config) {
     for (int i = 0 ; i < _modules.size(); i++) {
       _serial_legend->printf("calling %s.setup()\r\n", _modules[i]->name());
       _modules[i]->setup();
+      _serial_legend->printf("/calling %s.setup()\r\n", _modules[i]->name());
     }
 
     _serial_legend->println("---------------------------");
-
+    _serial_legend->println("------ hook_ready() -------");
     if(this->_hook_ready) {
       this->_hook_ready();
     }
@@ -111,13 +110,15 @@ void CMMC_Legend::init_fs() {
   _serial_legend->println("OS::Init FS..");
   // _serial_legend->println("starting SPIFFS..");
   SPIFFS.begin();
-  // Dir dir = SPIFFS.openDir("/");
-  // isLongPressed();
-  // this->_serial_legend->println("--------------------------");
-  // while (dir.next()) {
-  //   File f = dir.openFile("r");
-  //   that->_serial_legend->printf("> %s \r\n", dir.fileName().c_str());
-  // }
+  #ifdef ESP8266
+  Dir dir = SPIFFS.openDir("/");
+  isLongPressed();
+  this->_serial_legend->println("--------------------------");
+  while (dir.next()) {
+    File f = dir.openFile("r");
+    this->_serial_legend->printf("> %s \r\n", dir.fileName().c_str());
+  }
+  #endif
   /*******************************************
      Boot Mode Selection
    *******************************************/
