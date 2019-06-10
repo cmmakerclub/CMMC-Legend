@@ -16,7 +16,7 @@
                     </div>
                     <div class="md:w-2/3">
                         <input class="appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-                               id="ap-name" type="text" value="">
+                               id="ap-name" type="text" value="" placeholder="AP Name">
                     </div>
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     </div>
                     <div class="md:w-2/3">
                         <input class="appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-purple-500"
-                               id="password" type="text" value="">
+                               id="password" type="text" value="" placeholder="Password">
                     </div>
                 </div>
             </div>
