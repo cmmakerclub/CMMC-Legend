@@ -18,13 +18,13 @@
 
 <script>
   import AP from './AP'
-  import STA from './STA'
+  // import STA from './STA'
 
   export default {
-    name: 'Main',
+    name: 'WiFiConfig',
     components: {
       AP,
-      STA,
+      // STA,
     },
   }
 </script>
