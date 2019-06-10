@@ -12,21 +12,27 @@
         <div class="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
             <div class="text-sm lg:flex-grow">
                 <a href="#responsive-header" class="block mt-4 lg:inline-block lg:mt-0 text-white font-bold hover:text-red-300 mr-4">
+                    <i class="fas fa-wifi"></i>
                     WiFi Config
                 </a>
                 <a href="#responsive-header" class="block mt-4 lg:inline-block lg:mt-0 text-white font-bold hover:text-red-300 mr-4">
+                    <i class="fas fa-cog"></i>
                     Other Config
                 </a>
                 <a href="#responsive-header" class="block mt-4 lg:inline-block lg:mt-0 text-white font-bold hover:text-red-300 mr-4">
+                    <i class="fas fa-code-merge"></i>
                     Sensors
                 </a>
                 <a href="#responsive-header" class="block mt-4 lg:inline-block lg:mt-0 text-white font-bold hover:text-red-300 mr-4">
+                    <i class="fas fa-cloud-upload-alt"></i>
                     OTA
                 </a>
                 <a href="#responsive-header" class="block mt-4 lg:inline-block lg:mt-0 text-white font-bold hover:text-red-300 mr-4">
+                    <i class="fas fa-bed"></i>
                     Deep Sleep
                 </a>
                 <a href="#responsive-header" class="block mt-4 lg:inline-block lg:mt-0 text-white font-bold hover:text-red-300 mr-4">
+                    <i class="fas fa-bolt"></i>
                     ESP Now
                 </a>
             </div>
