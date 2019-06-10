@@ -11,7 +11,7 @@
 
 <script>
   import Navbar from './components/Navbar'
-  import WiFiConfig from './components/WiFiConfig'
+  import WiFiConfig from './components/wifi/Main'
 
   export default {
     name: 'app',
