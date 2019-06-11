@@ -1,6 +1,6 @@
 <template>
     <div id="app">
-        <div class="container max-w-4xl mx-auto">
+        <div class="container max-w-4xl mx-auto shadow">
             <Navbar/>
             <div class="min-h-screen border border-gray-300 pt-8 pl-8 pr-8">
                 <router-view></router-view>
