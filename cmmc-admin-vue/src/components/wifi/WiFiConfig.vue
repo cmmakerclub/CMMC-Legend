@@ -51,5 +51,8 @@
         this.isActiveSTA = true
       },
     },
+    mounted () {
+      this.$api.getAPConfig()
+    },
   }
 </script>
