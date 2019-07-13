@@ -10,15 +10,10 @@ export default new Router({
   linkActiveClass: 'is-active',
   scrollBehavior: () => ({ y: 0 }),
   routes: [
-    {
-      name: 'Home',
-      path: '/',
-      component: require('../views/Home')
-    },
     ...generateRoutesFromMenu(menu),
     {
       path: '*',
-      redirect: '/wifi'
+      redirect: '/wifi/sta'
     }
   ]
 })

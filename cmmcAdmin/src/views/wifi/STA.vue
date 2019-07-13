@@ -21,7 +21,7 @@
           </p>
           <p class="control">
             <button class="button is-primary" v-on:click.stop="onSubmit">Submit</button>
-            <button class="button is-link">Cancel</button>
+            <button class="button is-danger" v-on:click.stop="onRunMode">Run Mode</button>
           </p>
         </div>
       </div>
@@ -30,50 +30,60 @@
 </template>
 
 <script>
-  import { saveSTAConfig, getSTAConfig } from '../../api'
+  import {saveSTAConfig, getSTAConfig} from "../../api";
 
   export default {
     components: {},
     props: {},
-    mounted () {
+    mounted() {
       getSTAConfig(this).then((json) => {
-        this.sta_ssid = json.sta_ssid
-        this.sta_password = json.sta_password
+        this.sta_ssid = json.sta_ssid;
+        this.sta_password = json.sta_password;
       })
         .catch((err) => {
-          console.log('error:', err)
-        })
+          console.log("error:", err);
+        });
     },
     methods: {
-      onSubmit () {
-        let context = this
+      onSubmit() {
+        let context = this;
         saveSTAConfig(context, context.sta_ssid, context.sta_password)
           .then((resp) => {
-            context.server_response = JSON.stringify(resp)
-            context.saving = false
+            context.server_response = JSON.stringify(resp);
+            context.saving = false;
           })
           .catch((err) => {
-            context.saving = false
-            console.log(err)
-          })
+            context.saving = false;
+            console.log(err);
+          });
       },
+      onRunMode() {
+        let c = confirm('Confirm to reboot?')
+        let context = this;
+        if (c) {
+          context.$http.get('/enable')
+            .then((response) => {
+              context.server_response = response.text()
+            })
+        }
+      }
     },
-    data () {
+    data() {
       return {
-        server_response: '',
+        server_response: "",
         sta_ssid: null,
         sta_password: null
-      }
+      };
     },
     computed: {
-      now: function () {
-        return Date.now()
+      now: function() {
+        return Date.now();
       }
     },
-    created () {
+    created() {
 
     }
-  }
+  };
 </script>
 
 <style scoped>

@@ -99,7 +99,8 @@
           lwt: (context.lwt === false) ? '0' : '1',
           port: context.port
         }).then((resp) => {
-          this.server_response = 'Saved.'
+          this.server_response = JSON.stringify(resp)
+
           this.fetchConfig()
         }).catch((err) => {
           console.log('error', err)
@@ -128,7 +129,7 @@
         deviceName: hash,
         lwt: 0,
         clientId: `clientId-${hash}`,
-        host: 'mqtt.cmmc.io',
+        host: 'gb.netpie.io',
         publishRateSecond: 60,
         port: 1883,
         prefix: ''

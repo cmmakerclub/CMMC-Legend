@@ -50,60 +50,60 @@ export default [
       }
     ]
   },
-  {
-    name: 'Sensors',
-    path: '/sensors',
-    meta: {
-      icon: 'fa-puzzle-piece',
-      expanded: false
-    },
-    component: require('../views/sensors/ALL'),
-    children: [
-      // {
-      //   name: 'Sensor Activation',
-      //   path: 'type',
-      //   component: require('../views/sensors/ALL')
-      // },
-      // {
-      //   name: 'DHT',
-      //   path: 'dht',
-      //   component: require('../views/sensors/DHT')
-      // },
-      // {
-      //   name: 'BME',
-      //   path: 'bme',
-      //   component: require('../views/sensors/BME')
-      // }
-    ]
-  },
-  {
-    name: 'OTA',
-    path: '/ota',
-    meta: {
-      icon: 'fa-bank',
-      expanded: false
-    },
-    component: require('../views/blank'),
-    children: []
-  },
-  {
-    name: 'Deep Sleep',
-    path: '/deep',
-    meta: {
-      icon: 'fa-beer',
-      expanded: false
-    },
-    component: require('../views/blank'),
-    children: []
-  },
-  {
-    name: 'ESP Now',
-    path: '/espnow',
-    meta: {
-      icon: 'fa-fire',
-      expanded: false
-    },
-    component: require('../views/wifi/ESPNOW'),
-    children: []
-  }
+  //{
+  //  name: 'Sensors',
+  //  path: '/sensors',
+  //  meta: {
+  //    icon: 'fa-puzzle-piece',
+  //    expanded: false
+  //  },
+  //  component: require('../views/sensors/ALL'),
+  //  children: [
+  //    // {
+  //    //   name: 'Sensor Activation',
+  //    //   path: 'type',
+  //    //   component: require('../views/sensors/ALL')
+  //    // },
+  //    // {
+  //    //   name: 'DHT',
+  //    //   path: 'dht',
+  //    //   component: require('../views/sensors/DHT')
+  //    // },
+  //    // {
+  //    //   name: 'BME',
+  //    //   path: 'bme',
+  //    //   component: require('../views/sensors/BME')
+  //    // }
+  //  ]
+  //},
+  //{
+  //  name: 'OTA',
+  //  path: '/ota',
+  //  meta: {
+  //    icon: 'fa-bank',
+  //    expanded: false
+  //  },
+  //  component: require('../views/blank'),
+  //  children: []
+  //},
+  //{
+  //  name: 'Deep Sleep',
+  //  path: '/deep',
+  //  meta: {
+  //    icon: 'fa-beer',
+  //    expanded: false
+  //  },
+  //  component: require('../views/blank'),
+  //  children: []
+  //},
+  //{
+  //  name: 'ESP Now',
+  //  path: '/espnow',
+  //  meta: {
+  //    icon: 'fa-fire',
+  //    expanded: false
+  //  },
+  //  component: require('../views/wifi/ESPNOW'),
+  //  children: []
+  //}
 ]
