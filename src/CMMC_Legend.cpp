@@ -1,13 +1,12 @@
-#include <Arduino.h>
 #include "CMMC_Legend.h"
 
-static const char* http_username = "admin";
-static const char* http_password = "admin";
+extern uint8_t SCREEN;
 
-CMMC_Legend::CMMC_Legend(Stream *s) {
+
+CMMC_Legend::CMMC_Legend(HardwareSerial *s) {
   this->_serial_legend = s;
-  strcpy(ap_ssid, "CMMC-Legend");
-}
+  this->_loop_ms = millis();
+};
 
 void CMMC_Legend::addModule(CMMC_Module* module) {
   _modules.push_back(module);
@@ -22,8 +21,10 @@ void CMMC_Legend::run() {
   int size = _modules.size();
   for (int i = 0 ; i < size; i++) {
     _modules[i]->loop();
+    this->_loop_ms = millis();
   }
   yield();
+  // vTaskDelay(10)
 }
 
 bool CMMC_Legend::enable_run_mode(bool status) {
@@ -83,7 +84,9 @@ void CMMC_Legend::setup(os_config_t *config) {
     this->_serial_legend->println();
 
     init_fs();
+
     init_user_config();
+
     init_user_sensor();
     init_network();
 
@@ -91,14 +94,16 @@ void CMMC_Legend::setup(os_config_t *config) {
     for (int i = 0 ; i < _modules.size(); i++) {
       _serial_legend->printf("calling %s.setup()\r\n", _modules[i]->name());
       _modules[i]->setup();
-      _serial_legend->printf("/calling %s.setup()\r\n", _modules[i]->name());
+      // _modules[i]->loop();
     }
 
     _serial_legend->println("---------------------------");
-    _serial_legend->println("------ hook_ready() -------");
+
     if(this->_hook_ready) {
       this->_hook_ready();
     }
+
+    this->_loop_ms = millis();
 }
 
 void CMMC_Legend::init_gpio() {
@@ -110,15 +115,13 @@ void CMMC_Legend::init_fs() {
   _serial_legend->println("OS::Init FS..");
   // _serial_legend->println("starting SPIFFS..");
   SPIFFS.begin();
-  #ifdef ESP8266
-  Dir dir = SPIFFS.openDir("/");
-  isLongPressed();
-  this->_serial_legend->println("--------------------------");
-  while (dir.next()) {
-    File f = dir.openFile("r");
-    this->_serial_legend->printf("> %s \r\n", dir.fileName().c_str());
-  }
-  #endif
+  // Dir dir = SPIFFS.openDir("/");
+  // isLongPressed();
+  // this->_serial_legend->println("--------------------------");
+  // while (dir.next()) {
+  //   File f = dir.openFile("r");
+  //   that->_serial_legend->printf("> %s \r\n", dir.fileName().c_str());
+  // }
   /*******************************************
      Boot Mode Selection
    *******************************************/
@@ -160,12 +163,14 @@ void CMMC_Legend::init_network() {
     _serial_legend->println("------ configSetup --------");
     for (int i = 0 ; i < _modules.size(); i++) {
     _serial_legend->printf("calling %s.configSetup()\r\n", _modules[i]->name());
-      _modules[i]->configSetup(); }
+      _modules[i]->configSetup();
+    }
 
-    _serial_legend->println("intializing ap..");
+    _serial_legend->println("---------------------------");
     _init_ap();
-    _serial_legend->println("ap initialized.");
+
     setupWebServer(&server, &ws, &events);
+
     _serial_legend->printf("after setupWebserver\r\n");
     if (blinker) {
       blinker->blink(50);
@@ -176,7 +181,6 @@ void CMMC_Legend::init_network() {
 
     uint32_t startConfigLoopAtMs = millis();
     while (1 && !stopFlag) {
-      // _serial_legend->println("looping");
       if (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
           blinker->blink(1000);
           _serial_legend->println("=== button setuped to enabled.");
@@ -187,17 +191,23 @@ void CMMC_Legend::init_network() {
 
       for (int i = 0 ; i < _modules.size(); i++) {
         _modules[i]->configLoop();
+
         yield();
       }
 
       if ( (millis() - startConfigLoopAtMs) > 20L*60*1000) {
           _serial_legend->println("3.");
+          _serial_legend->println("[Config Timeout]...");
+          _serial_legend->println("[Config Timeout]...");
+          _serial_legend->println("[Config Timeout]...");
+          _serial_legend->println("[Config Timeout]...");
           enable_run_mode(true);
           delay(100);
           ESP.restart();
       }
-      yield();
     }
+
+
     File f = SPIFFS.open("/enabled", "a+");
     blinker->blink(50);
     ESP.restart();
@@ -218,31 +228,22 @@ xCMMC_LED *CMMC_Legend::getBlinker() {
 }
 
 void CMMC_Legend::_init_ap() {
-  this->_serial_legend->println("disconneting..");
-  WiFi.disconnect();
+  WiFi.disconnect(true);
   WiFi.softAPdisconnect();
-  delay(20);
+  delay(50);
   WiFi.mode(WIFI_AP);
-  delay(30);
+  delay(50);
   IPAddress Ip(192, 168, 4, 1);
   IPAddress NMask(255, 255, 255, 0);
-  this->_serial_legend->println("setting softAPConfig..");
   WiFi.softAPConfig(Ip, Ip, NMask);
-  #ifdef ESP8266
-    ESP.wdtDisable();
-    sprintf(&this->ap_ssid[5], "%08x", ESP.getChipId());
-  #else
-    sprintf(&this->ap_ssid[5], "%08x", "ffffff");
-  #endif
-  this->_serial_legend->println(this->ap_ssid);
-  this->_serial_legend->println("setting softap..");
-  WiFi.softAP(ap_ssid, ap_ssid+strlen("CMMC-"));
-  Serial.println("WiFi.softAP called.");
-  delay(20);
+  sprintf(&this->ap_ssid[5], "%08x", "ffffff");
+  WiFi.softAP(ap_ssid, &ap_ssid[5]);
+  delay(50);
   IPAddress myIP = WiFi.softAPIP();
   this->_serial_legend->println();
   this->_serial_legend->print("AP IP address: ");
   this->_serial_legend->println(myIP);
+  delay(100);
   if (_hook_init_ap != NULL) {
     _hook_init_ap(ap_ssid, myIP);
   }
@@ -315,15 +316,13 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       blinker->detach();
       that->_serial_legend->println("upload start...");
       that->_serial_legend->printf("UploadStart: %s\n", filename.c_str());
-      // that->_serial_legend->setDebugOutput(true);
+      that->_serial_legend->setDebugOutput(true);
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
       bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
-
-      // if (!Update.begin(maxSketchSpace, U_SPIFFS)) { //start with max available size
-      //   Update.printError(Serial);
-      // }
-
+      if (!Update.begin(maxSketchSpace, U_SPIFFS)) { //start with max available size
+        Update.printError(Serial);
+      }
       //TODO: ESP32
       // Update.runAsync(true); // tell the updaterClass to run in async mode
     }
@@ -340,7 +339,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       } else {
         Update.printError(Serial);
       }
-      // that->_serial_legend->setDebugOutput(false);
+      that->_serial_legend->setDebugOutput(false);
     }
   });
 
@@ -355,7 +354,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
     //Upload handler chunks in data
     if(!index){ // if index == 0 then this is the first frame of data
       that->_serial_legend->printf("UploadStart: %s\n", filename.c_str());
-      // that->_serial_legend->setDebugOutput(true);
+      that->_serial_legend->setDebugOutput(true);
 
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
@@ -379,7 +378,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
         } else {
           Update.printError(Serial);
         }
-        // that->_serial_legend->setDebugOutput(false);
+        that->_serial_legend->setDebugOutput(false);
     }
   });
 
@@ -404,7 +403,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       blinker->detach();
       that->_serial_legend->println("upload start...");
       that->_serial_legend->printf("UploadStart: %s\n", filename.c_str());
-      // that->_serial_legend->setDebugOutput(true);
+      that->_serial_legend->setDebugOutput(true);
       // calculate sketch space required for the update
       uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
       bool updateOK = maxSketchSpace < ESP.getFreeSketchSpace();
@@ -429,7 +428,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
       } else {
         Update.printError(Serial);
       }
-      // that->_serial_legend->setDebugOutput(false);
+      that->_serial_legend->setDebugOutput(false);
     }
   });
 
@@ -481,5 +480,6 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
   });
 
   server->begin();
-  that->_serial_legend->println("Starting webserver->..");
+  that->_serial_legend->println("Starting webserver->...");
+  SCREEN = 3;
 }
