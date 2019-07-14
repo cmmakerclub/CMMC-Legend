@@ -235,10 +235,30 @@ void CMMC_Legend::_init_ap() {
   delay(50);
   IPAddress Ip(192, 168, 4, 1);
   IPAddress NMask(255, 255, 255, 0);
+  this->_serial_legend->println("setting softAPConfig..");
   WiFi.softAPConfig(Ip, Ip, NMask);
-  sprintf(&this->ap_ssid[5], "%08x", "ffffff");
-  WiFi.softAP(ap_ssid, &ap_ssid[5]);
-  delay(50);
+
+
+  #ifdef ESP8266
+    ESP.wdtDisable();
+    sprintf(&this->ap_ssid[5], "%08x", ESP.getChipId());
+  #else
+    uint8_t baseMac[6];
+    esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
+    char baseMacChr[18] = {0};
+    Serial.println("XXXXXXX");
+    Serial.printf("%02x%02x%02x%02x\r\n", baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+    sprintf(this->ap_ssid, "DUST-%02x%02x%02x%02x", 00, 255, baseMac[4], baseMac[5]);
+  #endif
+  this->_serial_legend->println(this->ap_ssid);
+  this->_serial_legend->println("setting softap..");
+
+  WiFi.softAP(this->ap_ssid, ap_ssid+strlen("DUST-"));
+
+
+
+  Serial.println("WiFi.softAP called.");
+  delay(20);
   IPAddress myIP = WiFi.softAPIP();
   this->_serial_legend->println();
   this->_serial_legend->print("AP IP address: ");
