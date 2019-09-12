@@ -231,7 +231,9 @@ void CMMC_Legend::_init_ap() {
   WiFi.disconnect(true);
   WiFi.softAPdisconnect();
   delay(50);
-  WiFi.mode(WIFI_AP);
+  WiFi.mode(WIFI_AP_STA);
+  esp_wifi_set_ps (WIFI_PS_NONE);
+  WiFi.setSleep(false);
   delay(50);
   IPAddress Ip(192, 168, 4, 1);
   IPAddress NMask(255, 255, 255, 0);
@@ -290,15 +292,15 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
     ESP.restart();
   });
 
-  server->on("/enable", HTTP_GET, [](AsyncWebServerRequest * request) {
-    File f = SPIFFS.open("/enabled", "a+");
-    if (!f) {
-      that->_serial_legend->println("file open failed");
-    }
-    request->send(200, "text/plain", String("ENABLING.. ") + String(ESP.getFreeHeap()));
-    delay(1000);
-    ESP.restart();
-  });
+  // server->on("/enable", HTTP_GET, [](AsyncWebServerRequest * request) {
+  //   File f = SPIFFS.open("/enabled", "a+");
+  //   if (!f) {
+  //     that->_serial_legend->println("file open failed");
+  //   }
+  //   request->send(200, "text/plain", String("ENABLING.. ") + String(ESP.getFreeHeap()));
+  //   delay(1000);
+  //   ESP.restart();
+  // });
 
   static const char* fsServerIndex = "<form method='POST' action='/do-fs' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
   static const char* serverIndex = "<form method='POST' action='/do-firmware' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
