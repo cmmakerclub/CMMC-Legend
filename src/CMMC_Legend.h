@@ -47,6 +47,7 @@ typedef struct
     std::function<void(char*, IPAddress&)> hook_init_ap;
 
     std::function<void(void)> hook_button_pressed;
+    std::function<void(void)> hook_button_pressing;
     std::function<void(void)> hook_button_long_pressed;
     std::function<void(void)> hook_button_released;
     std::function<void(void)> hook_ready;
@@ -87,6 +88,7 @@ class CMMC_Legend: public CMMC_System {
     uint8_t SWITCH_PIN_MODE;
     std::function<void(char*, IPAddress&)> _hook_init_ap;
     std::function<void(void)> _hook_button_pressed;
+    std::function<void(void)> _hook_button_pressing;
     std::function<void(void)> _hook_button_long_pressed;
     std::function<void(void)> _hook_button_released;
     std::function<void(void)> _hook_ready;

@@ -42,6 +42,7 @@ void CMMC_Legend::isLongPressed() {
   if (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
     this->_hook_button_pressed();
     while (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
+      this->_hook_button_pressing();
       blinker->high();
       if ( (millis() - prev) > 3L * 1000L) {
         _serial_legend->println("LONG PRESSED.");
@@ -70,6 +71,7 @@ void CMMC_Legend::setup(os_config_t *config) {
     this->_hook_init_ap = config->hook_init_ap;
     this->_hook_button_pressed = config->hook_button_pressed;
     this->_hook_button_released = config->hook_button_released;
+    this->_hook_button_pressing = config->hook_button_pressing;
     this->_hook_button_long_pressed = config->hook_button_long_pressed;
 
     this->_hook_config_loaded= config->hook_config_loaded;
