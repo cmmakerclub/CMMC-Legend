@@ -251,7 +251,8 @@ void CMMC_Legend::_init_ap() {
     esp_read_mac(baseMac, ESP_MAC_WIFI_STA);
     char baseMacChr[18] = {0};
     Serial.println("XXXXXXX");
-    Serial.printf("%02x%02x%02x%02x\r\n", baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+    sprintf(this->fullmac, "%02X%02X%02X%02X%02X%02X\r\n",baseMac[0], baseMac[1],  baseMac[2], baseMac[3], baseMac[4], baseMac[5]);
+    Serial.println(this->fullmac);
     sprintf(this->ap_ssid, "DUST-%02x%02x%02x%02x", 00, 255, baseMac[4], baseMac[5]);
   #endif
   this->_serial_legend->println(this->ap_ssid);
@@ -269,7 +270,7 @@ void CMMC_Legend::_init_ap() {
   this->_serial_legend->println(myIP);
   delay(100);
   if (_hook_init_ap != NULL) {
-    _hook_init_ap(ap_ssid, myIP);
+    _hook_init_ap(ap_ssid, fullmac, myIP);
   }
 }
 void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource *events) {

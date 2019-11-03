@@ -44,7 +44,7 @@ typedef struct
     uint8_t SWITCH_PIN_MODE;
     bool SWITCH_PRESSED_LOGIC;
     uint32_t delay_after_init_ms;
-    std::function<void(char*, IPAddress&)> hook_init_ap;
+    std::function<void(char*, char*, IPAddress&)> hook_init_ap;
 
     std::function<void(void)> hook_button_pressed;
     std::function<void(void)> hook_button_pressing;
@@ -81,12 +81,13 @@ class CMMC_Legend: public CMMC_System {
     void _init_ap();
     void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource *events);
     char ap_ssid[30] = "DUST-Legend";
+    char fullmac[30] = "ffff";
     bool stopFlag = false;
     uint8_t BLINKER_PIN;
     uint8_t button_gpio;
     bool SWITCH_PRESSED_LOGIC;
     uint8_t SWITCH_PIN_MODE;
-    std::function<void(char*, IPAddress&)> _hook_init_ap;
+    std::function<void(char*, char*, IPAddress&)> _hook_init_ap;
     std::function<void(void)> _hook_button_pressed;
     std::function<void(void)> _hook_button_pressing;
     std::function<void(void)> _hook_button_long_pressed;
