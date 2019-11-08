@@ -13,13 +13,15 @@
             <label v-show="toggle" class="label">Select SSID</label>
             <div v-show="toggle" class="select control has-icon is-fluid">
               <i class="fa fa-wifi"></i>
-              <select v-model="select_sta_ssid" style="padding-left: 2.25em">
+              <select v-bind:disabled="disable_submit" v-model="select_sta_ssid" style="padding-left: 2.25em">
                 <option v-for="option in output" v-bind:value="option">
                   {{ option }}
                 </option>
               </select>
             </div>
-            <button v-show="toggle" v-bind:class="{ 'is-loading': isLoadAPList }" class="button is-warning">Refresh</button>
+            <button v-on:click.stop="reloadAP" v-show="toggle" v-bind:class="{ 'is-loading': isLoadAPList }"
+                    class="button is-warning">Refresh
+            </button>
 
 
             <label v-show="!toggle" class="label">Manual SSID</label>
@@ -31,7 +33,7 @@
             <div class="control is-half">
               <label class="label">Password</label>
               <p class="control has-icon">
-                <input v-model="sta_password" class="input" type="text" placeholder="Password">
+                <input v-bind:disabled="disable_submit" v-model="sta_password" class="input" type="text" placeholder="Password">
                 <i class="fa fa-lock"></i>
               </p>
             </div>
@@ -56,38 +58,37 @@
     components: {},
     props: {},
     mounted() {
-      getSTAConfig(this).then((json) => {
-        console.log(json);
-        //this.xxx = this.ap_list.reduce(function(result, item) {
-        //  var key = Object.keys(item)[0]; //first property: a, b, c
-        //  result[key] = item[key];
-        //  return result;
-        //}, {});
-
-        setTimeout(() => {
-          this.ap_list = [...this.ap_list, ...json];
-          this.ap_list.forEach((val, idx) => {
-            this.output[val.ssid] = val.ssid;
-          });
-
-          this.output = Object.keys(this.output).sort(function(a, b) {
-            if (a < b) { return -1; }
-            if (a > b) { return 1; }
-            return 0;
-          });
-          console.log(this.output);
-          this.select_sta_ssid = this.output[0];
-          this.sta_password = "";
-          this.isLoadAPList = false;
-          this.disable_submit = false;
-        }, 2000);
-      })
-        .catch((err) => {
-          console.log("error:", err);
-          this.isLoadAPList = false;
-        });
+      this.reloadAP();
     },
     methods: {
+      reloadAP() {
+        this.isLoadAPList = true;
+        this.disable_submit = true;
+        getSTAConfig(this).then((json) => {
+          console.log(json);
+          setTimeout(() => {
+            this.ap_list = [...this.ap_list, ...json];
+            this.ap_list.forEach((val, idx) => {
+              this.output[val.ssid] = val.ssid;
+            });
+
+            this.output = Object.keys(this.output).sort(function(a, b) {
+              if (a < b) { return -1; }
+              if (a > b) { return 1; }
+              return 0;
+            });
+            console.log(this.output);
+            this.select_sta_ssid = this.output[0];
+            this.sta_password = "";
+            this.isLoadAPList = false;
+            this.disable_submit = false;
+          }, 2000);
+        })
+          .catch((err) => {
+            console.log("error:", err);
+            this.isLoadAPList = false;
+          });
+      },
       onSubmit() {
         let context = this;
         context.ssid = "";
