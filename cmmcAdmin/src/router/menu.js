@@ -4,39 +4,41 @@
 
 // lazy loading Components
 // https://github.com/vuejs/vue-router/blob/dev/examples/lazy-loading/app.js#L8
-const lazyLoading = (name, index = false) => () => System.import(`views/${name}${index ? '/index' : ''}.vue`)
+const lazyLoading = (name, index = false) => () => System.import(`views/${name}${index
+  ? "/index"
+  : ""}.vue`);
 
 export default [
   {
-    name: 'WiFi Configuration',
-    path: '/wifi',
+    name: "WiFi Configuration",
+    path: "/wifi",
     meta: {
-      icon: 'fa-wifi',
+      icon: "fa-wifi",
       expanded: true
     },
-    component: require('../views/blank'),
+    component: require("../views/blank"),
 
     children: [
       {
-        name: 'AP',
-        path: 'ap',
-        component: require('../views/wifi/AP')
+        name: "AP",
+        path: "ap",
+        component: require("../views/wifi/AP")
       },
       {
-        name: 'STA',
-        path: 'sta',
-        component: require('../views/wifi/STA')
+        name: "STA",
+        path: "sta",
+        component: require("../views/wifi/STA")
       }
     ]
   },
   {
-    name: 'Configurations',
-    path: '/config',
+    name: "Configurations",
+    path: "/config",
     meta: {
-      icon: 'fa-life-saver',
-      expanded: true
+      icon: "fa-life-saver",
+      expanded: false
     },
-    component: require('../views/blank'),
+    component: require("../views/blank"),
     children: [
       // {
       //   name: 'NTP',
@@ -44,12 +46,12 @@ export default [
       //   component: require('../views/wifi/NTP')
       // },
       {
-        name: 'MQTT',
-        path: 'mqtt',
-        component: require('../views/wifi/MQTT')
+        name: "MQTT",
+        path: "mqtt",
+        component: require("../views/wifi/MQTT")
       }
     ]
-  },
+  }
   //{
   //  name: 'Sensors',
   //  path: '/sensors',
@@ -106,4 +108,4 @@ export default [
   //  component: require('../views/wifi/ESPNOW'),
   //  children: []
   //}
-]
+];

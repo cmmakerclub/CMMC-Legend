@@ -38,7 +38,7 @@
 </template>
 
 <script>
-  import Expanding from 'vue-bulma-expanding'
+  import Expanding from "vue-bulma-expanding";
 
   export default {
     components: {
@@ -49,66 +49,68 @@
       show: Boolean
     },
 
-    data () {
+    data() {
       return {
         version: VERSION,
         isReady: false
-      }
+      };
     },
 
-    mounted () {
-      let route = this.$route
+    mounted() {
+      let route = this.$route;
       if (route.name) {
-        this.isReady = true
-        this.shouldExpandMatchItem(route)
+        this.isReady = true;
+        this.shouldExpandMatchItem(route);
       }
     },
 
     computed: {
-      menu () {
-        return this.$store.state.menu
+      menu() {
+        return this.$store.state.menu;
       }
     },
 
     methods: {
-      isExpanded (item) {
-        return item.meta.expanded
+      isExpanded(item) {
+        return item.meta.expanded;
       },
 
-      toggle (item) {
-        item.meta.expanded = !item.meta.expanded
+      toggle(item) {
+        item.meta.expanded = !item.meta.expanded;
       },
 
-      shouldExpandMatchItem (route) {
-        let matched = route.matched
-        let lastMatched = matched[matched.length - 1]
-        let parent = lastMatched.parent || lastMatched
+      shouldExpandMatchItem(route) {
+        let matched = route.matched;
+        let lastMatched = matched[matched.length - 1];
+        let parent = lastMatched.parent || lastMatched;
 
         if (parent === lastMatched) {
-          const p = this.findParentFromMenu(route)
+          const p = this.findParentFromMenu(route);
           if (p) {
-            parent = p
+            parent = p;
           }
         }
 
-        if ('expanded' in parent.meta && parent !== lastMatched) {
-          parent.meta.expanded = true
+        if ("expanded" in parent.meta && parent !== lastMatched) {
+          parent.meta.expanded = true;
         }
       },
 
-      generatePath (item, subItem) {
-        return `${item.component ? item.path + '/' : ''}${subItem.path}`
+      generatePath(item, subItem) {
+        return `${item.component
+          ? item.path + "/"
+          : ""}${subItem.path}`;
       },
 
-      findParentFromMenu (route) {
-        const menu = this.menu
+      findParentFromMenu(route) {
+        const menu = this.menu;
         for (let i = 0, l = menu.length; i < l; i++) {
-          const item = menu[i]
-          const k = item.children && item.children.length
+          const item = menu[i];
+          const k = item.children && item.children.length;
           if (k) {
             for (let j = 0; j < k; j++) {
               if (item.children[j].name === route.name) {
-                return item
+                return item;
               }
             }
           }
@@ -117,13 +119,13 @@
     },
 
     watch: {
-      $route (route) {
-        this.isReady = true
-        this.shouldExpandMatchItem(route)
+      $route(route) {
+        this.isReady = true;
+        this.shouldExpandMatchItem(route);
       }
     }
 
-  }
+  };
 </script>
 
 <style lang="scss">
@@ -156,6 +158,7 @@
 
     .icon {
       vertical-align: baseline;
+
       &.is-angle {
         position: absolute;
         right: 10px;
@@ -168,6 +171,10 @@
     }
 
     .menu-list {
+      > li:nth-child(2) {
+        display: none;
+      }
+
       li a {
         &[aria-expanded="true"] {
           .is-angle {
@@ -179,6 +186,16 @@
       li a + ul {
         margin: 0 10px 0 15px;
       }
+
+      /*li:nth-child(2) > a {*/
+      /*  display: none;*/
+      /*}*/
+
+      li:nth-child(1) > ul > li:nth-child(1) > a {
+        display: none;
+      }
+
+
     }
 
   }
