@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="content is-fluid">
     <section class="section">
       <div class="columns">
         <div class="column">
@@ -9,20 +9,40 @@
           <div v-if="server_response" class="notification is-primary">
             {{ server_response }}
           </div>
-          <label class="label">Manual SSID</label>
-          <p class="control has-icon">
-            <input v-model="sta_ssid" class="input" type="text" placeholder="SSID">
-            <i class="fa fa-wifi"></i>
-          </p>
-          <label class="label">Password</label>
-          <p class="control has-icon">
-            <input v-model="sta_password" class="input" type="password" placeholder="Password">
-            <i class="fa fa-lock"></i>
-          </p>
-          <p class="control">
-            <button class="button is-primary" v-on:click.stop="onSubmit">Submit</button>
-            <button class="button is-danger" v-on:click.stop="onRunMode">Run Mode</button>
-          </p>
+          <div class="control">
+            <label v-show="toggle" class="label">Select SSID</label>
+            <div v-show="toggle" class="select control has-icon is-fluid">
+              <i class="fa fa-wifi"></i>
+              <select v-model="select_sta_ssid" style="padding-left: 2.25em">
+                <option v-for="option in output" v-bind:value="option">
+                  {{ option }}
+                </option>
+              </select>
+            </div>
+            <button v-show="toggle" v-bind:class="{ 'is-loading': isLoadAPList }" class="button is-warning">Refresh</button>
+
+
+            <label v-show="!toggle" class="label">Manual SSID</label>
+            <p class="control has-icon" v-show="!toggle">
+              <input v-model="manual_sta_ssid" class="input" type="text" placeholder="SSID">
+              <i class="fa fa-wifi"></i>
+            </p>
+
+            <div class="control is-half">
+              <label class="label">Password</label>
+              <p class="control has-icon">
+                <input v-model="sta_password" class="input" type="text" placeholder="Password">
+                <i class="fa fa-lock"></i>
+              </p>
+            </div>
+            <p class="control">
+              <button class="button is-primary" v-on:click.stop="onSubmit">Submit</button>
+              <!--              <button class="button" v-on:click.stop="onRunMode">Manual SSID</button>-->
+              <button v-show="toggle" class="button" v-on:click="toggle= !toggle">Manual SSID</button>
+              <button v-show="!toggle" class="button is-warning" v-on:click="toggle= !toggle">Select SSID</button>
+            </p>
+<!--            hi {{ ssid }}-->
+          </div>
         </div>
       </div>
     </section>
@@ -37,17 +57,45 @@
     props: {},
     mounted() {
       getSTAConfig(this).then((json) => {
-        this.sta_ssid = json.sta_ssid;
-        this.sta_password = json.sta_password;
+        console.log(json);
+        //this.xxx = this.ap_list.reduce(function(result, item) {
+        //  var key = Object.keys(item)[0]; //first property: a, b, c
+        //  result[key] = item[key];
+        //  return result;
+        //}, {});
+
+        setTimeout(() => {
+          this.ap_list = [...this.ap_list, ...json];
+          this.ap_list.forEach((val, idx) => {
+            this.output[val.ssid] = val.ssid;
+          });
+
+          this.output = Object.keys(this.output).sort(function(a, b) {
+            if (a < b) { return -1; }
+            if (a > b) { return 1; }
+            return 0;
+          });
+          console.log(this.output);
+          this.select_sta_ssid = this.output[0];
+          this.sta_password = "";
+          this.isLoadAPList = false;
+        }, 2000);
       })
         .catch((err) => {
           console.log("error:", err);
+          this.isLoadAPList = false;
         });
     },
     methods: {
       onSubmit() {
         let context = this;
-        saveSTAConfig(context, context.sta_ssid, context.sta_password)
+        context.ssid = "";
+        if (!context.toggle) {
+          context.ssid = context.manual_sta_ssid;
+        } else {
+          context.ssid = context.select_sta_ssid;
+        }
+        saveSTAConfig(context, context.ssid, context.sta_password)
           .then((resp) => {
             context.server_response = JSON.stringify(resp);
             context.saving = false;
@@ -58,21 +106,27 @@
           });
       },
       onRunMode() {
-        let c = confirm('Confirm to reboot?')
+        let c = confirm("Confirm to reboot?");
         let context = this;
         if (c) {
-          context.$http.get('/enable')
+          context.$http.get("/enable")
             .then((response) => {
-              context.server_response = response.text()
-            })
+              context.server_response = response.text();
+            });
         }
       }
     },
     data() {
       return {
+        toggle: true,
         server_response: "",
-        sta_ssid: null,
-        sta_password: null
+        select_sta_ssid: null,
+        manual_sta_ssid: null,
+        sta_password: null,
+        ap_list: [],
+        output: {},
+        isLoadAPList: true,
+        ssid: ""
       };
     },
     computed: {

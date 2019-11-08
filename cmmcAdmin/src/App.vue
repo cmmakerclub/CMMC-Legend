@@ -15,7 +15,7 @@
       Navbar,
       Sidebar,
       AppMain,
-      FooterBar
+      FooterBar,
     },
 
     beforeMount () {

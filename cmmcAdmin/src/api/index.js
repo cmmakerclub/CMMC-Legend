@@ -85,7 +85,7 @@ export function saveMqttConfig (context, options) {
 
 export function getSTAConfig (context) {
   let promise = new Vue.Promise((resolve, reject) => {
-    context.$http.get('/wifi.json')
+    context.$http.get('/api/ssid')
       .then((response) => response.json())
       .then((json) => {
         resolve(json)
