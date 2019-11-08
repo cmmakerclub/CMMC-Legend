@@ -13,6 +13,24 @@ void CMMC_Legend::addModule(CMMC_Module* module) {
   this->_serial_legend->printf("addModule.. size = %d\r\n", _modules.size());
 }
 
+
+void CMMC_Legend::scanWiFi() {
+    this->wifi_scanning = true;
+    int n = WiFi.scanNetworks();
+    this->_num_wifi = n;
+    this->_serial_legend->println("scan done");
+    // StaticJsonBuffer<400> jsonBuffer;
+    // StaticJsonBuffer<400> jsonDBuffer;
+    // JsonArray& array1 = jsonBuffer.createArray();
+    // int sizeToUse = 0;
+    if (n == 0) {
+        this->_serial_legend->println("no networks found");
+    } else {
+        this->_serial_legend->print(n);
+        this->_serial_legend->println(" networks found");
+    }
+    this->wifi_scanning = false;
+}
 // being called by os
 void CMMC_Legend::run() {
   // static CMMC_Legend *that;
@@ -23,6 +41,9 @@ void CMMC_Legend::run() {
     _modules[i]->loop();
     this->_loop_ms = millis();
   }
+  // if (must_scan) {
+  //
+  // }
   yield();
   // vTaskDelay(10)
 }
@@ -259,8 +280,7 @@ void CMMC_Legend::_init_ap() {
   this->_serial_legend->println("setting softap..");
 
   WiFi.softAP(this->ap_ssid, ap_ssid+strlen("DUST-"));
-
-
+  this->scanWiFi();
 
   Serial.println("WiFi.softAP called.");
   delay(20);
@@ -295,72 +315,54 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
     ESP.restart();
   });
 
-  server->on("/ssid", HTTP_GET, [](AsyncWebServerRequest * request) {
-    if (that->wifi_scanning) {
-        that->_serial_legend->println("ignore scanning wifi.");
-        return;
+  server->on("/api/ssid", HTTP_GET, [](AsyncWebServerRequest * request) {
+    while(that->wifi_scanning) {
+        that->_serial_legend->println("wait scanning wifi.");
+        delay(1);
     }
-    that->wifi_scanning = true;
-    int n = WiFi.scanNetworks();
-    that->_serial_legend->println("scan done");
+    int n = that->_num_wifi;
+    String s;
     // StaticJsonBuffer<400> jsonBuffer;
     // StaticJsonBuffer<400> jsonDBuffer;
     // JsonArray& array1 = jsonBuffer.createArray();
-    int sizeToUse = 0;
-    if (n == 0) {
-        that->_serial_legend->println("no networks found");
-    } else {
-        that->_serial_legend->print(n);
-        that->_serial_legend->println(" networks found");
-
-        if (n > 30) n = 30;
-        for (int i = 0; i < n; ++i) {
-          char b[200];
-          // JsonObject& dd = jsonDBuffer.createObject();
-          // dd["ssid"] = WiFi.SSID(i);
-          // dd["rssi"] = WiFi.RSSI(i);
-          // APlist.push_back(b);
-          int byteWritten = sprintf(b, "{\"ssid\": \"%s\", \"rssi\": %d}", WiFi.SSID(i).c_str(), WiFi.RSSI(i));
-          sizeToUse += byteWritten;
-          // that->_serial_legend->printf("size=%d, str=%s\r\n", byteWritten, b);
+    // int sizeToUse = 0;
+    // if (n == 0) {
+    //     that->_serial_legend->println("no networks found");
+    // } else {
+    //     that->_serial_legend->print(n);
+    //     that->_serial_legend->println(" networks found");
+    //     // if (n > 10) n = 10;
+    s += "[";
+        char b[200];
+        for (int i = 0; i < n-1; ++i) {
+          int byteWritten = sprintf(b, "{\"ssid\": \"%s\", \"rssi\": %d},", WiFi.SSID(i).c_str(), WiFi.RSSI(i));
+          s+= String(b);
           // sizeToUse += byteWritten;
-          // that->_serial_legend->println(b);
-            // // Print SSID and RSSI for each network found
-            // Serial.print(i + 1);
-            // Serial.print(": ");
-            // Serial.print(WiFi.SSID(i));
-            // Serial.print(" (");
-            // Serial.print(WiFi.RSSI(i));
-            // Serial.print(")");
-            // Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" ":"*");
-            // delay(10);
-            // array1.add(dd);
         }
-
-        // char* buffer = (char*)malloc(sizeToUse+1);
-
-        char *buffer= (char*)malloc(sizeToUse+1);
-        bzero(buffer, sizeToUse);
-        sizeToUse = 0;
-        buffer[0] = '[';
-        for (int i = 0; i < n; ++i) {
-          char b[200] ;
-          int byteWritten = sprintf(buffer+sizeToUse+1, "{\"ssid\": \"%s\", \"rssi\": %d},", WiFi.SSID(i).c_str(), WiFi.RSSI(i));
-          sizeToUse += byteWritten;
-        //   that->_serial_legend->println(b);
-        //   that->_serial_legend->printf("size=%d\r\n", strlen(buffer));
-        //   strcpy(buffer+sizeToUse, b);
-        //   that->_serial_legend->println(buffer);
-          that->_serial_legend->printf("idx=%d\r\n", i);
-          that->_serial_legend->printf("///idx=%d\r\n", i);
-        }
-        buffer[sizeToUse] = ']';
-        // array1.printTo(*that->_serial_legend);
-        // array1.printTo(x, sizeof(x));
-        request->send(200, "text/plain", buffer);
-        free(buffer);
-        that->wifi_scanning = false;
-    }
+    int byteWritten = sprintf(b, "{\"ssid\": \"%s\", \"rssi\": %d}", WiFi.SSID(n-1).c_str(), WiFi.RSSI(n-1));
+    s+= String(b);
+    s += "]";
+    //
+    //     // char* buffer = (char*)malloc(sizeToUse+1);
+    //     bzero(that->buffer, sizeToUse);
+    //     sizeToUse = 0;
+    //     that->buffer[0] = '[';
+    //     for (int i = 0; i < n; ++i) {
+    //       char b[200] ;
+    //       int byteWritten = sprintf(that->buffer+sizeToUse+1, "{\"ssid\": \"%s\", \"rssi\": %d},", WiFi.SSID(i).c_str(), WiFi.RSSI(i));
+    //       sizeToUse += byteWritten;
+    //     //   that->_serial_legend->println(b);
+    //     //   that->_serial_legend->printf("size=%d\r\n", strlen(that->buffer));
+    //     //   strcpy(that->buffer+sizeToUse, b);
+    //     //   that->_serial_legend->println(that->buffer);
+    //       that->_serial_legend->printf("idx=%d\r\n", i);
+    //       that->_serial_legend->printf("///idx=%d\r\n", i);
+    //     }
+    //     that->buffer[sizeToUse] = ']';
+    //     // array1.printTo(*that->_serial_legend);
+    //     // array1.printTo(x, sizeof(x));
+        request->send(200, "text/plain", (s));
+    //     free(that->buffer);
   });
 
 

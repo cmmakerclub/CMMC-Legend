@@ -64,6 +64,7 @@ class CMMC_Legend: public CMMC_System {
     void setup(os_config_t *);
     void configSetup(os_config_t *);
     void runSetup(os_config_t *);
+    void scanWiFi();
     uint32_t _loop_ms = 0;
 
   xCMMC_LED *getBlinker();
@@ -78,6 +79,7 @@ class CMMC_Legend: public CMMC_System {
   private:
     MODE mode;
     std::vector<CMMC_Module*> _modules;
+    int _num_wifi;
     void _init_ap();
     void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource *events);
     char ap_ssid[30] = "DUST-Legend";
@@ -88,6 +90,7 @@ class CMMC_Legend: public CMMC_System {
     bool SWITCH_PRESSED_LOGIC;
     uint8_t SWITCH_PIN_MODE;
     bool wifi_scanning = false;
+    char *buffer;
     std::function<void(char*, char*, IPAddress&)> _hook_init_ap;
     std::function<void(void)> _hook_button_pressed;
     std::function<void(void)> _hook_button_pressing;

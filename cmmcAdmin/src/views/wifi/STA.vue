@@ -65,7 +65,6 @@
         this.isLoadAPList = true;
         this.disable_submit = true;
         getSTAConfig(this).then((json) => {
-          console.log(json);
           setTimeout(() => {
             this.ap_list = [...this.ap_list, ...json];
             this.ap_list.forEach((val, idx) => {
@@ -77,15 +76,13 @@
               if (a > b) { return 1; }
               return 0;
             });
-            console.log(this.output);
             this.select_sta_ssid = this.output[0];
             this.sta_password = "";
             this.isLoadAPList = false;
             this.disable_submit = false;
-          }, 2000);
+          }, 1);
         })
           .catch((err) => {
-            console.log("error:", err);
             this.isLoadAPList = false;
           });
       },
@@ -108,10 +105,9 @@
             .catch((err) => {
               context.disable_submit = false;
               context.saving = false;
-              console.log(err);
             });
 
-        }, 2000);
+        }, 1);
       },
       onRunMode() {
         let c = confirm("Confirm to reboot?");
