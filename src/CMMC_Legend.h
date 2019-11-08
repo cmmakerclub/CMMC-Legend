@@ -87,6 +87,7 @@ class CMMC_Legend: public CMMC_System {
     uint8_t button_gpio;
     bool SWITCH_PRESSED_LOGIC;
     uint8_t SWITCH_PIN_MODE;
+    bool wifi_scanning = false;
     std::function<void(char*, char*, IPAddress&)> _hook_init_ap;
     std::function<void(void)> _hook_button_pressed;
     std::function<void(void)> _hook_button_pressing;
