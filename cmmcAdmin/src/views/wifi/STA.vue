@@ -36,12 +36,12 @@
               </p>
             </div>
             <p class="control">
-              <button class="button is-primary" v-on:click.stop="onSubmit">Submit</button>
+              <button v-bind:disabled="disable_submit" class="button is-primary" v-on:click.stop="onSubmit">Submit</button>
               <!--              <button class="button" v-on:click.stop="onRunMode">Manual SSID</button>-->
               <button v-show="toggle" class="button" v-on:click="toggle= !toggle">Manual SSID</button>
               <button v-show="!toggle" class="button is-warning" v-on:click="toggle= !toggle">Select SSID</button>
             </p>
-<!--            hi {{ ssid }}-->
+            <!--            hi {{ ssid }}-->
           </div>
         </div>
       </div>
@@ -79,6 +79,7 @@
           this.select_sta_ssid = this.output[0];
           this.sta_password = "";
           this.isLoadAPList = false;
+          this.disable_submit = false;
         }, 2000);
       })
         .catch((err) => {
@@ -90,20 +91,26 @@
       onSubmit() {
         let context = this;
         context.ssid = "";
+        context.disable_submit = true;
         if (!context.toggle) {
           context.ssid = context.manual_sta_ssid;
         } else {
           context.ssid = context.select_sta_ssid;
         }
-        saveSTAConfig(context, context.ssid, context.sta_password)
-          .then((resp) => {
-            context.server_response = JSON.stringify(resp);
-            context.saving = false;
-          })
-          .catch((err) => {
-            context.saving = false;
-            console.log(err);
-          });
+        setTimeout(() => {
+          saveSTAConfig(context, context.ssid, context.sta_password)
+            .then((resp) => {
+              context.disable_submit = false;
+              context.server_response = JSON.stringify(resp);
+              context.saving = false;
+            })
+            .catch((err) => {
+              context.disable_submit = false;
+              context.saving = false;
+              console.log(err);
+            });
+
+        }, 2000);
       },
       onRunMode() {
         let c = confirm("Confirm to reboot?");
@@ -123,6 +130,7 @@
         select_sta_ssid: null,
         manual_sta_ssid: null,
         sta_password: null,
+        disable_submit: true,
         ap_list: [],
         output: {},
         isLoadAPList: true,
