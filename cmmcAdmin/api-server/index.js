@@ -52,6 +52,7 @@ server.route(
       let json = [{ "ssid": "nat", "rssi": -90 }];
       let list = [
         { ssid: "Nat1" }, { ssid: " ...@Pinn Creative Space 1" },
+        { ssid: "Nat2" }, { ssid: " ...@Pinn Creative Space 2" },
         { ssid: "Jaylin Alexis" }, { ssid: "Stanley" },
         { ssid: "Denzel" }, { ssid: "Evelyn" },
         { ssid: "Sigmund Jaylin" }, { ssid: "Christopher Clint" },

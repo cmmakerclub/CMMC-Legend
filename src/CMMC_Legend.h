@@ -26,6 +26,7 @@
 #include "CMMC_System.hpp"
 #include <vector>
 #include "CMMC_Module.h"
+#include <DNSServer.h>
 
 static AsyncWebServer server(80);
 static AsyncWebSocket ws("/ws");
@@ -80,6 +81,7 @@ class CMMC_Legend: public CMMC_System {
     MODE mode;
     std::vector<CMMC_Module*> _modules;
     int _num_wifi;
+    DNSServer dnsServer;
     void _init_ap();
     void setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, AsyncEventSource *events);
     char ap_ssid[30] = "DUST-Legend";

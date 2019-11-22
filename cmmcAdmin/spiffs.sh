@@ -9,6 +9,9 @@ gzip dist/static/fonts/*
 gzip dist/static/img/*
 gzip dist/static/js/*
 
+rm -Rvf dist/static/img/*
+rm -Rvf dist/static/fonts/*
+
 
 
 #rm -v dist/static/fonts/*.ttf

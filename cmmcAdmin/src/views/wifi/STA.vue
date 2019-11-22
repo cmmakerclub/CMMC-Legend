@@ -66,6 +66,7 @@
         this.disable_submit = true;
         getSTAConfig(this).then((json) => {
           setTimeout(() => {
+            this.output = []
             this.ap_list = [...this.ap_list, ...json];
             this.ap_list.forEach((val, idx) => {
               this.output[val.ssid] = val.ssid;

@@ -204,6 +204,7 @@ void CMMC_Legend::init_network() {
 
     uint32_t startConfigLoopAtMs = millis();
     while (1 && !stopFlag) {
+      this->dnsServer.processNextRequest();
       if (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
           blinker->blink(1000);
           _serial_legend->println("=== button setuped to enabled.");
@@ -213,8 +214,8 @@ void CMMC_Legend::init_network() {
       }
 
       for (int i = 0 ; i < _modules.size(); i++) {
+        this->dnsServer.processNextRequest();
         _modules[i]->configLoop();
-
         yield();
       }
 
@@ -250,6 +251,29 @@ xCMMC_LED *CMMC_Legend::getBlinker() {
   return blinker;
 }
 
+class CaptiveRequestHandler : public AsyncWebHandler {
+public:
+  CaptiveRequestHandler() {}
+  virtual ~CaptiveRequestHandler() {}
+
+  bool canHandle(AsyncWebServerRequest *request){
+    //request->addInterestingHeader("ANY");
+    return true;
+  }
+
+  void handleRequest(AsyncWebServerRequest *request) {
+    AsyncResponseStream *response = request->beginResponseStream("text/html");
+    response->print("<!DOCTYPE html><html><head><title>Captive Portal</title><META HTTP-EQUIV=\"Refresh\" CONTENT=\"0;URL=http://192.168.4.1\"></head><body>");
+
+    response->print("");
+    // response->printf("<p>You were trying to reach: http://%s%s</p>", request->host().c_str(), request->url().c_str());
+    // response->printf("<p>Try opening <a href='http://%s'>this link</a> instead</p>", WiFi.softAPIP().toString().c_str());
+    response->print("</body></html>");
+    request->send(response);
+  }
+};
+
+
 void CMMC_Legend::_init_ap() {
   WiFi.disconnect(true);
   WiFi.softAPdisconnect();
@@ -258,10 +282,13 @@ void CMMC_Legend::_init_ap() {
   esp_wifi_set_ps (WIFI_PS_NONE);
   WiFi.setSleep(false);
   delay(50);
+  this->scanWiFi();
+  delay(50);
   IPAddress Ip(192, 168, 4, 1);
   IPAddress NMask(255, 255, 255, 0);
   this->_serial_legend->println("setting softAPConfig..");
   WiFi.softAPConfig(Ip, Ip, NMask);
+  const byte DNS_PORT = 53;
 
 
   #ifdef ESP8266
@@ -279,12 +306,14 @@ void CMMC_Legend::_init_ap() {
   this->_serial_legend->println(this->ap_ssid);
   this->_serial_legend->println("setting softap..");
 
+
   WiFi.softAP(this->ap_ssid, ap_ssid+strlen("DUST-"));
-  this->scanWiFi();
 
   Serial.println("WiFi.softAP called.");
   delay(20);
   IPAddress myIP = WiFi.softAPIP();
+  this->dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+  this->dnsServer.start(DNS_PORT, "*", myIP);
   this->_serial_legend->println();
   this->_serial_legend->print("AP IP address: ");
   this->_serial_legend->println(myIP);
@@ -302,8 +331,25 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
   events->onConnect([](AsyncEventSourceClient * client) {
     client->send("hello!", NULL, millis(), 1000);
   });
+
   server->addHandler(events);
   // server->addHandler(new SPIFFSEditor(http_username, http_password));
+  // server->on("/generate_204", [](AsyncWebServerRequest * request) {
+  //   // response->addHeader("Connection", "close");
+  //   // response->addHeader("Access-Control-Allow-Origin", "*");
+  //   // AsyncWebServerResponse *response = request->beginResponse(200, "text/html", serverIndex);
+  //   // response->addHeader("Connection", "close");
+  //   // response->addHeader("Access-Control-Allow-Origin", "*");
+  //   request->send(200, "text/plain", "OK");
+  // });
+  //
+  // server->on("/gen_204", [](AsyncWebServerRequest * request) {
+  //   that->_serial_legend->println("gen_204 called.");
+  //   request->send(200, "text/plain", "OK");
+  // });
+  // server->on("/fwlink", [](AsyncWebServerRequest * request) {
+  //   request->send(200, "text/plain", "OK");
+  // });
 
   server->on("/heap", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(200, "text/plain", String(ESP.getFreeHeap()));
@@ -575,6 +621,7 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
     request->send(404);
   });
 
+  server->addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER);//only when requested0
   server->begin();
   that->_serial_legend->println("Starting webserver->...");
   SCREEN = 3;
