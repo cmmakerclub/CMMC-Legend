@@ -600,10 +600,10 @@ void CMMC_Legend::setupWebServer(AsyncWebServer *server, AsyncWebSocket *ws, Asy
 
     int headers = request->headers();
     int i;
-    // for (i = 0; i < headers; i++) {
-    //   // AsyncWebHeader* h = request->getHeader(i);
-    //   // that->_serial_legend->printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
-    // }
+    for (i = 0; i < headers; i++) {
+      AsyncWebHeader* h = request->getHeader(i);
+      that->_serial_legend->printf("_HEADER[%s]: %s\n", h->name().c_str(), h->value().c_str());
+    }
 
     int params = request->params();
     for (i = 0; i < params; i++) {
