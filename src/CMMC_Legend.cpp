@@ -89,6 +89,7 @@ void CMMC_Legend::setup(os_config_t *config) {
     this->SWITCH_PRESSED_LOGIC = config->SWITCH_PRESSED_LOGIC;
     this->SWITCH_PIN_MODE = config->SWITCH_PIN_MODE;
     this->_hook_init_ap = config->hook_init_ap;
+    this->_hook_before_init_ap = config->hook_before_init_ap;
     this->_hook_button_pressed = config->hook_button_pressed;
     this->_hook_button_released = config->hook_button_released;
     this->_hook_button_pressing = config->hook_button_pressing;
@@ -183,10 +184,14 @@ void CMMC_Legend::init_network() {
 
   if (mode == CONFIG) {
     _serial_legend->println("------ configSetup --------");
+    if (_hook_before_init_ap != NULL) {
+      _hook_before_init_ap();
+    }
     for (int i = 0 ; i < _modules.size(); i++) {
     _serial_legend->printf("calling %s.configSetup()\r\n", _modules[i]->name());
       _modules[i]->configSetup();
     }
+
 
     _serial_legend->println("---------------------------");
     _init_ap();
