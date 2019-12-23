@@ -67,6 +67,8 @@ class CMMC_Legend: public CMMC_System {
     void runSetup(os_config_t *);
     void scanWiFi();
     uint32_t _loop_ms = 0;
+    bool enable_run_mode();
+    bool enable_config_mode();
 
   xCMMC_LED *getBlinker();
   protected:
@@ -75,7 +77,6 @@ class CMMC_Legend: public CMMC_System {
     void init_user_sensor();
     void init_user_config();
     void init_network();
-    bool enable_run_mode(bool status);
 
   private:
     MODE mode;

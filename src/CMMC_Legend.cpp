@@ -48,14 +48,12 @@ void CMMC_Legend::run() {
   // vTaskDelay(10)
 }
 
-bool CMMC_Legend::enable_run_mode(bool status) {
-  if (status) {
-    File f = SPIFFS.open("/enabled", "a+");
-    return f;
-  }
-  else {
-      return SPIFFS.remove("/enabled");
-  }
+bool CMMC_Legend::enable_run_mode() {
+  return SPIFFS.open("/enabled", "a+");
+}
+
+bool CMMC_Legend::enable_config_mode() {
+  return SPIFFS.remove("/enabled");
 }
 
 void CMMC_Legend::isLongPressed() {
@@ -72,7 +70,8 @@ void CMMC_Legend::isLongPressed() {
         while (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
           delay(10);
         }
-        enable_run_mode(false);
+        // enable_run_mode(false);
+        enable_config_mode();
         _serial_legend->println("being restarted.");
         delay(1000);
         ESP.restart();
@@ -208,7 +207,7 @@ void CMMC_Legend::init_network() {
       if (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
           blinker->blink(1000);
           _serial_legend->println("=== button setuped to enabled.");
-          enable_run_mode(true);
+          enable_run_mode();
           delay(300);
           ESP.restart();
       }
@@ -225,14 +224,14 @@ void CMMC_Legend::init_network() {
           _serial_legend->println("[Config Timeout]...");
           _serial_legend->println("[Config Timeout]...");
           _serial_legend->println("[Config Timeout]...");
-          enable_run_mode(true);
+          enable_run_mode();
           delay(100);
           ESP.restart();
       }
     }
 
 
-    File f = SPIFFS.open("/enabled", "a+");
+    enable_run_mode();
     blinker->blink(50);
     ESP.restart();
   }
