@@ -100,7 +100,6 @@ void CMMC_Legend::setup(os_config_t *config) {
 
     init_gpio();
 
-    pinMode(this->button_gpio, this->SWITCH_PIN_MODE);
     blinker = new xCMMC_LED;
     blinker->init();
     blinker->setPin(config->BLINKER_PIN);
@@ -109,7 +108,6 @@ void CMMC_Legend::setup(os_config_t *config) {
     init_fs();
 
     init_user_config();
-
     init_user_sensor();
     init_network();
 
@@ -131,6 +129,7 @@ void CMMC_Legend::setup(os_config_t *config) {
 
 void CMMC_Legend::init_gpio() {
   _serial_legend->println("OS::Init GPIO..");
+  pinMode(this->button_gpio, this->SWITCH_PIN_MODE);
   delay(10);
 }
 
@@ -172,11 +171,13 @@ void CMMC_Legend::init_user_config() {
 
 void CMMC_Legend::init_network() {
   _serial_legend->println("Initializing network.");
-    _serial_legend->println("------- config ----------");
+  _serial_legend->println("------- config ----------");
+
   for (int i = 0 ; i < _modules.size(); i++) {
     _serial_legend->printf("calling %s.config()\r\n", _modules[i]->name());
     _modules[i]->config(this, &server);
   }
+
   if(this->_hook_config_loaded) {
     this->_hook_config_loaded();
   }
@@ -187,15 +188,14 @@ void CMMC_Legend::init_network() {
     if (_hook_before_init_ap != NULL) {
       _hook_before_init_ap();
     }
+
     for (int i = 0 ; i < _modules.size(); i++) {
     _serial_legend->printf("calling %s.configSetup()\r\n", _modules[i]->name());
       _modules[i]->configSetup();
     }
 
-
     _serial_legend->println("---------------------------");
     _init_ap();
-
     setupWebServer(&server, &ws, &events);
 
     _serial_legend->printf("after setupWebserver\r\n");
