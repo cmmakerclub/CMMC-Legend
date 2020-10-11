@@ -12,8 +12,6 @@ gzip dist/static/js/*
 rm -Rvf dist/static/img/*
 rm -Rvf dist/static/fonts/*
 
-
-
 #rm -v dist/static/fonts/*.ttf
 #rm -v dist/static/fonts/*.woff
 #rm -v dist/static/fonts/*.woff2
@@ -22,3 +20,5 @@ rm -Rvf dist/static/fonts/*
 #rm -v dist/static/js/*.js
 #rm -v dist/static/js/*.js
 #rm -v dist/static/css/*.css
+
+rsync -av dist/ ../data

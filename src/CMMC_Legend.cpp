@@ -184,61 +184,64 @@ void CMMC_Legend::init_network() {
   _serial_legend->println("---------------------------");
 
   if (mode == CONFIG) {
-    _serial_legend->println("------ configSetup --------");
-    if (_hook_before_init_ap != NULL) {
-      _hook_before_init_ap();
-    }
+      enable_run_mode();
+      ESP.deepSleep(1);
 
-    for (int i = 0 ; i < _modules.size(); i++) {
-    _serial_legend->printf("calling %s.configSetup()\r\n", _modules[i]->name());
-      _modules[i]->configSetup();
-    }
-
-    _serial_legend->println("---------------------------");
-    _init_ap();
-    setupWebServer(&server, &ws, &events);
-
-    _serial_legend->printf("after setupWebserver\r\n");
-    if (blinker) {
-      blinker->blink(50);
-    }
-    else {
-      _serial_legend->println("no blinker");
-    }
-
-    uint32_t startConfigLoopAtMs = millis();
-    while (1 && !stopFlag) {
-      this->dnsServer.processNextRequest();
-      if (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
-          blinker->blink(1000);
-          _serial_legend->println("=== button setuped to enabled.");
-          enable_run_mode();
-          delay(300);
-          ESP.restart();
-      }
-
-      for (int i = 0 ; i < _modules.size(); i++) {
-        this->dnsServer.processNextRequest();
-        _modules[i]->configLoop();
-        yield();
-      }
-
-      if ( (millis() - startConfigLoopAtMs) > 20L*60*1000) {
-          _serial_legend->println("3.");
-          _serial_legend->println("[Config Timeout]...");
-          _serial_legend->println("[Config Timeout]...");
-          _serial_legend->println("[Config Timeout]...");
-          _serial_legend->println("[Config Timeout]...");
-          enable_run_mode();
-          delay(100);
-          ESP.restart();
-      }
-    }
-
-
-    enable_run_mode();
-    blinker->blink(50);
-    ESP.restart();
+    // _serial_legend->println("------ configSetup --------");
+    // if (_hook_before_init_ap != NULL) {
+    //   _hook_before_init_ap();
+    // }
+    //
+    // for (int i = 0 ; i < _modules.size(); i++) {
+    // _serial_legend->printf("calling %s.configSetup()\r\n", _modules[i]->name());
+    //   _modules[i]->configSetup();
+    // }
+    //
+    // _serial_legend->println("---------------------------");
+    // _init_ap();
+    // setupWebServer(&server, &ws, &events);
+    //
+    // _serial_legend->printf("after setupWebserver\r\n");
+    // if (blinker) {
+    //   blinker->blink(50);
+    // }
+    // else {
+    //   _serial_legend->println("no blinker");
+    // }
+    //
+    // uint32_t startConfigLoopAtMs = millis();
+    // while (1 && !stopFlag) {
+    //   this->dnsServer.processNextRequest();
+    //   if (digitalRead(this->button_gpio) == this->SWITCH_PRESSED_LOGIC) {
+    //       blinker->blink(1000);
+    //       _serial_legend->println("=== button setuped to enabled.");
+    //       enable_run_mode();
+    //       delay(300);
+    //       ESP.restart();
+    //   }
+    //
+    //   for (int i = 0 ; i < _modules.size(); i++) {
+    //     this->dnsServer.processNextRequest();
+    //     _modules[i]->configLoop();
+    //     yield();
+    //   }
+    //
+    //   if ( (millis() - startConfigLoopAtMs) > 20L*60*1000) {
+    //       _serial_legend->println("3.");
+    //       _serial_legend->println("[Config Timeout]...");
+    //       _serial_legend->println("[Config Timeout]...");
+    //       _serial_legend->println("[Config Timeout]...");
+    //       _serial_legend->println("[Config Timeout]...");
+    //       enable_run_mode();
+    //       delay(100);
+    //       ESP.restart();
+    //   }
+    // }
+    //
+    //
+    // enable_run_mode();
+    // blinker->blink(50);
+    // ESP.restart();
   }
   else if (mode == RUN) {
     blinker->blink(4000);
